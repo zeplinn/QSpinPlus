@@ -1,0 +1,32 @@
+<RCC>
+    <qresource prefix="/">
+	<file>qspin.qml</file>
+	<file>Reusables/qmldir</file>
+	<file>Reusables/QsButton.qml</file>
+	<file>Reusables/QsButtonSquare.qml</file>
+	<file>Reusables/QsCodeEditor.qml</file>
+	<file>Reusables/QsComboBox.qml</file>
+	<file>Reusables/QsGroup.qml</file>
+	<file>Reusables/QsHeader.qml</file>
+	<file>Reusables/QsPane.qml</file>
+	<file>Reusables/QsRadioIconButtons.qml</file>
+	<file>Reusables/QsResultLabel.qml</file>
+	<file>Reusables/QsSpinBox.qml</file>
+	<file>Reusables/QsText.qml</file>
+	<file>Reusables/QsTextEdit.qml</file>
+	<file>Reusables/QsToolButton.qml</file>
+	<file>Reusables/QsScrollbar.qml</file>
+	<file>Reusables/QsTabBar.qml</file>
+	<file>Reusables/QsTabButton.qml</file>
+	<file>Views/QsGraphView.qml</file>
+	<file>Views/QsInteractiveView.qml</file>
+	<file>Views/QsSimulationView.qml</file>
+	<file>Views/QsVerificationView.qml</file>
+	<file>Views/QsVerifyResults.qml</file>
+	<file>Views/QsVerifySettingsGroup.qml</file>
+	<file>Views/qmldir</file>
+	<file>Views/QsToolViews.qml</file>
+	<file>Views/QsNewProjectDialog.qml</file>
+	<file>Reusables/QsSelectionBar.qml</file>
+    </qresource>
+</RCC>

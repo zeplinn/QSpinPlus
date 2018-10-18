@@ -1,0 +1,33 @@
+{
+    "pml":"simple.pml",
+    "configs":[
+        {
+            "name":"safty",
+            "mode":{
+                "useLocal": true,
+                "value":0
+            },
+            "searchBy":{
+                "useLocal": true,
+                "value":"DFS"
+            },
+            "fairnes":{
+                "useLocal": true,
+                "value":"Weak"
+            },
+            "searchDepth":{
+                "useLocal": true,
+                "value":10000
+            },
+            "hashValue":{
+                "useLocal": true,
+                "value":0
+            },
+            "memoryCompression":{
+                "useLocal": true,
+                "value":"None"
+            },
+            "ltl":""
+        }
+    ]
+}

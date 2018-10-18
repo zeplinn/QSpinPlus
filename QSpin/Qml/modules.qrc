@@ -1,0 +1,17 @@
+<RCC>
+    <qresource prefix="/QSpin">
+        <file>Reusables/qmldir</file>
+        <file>Reusables/QsButton.qml</file>
+        <file>Reusables/QsButtonSquare.qml</file>
+        <file>Reusables/QsCodeEditor.qml</file>
+        <file>Reusables/QsComboBox.qml</file>
+        <file>Reusables/QsGroup.qml</file>
+        <file>Reusables/QsHeader.qml</file>
+        <file>Reusables/QsPane.qml</file>
+        <file>Reusables/QsRadioIconButtons.qml</file>
+        <file>Reusables/QsResultLabel.qml</file>
+        <file>Reusables/QsSpinBox.qml</file>
+        <file>Reusables/QsText.qml</file>
+        <file>Reusables/QsTextEdit.qml</file>
+    </qresource>
+</RCC>

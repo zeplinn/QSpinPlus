@@ -1,0 +1,7 @@
+<RCC>
+    <qresource prefix="test">
+        <file>files/spin/simple.pml</file>
+        <file>files/spin/simple.json</file>
+        <file>files/spin/mutual_peterson_result.xml</file>
+    </qresource>
+</RCC>

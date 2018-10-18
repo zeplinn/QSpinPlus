@@ -1,0 +1,7 @@
+module QSpin.Qml.Views
+QsGraphView 1.0 QsGraphView.qml
+QsInteractiveView 1.0 QsInteractiveView.qml
+QsSimulationView 1.0 QsSimulationView.qml
+QsVerificationView 1.0 QsVerificationView.qml
+QsToolViews 1.0 QsToolViews.qml
+QsNewProjectDialog 1.0 QsNewProjectDialog.qml

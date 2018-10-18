@@ -1,0 +1,2 @@
+#include "QsSpinConfigurationTesting.h"
+
