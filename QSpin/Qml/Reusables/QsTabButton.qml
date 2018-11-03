@@ -13,7 +13,7 @@ TabButton {
         text: btnId.text
         verticalAlignment: Text.AlignVCenter
         horizontalAlignment: Text.AlignHCenter
-        color: checked ? QsStyle.highlightColor: QsStyle.textColor
+		color: hovered ? QsStyle.general.hovered: QsStyle.button.foreground
 
     }
 
@@ -24,9 +24,9 @@ TabButton {
               return Qt.rgba(c,c,c,1)
           }
 
-        color: checked ? selcolor :"transparent"
+		color: checked ? QsStyle.button.pressed : "transparent"
         border.width:  checked ? 1 : 0
-        border.color:  "black"
+		border.color:  QsStyle.button.border
         radius: 2
 
     }

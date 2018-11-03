@@ -1,7 +1,12 @@
 <RCC>
-    <qresource prefix="test">
+    <qresource prefix="/test">
         <file>files/spin/simple.pml</file>
         <file>files/spin/simple.json</file>
         <file>files/spin/mutual_peterson_result.xml</file>
+        <file>files/colorscheme/buttonStyle.scheme</file>
+        <file>files/colorscheme/generalStyle.scheme</file>
+        <file>files/colorscheme/spinboxStyle.scheme</file>
+        <file>files/colorscheme/comboboxStyle.scheme</file>
     </qresource>
+    <qresource prefix="/"/>
 </RCC>

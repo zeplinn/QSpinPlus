@@ -2,6 +2,7 @@ module QSpin.Qml.Reusables
 
 QsButton 1.0 QsButton.qml
 QsButtonSquare 1.0 QsButtonSquare.qml
+QsCheckableButton 1.0 QsCheckableButton.qml
 QsToolButton 1.0 QsToolButton.qml
 QsCodeEditor 1.0 QsCodeEditor.qml
 QsComboBox 1.0 QsComboBox.qml
@@ -14,6 +15,7 @@ QsScrollBar 1.0 QsScrollbar.qml
 QsSpinBox 1.0 QsSpinBox.qml
 QsTabButton 1.0 QsTabButton.qml
 QsTabBar 1.0 QsTabBar.qml
+QsTable 1.0 QsTable.qml
 QsText 1.0 QsText.qml
 QsTextEdit 1.0 QsTextEdit.qml
 QsSelectionBar 1.0 QsSelectionBar.qml

@@ -20,7 +20,7 @@ QsDivider::QsDivider(QQuickItem *parent):QQuickPaintedItem(parent) {setHeight(1)
 
 void QsDivider::paint(QPainter *painter){
     QPen pen(color());
-
+    pen.setWidth(_thickness);
     if(_isDottedLine)
         pen.setStyle(Qt::DotLine);
     painter->setPen(pen);
@@ -29,6 +29,7 @@ void QsDivider::paint(QPainter *painter){
         painter->drawLine(0,0,width(),0);
     }
     else if(oritentation()==Qt::Vertical){
+
         painter->drawLine(0,0,0,height());
     }
 }

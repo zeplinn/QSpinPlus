@@ -1,7 +1,18 @@
 <RCC>
-    <qresource prefix="icons">
-	<file>close.png</file>
-	<file>maximize.png</file>
-	<file>minimize.png</file>
+    <qresource prefix="/icons">
+        <file>close.png</file>
+        <file>maximize.png</file>
+        <file>minimize.png</file>
+        <file>Acceptance.png</file>
+        <file>Acceptance2x.png</file>
+        <file>File Icon.png</file>
+        <file>open.png</file>
+        <file>Progress.png</file>
+        <file>Progress2x.png</file>
+        <file>Safty.png</file>
+        <file>Safty2x.png</file>
+        <file>save.png</file>
+        <file>Settings Icon.png</file>
+        <file>Settings Icon2x.png</file>
     </qresource>
 </RCC>

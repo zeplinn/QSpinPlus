@@ -14,33 +14,21 @@
 #include "qspin/cppView/QsDivider.h"
 #include "qspin/cppView/TextGutterArea.h"
 #include "qspin/viewModels/QsHandler.h"
+#include "qspin/viewModels/ColorScheme.h"
+#include "qspin/models/QsVerificationConfiguration.h"
+#include "qspin/models/Arg.h"
+#include "qspin/viewModels/QsVerifySettingsGroupHandler.h"
 class QSpinMain : public QObject
 {
 		Q_OBJECT
 		EventAggregator& msgService;
 	public:
-		static void registerAllQmlTypes(){
-			const char space[] = "QSpin.CppItems";
+        static void registerAllQmlTypes();
 
-			qmlRegisterType<QsHandler>(space,1,0,"QsHandler");
-			qmlRegisterType<QsError>(space,1,0,"QsError");
-			qmlRegisterType<QsCodeEditorHandler>(space,1,0,"QsCodeEditorHandler");
-			qmlRegisterType<QsVerifyHandler>(space,1,0,"QsVerifyHandler");
-			qmlRegisterType<QsVerifyResultHandler>(space,1,0,"QsVerifyResultHandler");
-			qmlRegisterUncreatableType<QsStyle>(space,1,0,"QsStyle","is an attached object only");
+        void loadColorScheme(const QString filename);
 
-			qmlRegisterType<QsDivider>(space,1,0,"QsDivider");
-			qmlRegisterType<TextGutterArea>(space,1,0,"QsTextGutterArea");
-		}
 		explicit QSpinMain(QObject *parent = nullptr,EventAggregator& msgService = Qs::instance().msgService());
-		Q_INVOKABLE qsProject_ptr createNewProject(const QString& name,const QUrl filePath){
-			QFile f(filePath.toLocalFile());
-			QFileInfo fInfo(f);
-			if(!fInfo.dir().exists())
-				fInfo.dir().mkdir(fInfo.absoluteDir().path());
-
-			return qsProject_ptr(nullptr);
-		}
+        Q_INVOKABLE qsProject_ptr createNewProject(const QString& name,const QUrl filePath);
 	signals:
 
 	public slots:

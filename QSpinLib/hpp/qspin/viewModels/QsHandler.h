@@ -39,7 +39,8 @@ class QsHandler : public QObject
 			return true;
 		}
 		static bool loadProject(QsProject* project){
-
+Q_UNUSED(project)
+            return false;
 		}
 	signals:
 

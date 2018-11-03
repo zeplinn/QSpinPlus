@@ -102,6 +102,7 @@ public:
 private:
     void start(const QString& _unix,const QStringList& options){
 #ifdef Q_OS_WIN
+        Q_UNUSED(_unix)
 		process->start("powershell",options);
 #else
         process->start(_unix,options);

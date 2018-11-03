@@ -11,9 +11,9 @@ typedef QsConfigVariable::type_t _qst;
 }
 QsSpinConfig::QsSpinConfig(const QString configName):
     _name(configName),
-    _mode(_qst::Mode,static_cast<int>(Arg::Safty)),
-    _searchBy(_qst::SearchBy,static_cast<int>(Arg::DFS)),
-    _fairnes(_qst::Fairnes,static_cast<int>(Arg::StrongFairnes)),
+    _mode(_qst::Mode,static_cast<int>(Arg::SafetyMode)),
+    _searchBy(_qst::SearchBy,static_cast<int>(Arg::None)),
+    _fairnes(_qst::Fairnes,static_cast<int>(Arg::None)),
     _searchDepth(_qst::SearchDepth,10000),
     _hashValue(_qst::HashValue),
     _memoryCompression(_qst::MemoryCompression,static_cast<int>(Arg::None))
@@ -90,7 +90,7 @@ void QsConfigVariable::read(const QJsonObject &obj){
             throw make_error_code(QsJsonErrc::InvalidValueFormat);
         _value = v.toInt(-1);
     }
-    else _value = Arg::toCode(v.toString());
+    else _value =1;// Arg::toCode(v.toString());
 }
 
 void QsConfigVariable::write(QJsonObject &obj) const{

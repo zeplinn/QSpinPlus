@@ -115,67 +115,67 @@
 
 void QsSpinRun::setArguments( QsSpinConfig &config, const QString &filename)
 {
-	spinOptions.clear();
-	gccOptions.clear();
-	panOptions.clear();
-	// prefix arguments;
-#ifdef Q_OS_WIN
-	// wsl = generel windows command for any added linux subsystem
-	//, directly in the path of where the process is opend
-	// it removes the need of pathing difference between linux/ windows
-	// as relative path only can be used proberly now
-	spinOptions << "wsl" << "spin";
-	gccOptions << "wsl" << "gcc";
-	panOptions << "wsl" << "./pan";
-#endif
+//	spinOptions.clear();
+//	gccOptions.clear();
+//	panOptions.clear();
+//	// prefix arguments;
+//#ifdef Q_OS_WIN
+//	// wsl = generel windows command for any added linux subsystem
+//	//, directly in the path of where the process is opend
+//	// it removes the need of pathing difference between linux/ windows
+//	// as relative path only can be used proberly now
+//	spinOptions << "wsl" << "spin";
+//	gccOptions << "wsl" << "gcc";
+//	panOptions << "wsl" << "./pan";
+//#endif
 
-	switch (config.mode().value()) {
-	case Arg::Accepance:
-		spinOptions << getLtlArguments(config);
-		spinOptions << Arg::val(Arg::Verify) << filename;
-		break;
-	case Arg::Safty:
-	case Arg::Liveness:
-		spinOptions << Arg::val(Arg::Verify) << filename;
-		break;
-	case Arg::Simulation:
-	case Arg::InterActive:
-		qFatal(" simulation/interactive spin set arguments is missing implmentation");
-		break;
-	}
+//	switch (config.mode().value()) {
+//	case Arg::AccepanceMode:
+//		spinOptions << getLtlArguments(config);
+//		spinOptions << Arg::val(Arg::Verify) << filename;
+//		break;
+//	case Arg::SaftyMode:
+//	case Arg::ProgressMode:
+//		spinOptions << Arg::val(Arg::Verify) << filename;
+//		break;
+//	case Arg::Simulation:
+//	case Arg::InterActive:
+//		qFatal(" simulation/interactive spin set arguments is missing implmentation");
+//		break;
+//	}
 
-	// gcc options for verify only so far;
-	switch (config.mode().value()) {
-	case Arg::Safty:
-	case Arg::Accepance:
-	case Arg::Liveness:
-		gccOptions << defaultGccArgs(config);
-		break;
-	case Arg::Simulation:
-	case Arg::InterActive:
-		qFatal("simulation/ interactive gcc arguments not yet implemted");
-	}
+//	// gcc options for verify only so far;
+//	switch (config.mode().value()) {
+//	case Arg::SaftyMode:
+//	case Arg::AccepanceMode:
+//	case Arg::ProgressMode:
+//		gccOptions << defaultGccArgs(config);
+//		break;
+//	case Arg::Simulation:
+//	case Arg::InterActive:
+//		qFatal("simulation/ interactive gcc arguments not yet implemted");
+//	}
 
-	// set pan options
+//	// set pan options
 
-	switch (config.mode().value()) {
-	case Arg::Safty:
-		break;
-	case Arg::Liveness:
-		panOptions << Arg::val(Arg::Liveness);
-		if(config.fairnes().value() == Arg::WeakFairness)
-			panOptions << Arg::val(Arg::WeakFairness);
-		break;
-	case Arg::Accepance:
-		panOptions << Arg::val(Arg::Accepance);
-		if(config.fairnes().value()==Arg::WeakFairness)
-			panOptions << Arg::val(Arg::WeakFairness);
-	}
+//	switch (config.mode().value()) {
+//	case Arg::SaftyMode:
+//		break;
+//	case Arg::ProgressMode:
+//		panOptions << Arg::val(Arg::ProgressMode);
+//		if(config.fairnes().value() == Arg::WeakFairness)
+//			panOptions << Arg::val(Arg::WeakFairness);
+//		break;
+//	case Arg::AccepanceMode:
+//		panOptions << Arg::val(Arg::AccepanceMode);
+//		if(config.fairnes().value()==Arg::WeakFairness)
+//			panOptions << Arg::val(Arg::WeakFairness);
+//	}
 
-	if(config.searchDepth().value()>0)
-		panOptions << Arg::val(Arg::SearchDepth,QString::number(config.searchDepth().value()));
-	if(config.hashValue().value()>0)
-		panOptions << Arg::val(Arg::HashSize,QString::number(config.hashValue().value()));
+//	if(config.searchDepth().value()>0)
+//		panOptions << Arg::val(Arg::SearchDepth,QString::number(config.searchDepth().value()));
+//	if(config.hashValue().value()>0)
+//		panOptions << Arg::val(Arg::HashSize,QString::number(config.hashValue().value()));
 
 }
 
@@ -187,28 +187,28 @@ QStringList QsSpinRun::defaultGccArgs( QsSpinConfig &config){
 	args << "gcc";
 #endif
 
-	switch (config.memoryCompression().value()) {
-	case Arg::DCollapse:
-		args << Arg::val(Arg::DCollapse); break;
-	case Arg::DH4:
-		args << Arg::val(Arg::DCollapse); break;
-	default: break;
-	}
+//	switch (config.memoryCompression().value()) {
+//	case Arg::Collapse:
+//		args << Arg::val(Arg::Collapse); break;
+//	case Arg::DH4:
+//		args << Arg::val(Arg::Collapse); break;
+//	default: break;
+//	}
 
 
-	switch (config.mode().value()) {
-	case Arg::Safty:
-		args << Arg::val(Arg::DSafty);
-		break;
-	case Arg::Liveness:
-		args << Arg::val(Arg::DNP);
-		break;
-	case Arg::Accepance:
-		break;
-	}
+//	switch (config.mode().value()) {
+//	case Arg::SaftyMode:
+//		args << Arg::val(Arg::Safety);
+//		break;
+//	case Arg::ProgressMode:
+//		args << Arg::val(Arg::NonProgressCycle);
+//		break;
+//	case Arg::AccepanceMode:
+//		break;
+//	}
 
-	if(config.searchBy().value() == Arg::BFS)
-		args << Arg::val(Arg::BFS);
+//	if(config.searchBy().value() == Arg::BFS)
+//		args << Arg::val(Arg::BFS);
 	return args;
 }
 

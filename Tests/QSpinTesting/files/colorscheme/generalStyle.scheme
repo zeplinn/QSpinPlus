@@ -1,0 +1,10 @@
+{
+    "general":{
+        "foreground":[250,250,250],
+        "background":[55,55,55],
+        "hovered":[47,47,47],
+        "border":[33,33,33],
+        "menubarGradiant0":[60,60,60],        
+        "menubarGradiant1":[50,50,50]
+    }
+}

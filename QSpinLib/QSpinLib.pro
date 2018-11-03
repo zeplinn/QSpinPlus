@@ -41,7 +41,11 @@ SOURCES += \
     src/models/QsSpinRun.cpp \
     src/viewModels/QSpinMain.cpp \
     src/viewModels/QsSpinRunner.cpp \
-    src/viewModels/QsCreateProjectHandler.cpp
+    src/viewModels/QsCreateProjectHandler.cpp \
+    src/viewModels/ColorScheme.cpp \
+    src/models/QsVerificationConfiguration.cpp \
+    src/models/QsItemConfiguration.cpp \
+    src/viewModels/QsVerifySettingsGroupHandler.cpp
 
 HEADERS += \
     hpp/qspin/cppView/QsDivider.h \
@@ -65,7 +69,11 @@ HEADERS += \
     hpp/qspin/models/QsSpinRun.h \
     hpp/qspin/viewModels/QSpinMain.h \
     hpp/qspin/viewModels/QsSpinRunner.h \
-    hpp/qspin/viewModels/QsCreateProjectHandler.h
+    hpp/qspin/viewModels/QsCreateProjectHandler.h \
+    hpp/qspin/viewModels/ColorScheme.h \
+    hpp/qspin/models/QsVerificationConfiguration.h \
+    hpp/qspin/models/QsItemConfiguration.h \
+    hpp/qspin/viewModels/QsVerifySettingsGroupHandler.h
 INCLUDEPATH+=\
     $$PWD/hpp
 

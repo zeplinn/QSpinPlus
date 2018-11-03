@@ -1,0 +1,8 @@
+{
+    "button":{
+        "foreground":[250,250,250],
+        "background":[55,55,55],
+        "pressed":[47,47,47],
+        "border":[33,33,33]
+    }
+}

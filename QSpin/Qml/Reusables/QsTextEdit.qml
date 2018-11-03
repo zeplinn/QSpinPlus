@@ -29,7 +29,7 @@ Flickable {
         // entire window, we don't need them.
         padding: 5
         background: null
-        color: QsStyle.textColor
+		color: QsStyle.general.foreground
 
     }
 

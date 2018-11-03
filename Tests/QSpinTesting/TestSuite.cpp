@@ -21,5 +21,17 @@ void TestSuite::safeTest(const std::function<void ()>&body){
 				 .arg(e.value())
 				 .arg(e.message().c_str())
 				 .toLocal8Bit().constData());
-	}
+    }
+}
+
+QJsonDocument TestSuite::openJsonDocument(const QString fn){
+    QFile f(fn);
+    if(!f.open(QIODevice::ReadOnly))
+        throw QString("failed to open %1").arg(fn);
+    QByteArray txtfile = f.readAll();
+
+    QJsonDocument jdoc = QJsonDocument::fromJson(txtfile);
+    if(!jdoc.isObject())
+        throw QString("%1 document is not a json object").arg(fn);
+    return jdoc;
 }

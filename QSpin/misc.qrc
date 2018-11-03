@@ -1,0 +1,5 @@
+<RCC>
+    <qresource prefix="misc">
+        <file>dark.scheme</file>
+    </qresource>
+</RCC>

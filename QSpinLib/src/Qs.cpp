@@ -8,3 +8,7 @@ Qs&Qs::instance() {
 }
 
 EventAggregator&Qs::msgService(){ return _aggregator; }
+
+ColorScheme &Qs::colorScheme(){
+    return _colorScheme;
+}

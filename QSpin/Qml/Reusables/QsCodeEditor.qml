@@ -58,7 +58,7 @@ Item{
             background: null
 
             text: qsTr("bkadjsakds \n jfsdklfjsdlkd \n kdfjdsklfs s jflsfd")
-            color: QsStyle.textColor
+			color: QsStyle.general.foreground
 
         }
 
@@ -97,7 +97,7 @@ Item{
         }
 
         textDocument: textArea.textDocument
-        textColor: QsStyle.smallHeaderColor// textEditor.textColor
+		textColor: QsStyle.general.foreground// textEditor.textColor
         font: textEditor.font
         visibleTop: flickable.contentY
         scrollViewHeight: flickable.height

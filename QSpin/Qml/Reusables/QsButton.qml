@@ -8,21 +8,26 @@ Button {
     height: 32
     padding: 5
     property alias textColor: btnTxt.color
-	property color borderColor: QsStyle.borderBackground
+	property color borderColor: QsStyle.button.border
+	property bool useToolTip: false
+	property string toolTip: ""
     contentItem: QsText{
+		ToolTip.visible: useToolTip  && hovered
+		ToolTip.text: toolTip
+		ToolTip.delay: 500
         id:btnTxt
         property bool isHovering: false
         text: parent.text
         verticalAlignment: Text.AlignVCenter
         horizontalAlignment: Text.AlignHCenter
-		color: hovered ? QsStyle.highlightColor : QsStyle.textColor
+		color: hovered ? QsStyle.general.hovered : QsStyle.button.foreground
 
 
     }
 
     background: Rectangle{
         id:background
-        color: "transparent"
+		color: checked ? QsStyle.button.pressed : "transparent"
         border.color: control.borderColor
         border.width: 1
         radius: 3

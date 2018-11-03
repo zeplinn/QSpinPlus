@@ -86,6 +86,7 @@ public slots:
 	 * \obsolete replcaed by internal lambda
 	 */
 	void blockCountUpdated(int count){
+        Q_UNUSED(count)
 		update(boundingRect().toRect());
 	}
 	/*!

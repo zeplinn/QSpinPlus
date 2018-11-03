@@ -20,7 +20,8 @@ debug:DEFINES += QS_DEBUG
 RESOURCES += \
     #qml/reusables/reusables.qrc \
     Qml/qml.qrc \
-    icons/icons.qrc
+    icons/icons.qrc\
+    misc.qrc
 
 # Additional import path used to resolve QML modules in Qt Creator's code model
 QML_IMPORT_PATH += \

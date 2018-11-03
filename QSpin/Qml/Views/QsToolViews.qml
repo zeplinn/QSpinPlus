@@ -5,6 +5,7 @@ Item {
 id: toolViewId
 
 property alias selectedTabIndex: tabsId.currentIndex
+default property alias tabs: tabsId.contentData
     SwipeView{
         interactive: false
         id: tabsId
@@ -12,20 +13,7 @@ property alias selectedTabIndex: tabsId.currentIndex
         currentIndex: 0
         clip: true
 
-        QsVerificationView{
-            height: tabsId.height
-            width: tabsId.width
-        }
-        QsInteractiveView{
-            height: tabsId.height
-            width: tabsId.width
 
-        }
-        QsSimulationView{
-            height: tabsId.height
-            width: tabsId.width
-
-        }
 
         contentItem: ListView {
                   model: tabsId.contentModel

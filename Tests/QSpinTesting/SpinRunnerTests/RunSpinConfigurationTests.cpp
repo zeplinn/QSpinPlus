@@ -2,4 +2,7 @@
 
 
 //init test
-static RunSpinConfigurationTests RUNSPINCONFIGTESTS;
+namespace
+
+static RunSpinConfigurationTests __T;
+}

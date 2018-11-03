@@ -1,16 +1,20 @@
 import QtQuick 2.11
-import QtQuick.Controls 2.3
+import QtQuick.Controls 2.4
 import QSpin.CppItems 1.0
 ComboBox {
     id: control
-	property color backgroundColor: QsStyle.panelBackground
-	property color textColor: QsStyle.textColor
+	property color backgroundColor: QsStyle.combobox.background
+	property color textColor: QsStyle.combobox.foreground
     height: 32
     model: ["First", "Second", "Third"]
 
-    delegate: ItemDelegate {
-        width: control.width
-        contentItem: QsText {
+	delegate: ItemDelegate {
+		//width: control.width
+		anchors.left: parent.left
+		anchors.right: parent.right
+//		anchors.leftMargin: 8
+//		anchors.rightMargin: 8
+		contentItem: QsText {
             id:txtDisplay
             text: modelData
             //color: "#21be2b"
@@ -21,16 +25,16 @@ ComboBox {
                 when: mouseDetection.containsMouse
                 PropertyChanges {
                     target: txtDisplay
-                    color:"blue"
+					color:QsStyle.general.hovered
                 }
             }
 
         }
         MouseArea{
             id:mouseDetection
-            anchors.fill: parent
-            hoverEnabled: true
-
+			anchors.fill: parent
+			hoverEnabled: true
+			onClicked: {currentIndex = index; popupId.close()}
         }
 
         //highlighted: control.highlightedIndex === index
@@ -58,13 +62,13 @@ ComboBox {
             context.lineTo(width / 2, height);
             context.closePath();
             //context.fillStyle = control.pressed ? "#17a81a" : "#21be2b";
-			context.fillStyle = control.pressed ? "#17a81a" : QsStyle.borderBackground;
+			context.fillStyle = QsStyle.combobox.icon// control.pressed ? QsStyle.combobox.pressed : QsStyle.combobox.background;
             context.fill();
         }
     }
 
     contentItem: QsText {
-        leftPadding: 10
+		leftPadding: 16
 
         rightPadding: 5
         text: control.displayText
@@ -80,35 +84,51 @@ ComboBox {
         implicitWidth: 120
         implicitHeight: control.height
         //border.color: control.pressed ? "#17a81a" : "#21be2b"
-		color: QsStyle.panelBackground
-		border.color: QsStyle.borderBackground
+		color: QsStyle.combobox.background
+		border.color: QsStyle.combobox.border
         border.width: control.visualFocus ? 2 : 1
         radius: 2
     }
 
     popup: Popup {
+		id:popupId
         y: control.height - 1
         width: control.width
-        implicitHeight: contentItem.implicitHeight
-        padding: 1
-
-        contentItem: ListView {
+		implicitHeight: contentItem.implicitHeight
+		padding: 8
+		contentItem: ListView {
             clip: true
-            implicitHeight: contentHeight
+			interactive: false
+			implicitHeight: contentHeight+10
             model: control.popup.visible ? control.delegateModel : null
             currentIndex: control.highlightedIndex
-            delegate: QsText{
-                text: modelData
-            }
+//            delegate: QsText{
+//                text: modelData
+//            }
 
-            ScrollIndicator.vertical: ScrollIndicator { }
-        }
+			//ScrollIndicator.vertical: ScrollIndicator { }
+		}
 
         background: Rectangle {
             //border.color: "#21be2b"
-			border.color: QsStyle.borderBackground
-			color: QsStyle.panelBackground
+			border.color: QsStyle.combobox.border
+			color: QsStyle.combobox.background
             radius: 2
-        }
-    }
+
+			MouseArea{
+				anchors.fill: parent
+				hoverEnabled: true
+				onExited:{
+
+					if(mouseX<4 || mouseX>popupId.width-4)
+						popupId.close()
+					else if (mouseY<4 || mouseY>popupId.height-4)
+						popupId.close()
+						console.debug("popup exited")
+				}
+
+			}
+		}
+	}
+
 }

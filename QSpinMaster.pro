@@ -2,7 +2,7 @@ TEMPLATE = subdirs
 
 SUBDIRS += \
     QSpinLib \
-    QSpin
+    QSpin\
 
 QSpin.depends = QSpinLib
 QSpinTesting.depends = QSpinLib

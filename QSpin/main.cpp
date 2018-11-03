@@ -39,6 +39,7 @@ int main(int argc, char *argv[])
 	//TextGutterArea::registerAsQml();
 	QSpinMain::registerAllQmlTypes();
 	QSpinMain qspin;
+    qspin.loadColorScheme(":/misc/dark.scheme");
 	//QsDivider::registerAsQml();
 	QQmlApplicationEngine engine;
 	auto ctx = engine.rootContext();

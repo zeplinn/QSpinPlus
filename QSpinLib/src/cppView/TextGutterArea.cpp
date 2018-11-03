@@ -8,7 +8,7 @@ void TextGutterArea::setTextDocument(QQuickTextDocument *doc){
 		// attach draw update to event blockCountChanged
 		_totalBlockCountConnection
 				= connect(document(),&QTextDocument::blockCountChanged
-						  ,[=](int newBlockCount){ /*qDebug()<< "block count updated";*/ update(boundingRect().toRect()); } );
+                          ,[=](int newBlockCount){Q_UNUSED(newBlockCount) /*qDebug()<< "block count updated";*/ update(boundingRect().toRect()); } );
 		// ensure gutter is updated when document is set for initial first line display
 		update(boundingRect().toRect());
 	}

@@ -10,7 +10,7 @@ QsPane{
 
         id: headerId
         //color: "#757575"
-        color: QsStyle.headerColor
+		color: QsStyle.general.foreground
         wrapMode: Text.NoWrap
         font{
             pointSize: 12//14

@@ -3,5 +3,5 @@ import QtQuick.Controls 2.3
 Pane {
 	topPadding: 5
 	bottomPadding: 5
-	background:Rectangle{color: "transparent"}
+	background:null
 }

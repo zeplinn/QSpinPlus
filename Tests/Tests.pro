@@ -1,5 +1,5 @@
 TEMPLATE = subdirs
 
 SUBDIRS += \
-    QSpinTesting \
-    QProcessSpinTesting
+    QSpinTesting #\
+    #QProcessSpinTesting
