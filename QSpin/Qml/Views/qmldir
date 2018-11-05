@@ -4,6 +4,7 @@ QsGraphView 1.0 QsGraphView.qml
 QsInteractiveView 1.0 QsInteractiveView.qml
 QsNewProjectDialog 1.0 QsNewProjectDialog.qml
 QsSimulationView 1.0 QsSimulationView.qml
+QsSpinQueueView 1.0 QsSpinQueueView.qml
 QsTableView 1.0 QsTableView.qml
 QsToolViews 1.0 QsToolViews.qml
 QsVerificationView 1.0 QsVerificationView.qml

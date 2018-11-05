@@ -115,6 +115,18 @@ QString Arg::val(Arg::Type type, QString extra)
     return "";
 }
 
+bool Arg::isSpinArgument(Arg::Type arg) noexcept{
+    return arg>= LTL && arg< Arg::Safety;
+}
+
+bool Arg::isCompileArgument(Arg::Type arg) noexcept{
+    return arg>= Safety && arg< Arg::TimeLimit;
+}
+
+bool Arg::isPanArgument(Arg::Type arg) noexcept{
+    return arg>= TimeLimit;
+}
+
 //Arg::Type Arg::toCode(const QString &name){
 //    static ArgHash lookup;
 //    return lookup.code(name);

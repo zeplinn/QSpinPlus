@@ -11,8 +11,8 @@ public:
     enum Type {
         None,
         //spin
-        LTL,
-        Verify, InterActive, GuidedSimulation,RandomSimulation, // spin mode. Random is only there for convience
+        LTL=3,
+        Verify, InterActive, GuidedSimulation,RandomSimulation, // spin mode. guided is only there for convience
         O1, O2, O3,O4,O5,O6,O7, //Verification optimizations
         // spin simulation
 
@@ -29,24 +29,27 @@ public:
         Collapse, HC0, HC1, HC2, HC3, // state vector compression modes
 
         // pan runtime
-        TimeLimit,
+        TimeLimit=128,
         SafetyMode, ProgressMode, AccepanceMode, // runtime mode. Safetymode is only there for convience
         HashSize,
         SearchDepth,
-        WeakFairness= 110,
-        // helpers
-//        Pan=170,
-//        PanC,
-//        Group,
-//        Empty,
-//        Unknown = -1
+        WeakFairness,
+
     };
     Q_ENUM(Type)
+    enum Category{
+        Spin=3, // start value of spin args
+        Compile = 35,   // start value of Compile args
+        Pan = 128   // start value of pan args
+    };
     explicit Arg(QObject* parent = nullptr);
 
     Q_INVOKABLE static QString name(Arg::Type type) noexcept;
     Q_INVOKABLE static QString val(Arg::Type type,QString extra=" ");
     static QString val(Arg::Type type,int extra){  return val(type,QString::number(extra));  }
+    static bool isSpinArgument(Arg::Type arg) noexcept;
+    static bool isCompileArgument(Arg::Type arg) noexcept;
+    static bool isPanArgument(Arg::Type arg) noexcept;
 //    Q_INVOKABLE static Arg::Type toCode(const QString& name);
 private:
     // helper class for const map initilization

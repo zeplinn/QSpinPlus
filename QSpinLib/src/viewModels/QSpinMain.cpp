@@ -17,6 +17,9 @@ void QSpinMain::registerAllQmlTypes(){
     qmlRegisterType<QsVerifyResultHandler>(space,1,0,"QsVerifyResultHandler");
     qmlRegisterUncreatableType<QsStyle>(space,1,0,"QsStyle","is an attached object only");
 
+    qmlRegisterType<QsTableColumn>(space,1,0,"QsTableColumn");
+    qmlRegisterType<QsTableHandler>(space,1,0,"QsTableHandler");
+    qmlRegisterType<QsSpinQueueHandler>(space,1,0,"QsSpinQueueHandler");
     qmlRegisterType<QsDivider>(space,1,0,"QsDivider");
     qmlRegisterType<TextGutterArea>(space,1,0,"QsTextGutterArea");
 }

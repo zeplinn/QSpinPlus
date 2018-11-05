@@ -3,7 +3,8 @@
 #include "qspin/models/Arg.h"
 #include <QObject>
 #include <QDebug>
-#define SET_QPROP(QPROP_OLDVALUE, QPROP_NEWVALUE,QPROP_SIGNALSEMITTED) if( QPROP_OLDVALUE != QPROP_NEWVALUE ){ QPROP_OLDVALUE = QPROP_NEWVALUE ; QPROP_SIGNALSEMITTED }
+#include "qspin/QpropertyHelper.h"
+
 struct requirement{
     Arg::Type command;
     bool inverse;

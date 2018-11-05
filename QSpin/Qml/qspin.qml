@@ -43,15 +43,6 @@ ApplicationWindow {
 			GradientStop{ position: 0; color: QsStyle.general.menubarGradiant0 }
 			GradientStop{ position: 1; color: QsStyle.general.menubarGradiant1}
 		}
-//        QsDivider{
-//            anchors.bottom: parent.bottom
-//            anchors.left: parent.left
-//            anchors.right: parent.right
-//            color: "black"
-
-//        }
-
-		// enables window dragging
 		MouseArea {
 			anchors.fill: parent;
 			property point clickPos: "1,1"
@@ -141,12 +132,49 @@ ApplicationWindow {
 		}
 	}
 
+	footer: ToolBar{
+		id:footerBarId
+		implicitHeight: 32
+		anchors.left: parent.left
+		anchors.right: parent.right
+		leftPadding:8
+		rightPadding: 8
+		background: Rectangle{
+			gradient: Gradient{
+				GradientStop{ position: 1; color: QsStyle.general.menubarGradiant0 }
+				GradientStop{ position: 0; color: QsStyle.general.menubarGradiant1}
+			}
+			border.color: QsStyle.general.border
+			border.width: 1
+		}
+		Row{
+			anchors.fill: parent
+			QsTabBar{
+				id:footerTabsId
+				anchors.verticalCenter: parent.verticalCenter
+				implicitHeight: 24
+				property int checkedMode:0
+				property bool anyChecked: false
+				spacing: 8
+				Repeater{
+					model:["Verification status","Console", "Interactive Choices"]
+					QsTabButton{
+						implicitHeight: 24
+						checkable: true
+						text: qsTr(modelData)
+
+					}
+				}
+			}
+		}
+	}
 
 	// text editor area
 
 
 
 	ColumnLayout{
+		id:leftHalfWindowId
 		anchors{
 			left: parent.left
 			top: parent.top
@@ -166,12 +194,16 @@ ApplicationWindow {
 		QsToolViews{
 			Layout.fillWidth: true
 			implicitHeight: 200
-			selectedTabIndex: btnBottomBar.currentIndex
-			QsButton{
-				text: "Scheduler"
+			selectedTabIndex: footerTabsId.currentIndex
+			QsSpinQueueView{
+
 			}
+
 			QsButton{
 				text: "Console"
+			}
+			QsButton{
+				text: "Interactive"
 			}
 			QsButton{
 				text: "Interactive"
@@ -179,59 +211,43 @@ ApplicationWindow {
 		}
 
 		//bottom bar
-		Rectangle{
-			id: bottomBarId
-			Layout.fillWidth: true
-			Layout.minimumHeight: 32
-			Layout.maximumHeight: 32
+//		Rectangle{
+//			id: bottomBarId
+//			Layout.fillWidth: true
+//			Layout.minimumHeight: 32
+//			Layout.maximumHeight: 32
 
-			gradient: Gradient{
-				GradientStop{ position: 0; color: Qt.rgba(g.c2,g.c2,g.c2,1) }
-				GradientStop{ position: 1; color: Qt.rgba(g.c1,g.c1,g.c1,1) }
-			}
-
-			QsDivider{
-				anchors{
-					top : parent.top
-					left: parent.left
-					right: parent.right
-
-				}
-				color: QsStyle.general.border
-			}
-//			Row{
-//			spacing: 8
-
-//			QsButton{
-//				checkable: true
-//				text: qsTr("verify")
-//			}
-//			QsButton{
-//				text: qsTr("verify2")
-//				checkable: true
-//			}
-//			QsButton{
-//				checkable: true
-//				text: qsTr("verify3")
-//			}
+//			gradient: Gradient{
+//				GradientStop{ position: 0; color: Qt.rgba(g.c2,g.c2,g.c2,1) }
+//				GradientStop{ position: 1; color: Qt.rgba(g.c1,g.c1,g.c1,1) }
 //			}
 
-			QsTabBar{
-				id:btnBottomBar
+//			QsDivider{
+//				anchors{
+//					top : parent.top
+//					left: parent.left
+//					right: parent.right
 
-				anchors.verticalCenter: parent.verticalCenter
-				QsTabButton{
-					text: qsTr("Verification scheduler")
-				}
-				QsTabButton{
-					text: qsTr("Output")
-				}
+//				}
+//				color: QsStyle.general.border
+//			}
 
-				QsTabButton{
-					text: qsTr("Interactive selector")
-				}
-			}
-		}
+//			QsTabBar{
+//				id:btnBottomBar
+
+//				anchors.verticalCenter: parent.verticalCenter
+//				QsTabButton{
+//					text: qsTr("Verification scheduler")
+//				}
+//				QsTabButton{
+//					text: qsTr("Output")
+//				}
+
+//				QsTabButton{
+//					text: qsTr("Interactive selector")
+//				}
+//			}
+//		}
 
 	}
 	QsToolViews{
@@ -268,6 +284,14 @@ ApplicationWindow {
 		onAccepted: console.debug("implement save project")
 	}
 
+// splitWindow
+	QsDivider{
+		oritentation: Qt.Vertical
+		anchors.top: parent.top
+		anchors.bottom: parent.bottom
+		anchors.left: leftHalfWindowId.right
+		color:  QsStyle.general.border
+	}
 
 	// frame window
 	QsDivider{
@@ -284,10 +308,10 @@ ApplicationWindow {
 		color: QsStyle.general.border
 		oritentation: Qt.Vertical
 	}
-	QsDivider{
-		anchors.bottom: parent.bottom
-		anchors.left: parent.left
-		anchors.right: parent.right
-		color: QsStyle.general.border
-	}
+	//	QsDivider{
+	//		anchors.bottom: parent.bottom
+	//		anchors.left: parent.left
+	//		anchors.right: parent.right
+	//		color: QsStyle.general.border
+	//	}
 }

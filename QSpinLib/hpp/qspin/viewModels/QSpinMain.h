@@ -18,6 +18,8 @@
 #include "qspin/models/QsVerificationConfiguration.h"
 #include "qspin/models/Arg.h"
 #include "qspin/viewModels/QsVerifySettingsGroupHandler.h"
+#include "qspin/viewModels/QsTableHandler.h"
+#include "qspin/viewModels/QsSpinQueueHandler.h"
 class QSpinMain : public QObject
 {
 		Q_OBJECT
