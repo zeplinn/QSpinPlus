@@ -38,10 +38,7 @@ QString Arg::name(Arg::Type type) noexcept
     case VectorSZV: return "State vector size";
     case MemLim: return "Max memory use (mb)";
         // compile memory
-    case HC0: return "DHC0";
-    case HC1: return "DHC1";
-    case HC2: return "DHC2";
-    case HC3: return "DHC3";
+    case HC: return "Collapse state vector size";
     case Collapse: return"Collapse";
         // pan runtime
     case TimeLimit: return "Time limit";
@@ -51,18 +48,7 @@ QString Arg::name(Arg::Type type) noexcept
     case HashSize: return "Hash size";
     case SearchDepth: return "Search depth";
     case WeakFairness: return "Weak fairness";
-        //type
-        //to be named
-        //    case StrongFairnes : return "Strong";
-        //	case DFS : return "DFS";
-//    case Out: return "Output";
-        //helpers
-        //    case Pan:return "Pan";
-        //    case PanC: return "Pan";
-        //	case Group: return "Group";
-        //	case Empty: return "Empty";
     case None: return  "";
-    //default: qFatal("Argument have not been given a name yet");
     }
     return "";
 }
@@ -93,10 +79,7 @@ QString Arg::val(Arg::Type type, QString extra)
     // compile memory compression
     case Space: return "-DSPACE";
     case Collapse: return "-DCOLLAPSE";
-    case HC0: return "-DHC0";
-    case HC1: return "-DHC1";
-    case HC2: return "-DHC2";
-    case HC3: return "-DHC3";
+    case HC: return QString("-DHC%1").arg(extra);
     // pan runtime
     case TimeLimit: return QString("-Q%1").arg(extra);
     case SafetyMode: return "";// only added for convience
@@ -105,53 +88,27 @@ QString Arg::val(Arg::Type type, QString extra)
     case WeakFairness: return "-f";
     case SearchDepth: return QString("-w%1").arg(extra);
     case HashSize: return QString("-m%1").arg(extra);
-//    case Out: return  QString("-o %1").arg(extra);
-    //case Pan:return "pan";
-    //case PanC: return "pan.c";
     case None: return  "";
-    //case Empty: return "";
     default: qFatal("no such argument to compile");
     }
     return "";
 }
 
-bool Arg::isSpinArgument(Arg::Type arg) noexcept{
-    return arg>= LTL && arg< Arg::Safety;
+Arg::Category Arg::getCategory(Arg::Type command){
+    if(isSpinArgument(command)) return  Spin;
+    if(isCompileArgument(command)) return Compile;
+    if(isPanArgument(command)) return  Pan;
+    throw QString("command do not belong to any category: %1").arg(name(command));
 }
 
-bool Arg::isCompileArgument(Arg::Type arg) noexcept{
-    return arg>= Safety && arg< Arg::TimeLimit;
+bool Arg::isSpinArgument(Arg::Type arg){
+    return arg>= static_cast<Type>(Spin) && arg< static_cast<Type>(Compile);
 }
 
-bool Arg::isPanArgument(Arg::Type arg) noexcept{
-    return arg>= TimeLimit;
+bool Arg::isCompileArgument(Arg::Type arg){
+    return arg>= static_cast<Type>(Compile) && arg< static_cast<Type>(TimeLimit);
 }
 
-//Arg::Type Arg::toCode(const QString &name){
-//    static ArgHash lookup;
-//    return lookup.code(name);
-//}
-// currently only holds what is needed for serilization puposes
-// more to add later
-//Arg::ArgHash::ArgHash(){
-//    args[Arg::name(Arg::SaftyMode)]         = Arg::SaftyMode;
-//    args[Arg::name(Arg::ProgressMode)]      = Arg::ProgressMode;
-//    args[Arg::name(Arg::AccepanceMode)]     = Arg::AccepanceMode;
-//    args[Arg::name(Arg::InterActive)]   = Arg::InterActive;
-//    args[Arg::name(Arg::Simulation)]    = Arg::Simulation;
-
-//    args[Arg::name(Arg::DFS)]           = Arg::DFS;
-//    args[Arg::name(Arg::BFS)]           = Arg::BFS;
-
-//    args[Arg::name(Arg::Collapse)]     = Arg::Collapse;
-//    args[Arg::name(Arg::DH4)]           = Arg::DH4;
-//    args[Arg::name(Arg::WeakFairness)]  = Arg::WeakFairness;
-//    args[Arg::name(Arg::StrongFairnes)] = Arg::StrongFairnes;
-//    args[Arg::name(Arg::None)]          = Arg::None;
-//}
-
-//Arg::Type Arg::ArgHash::code(const QString& name){
-//    if(!args.contains(name))
-//        return Arg::Unknown;
-//    return  args[name];
-//}
+bool Arg::isPanArgument(Arg::Type arg){
+    return arg>= static_cast<Type>(Pan);
+}

@@ -10,8 +10,9 @@ void QSpinMain::registerAllQmlTypes(){
 
     qmlRegisterUncreatableType<ItemConfiguration>(space,1,0,"ItemConfiguration","ItemConfiguration can only be instantiated from a view model");
     qmlRegisterUncreatableType<ItemValueConfiguration>(space,1,0,"ItemValueConfiguration","ItemConfiguration can only be instantiated from a view model");
-    qmlRegisterUncreatableType<ItemChoiceConfiguration>(space,1,0,"ItemChoiceConfiguration","ItemConfiguration can only be instantiated from a view model");
-    qmlRegisterUncreatableType<VerificationConfiguration>(space,1,0,"VerificationConfiguration","VerificationConfiguration can only be instantiated from a view model");
+    qmlRegisterUncreatableType<ItemTextFileConfiguration>(space,1,0,"ItemChoiceConfiguration","ItemConfiguration can only be instantiated from a view model");
+    //qmlRegisterUncreatableType<VerificationConfiguration>(space,1,0,"VerificationConfiguration","VerificationConfiguration can only be instantiated from a view model");
+    qmlRegisterType<VerificationConfiguration>(space,1,0,"VerificationConfiguration");
 
     qmlRegisterType<QsVerifySettingsGroupHandler>(space,1,0,"QsVerifySettingsGroupHandler");
     qmlRegisterType<QsVerifyResultHandler>(space,1,0,"QsVerifyResultHandler");
@@ -22,6 +23,7 @@ void QSpinMain::registerAllQmlTypes(){
     qmlRegisterType<QsSpinQueueHandler>(space,1,0,"QsSpinQueueHandler");
     qmlRegisterType<QsDivider>(space,1,0,"QsDivider");
     qmlRegisterType<TextGutterArea>(space,1,0,"QsTextGutterArea");
+    qmlRegisterType<PromelaSyntaxHighlighter>(space,1,0,"QsPromelaSyntaxHighlighter");
 }
 
 void QSpinMain::loadColorScheme(const QString filename){

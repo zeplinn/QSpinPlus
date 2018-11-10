@@ -3,338 +3,288 @@ import QtQuick.Controls 2.3
 import QtQuick.Layouts 1.11
 import QSpin.CppItems 1.0
 import QSpin.Qml.Reusables 1.0
-QsPane {
+Item {
 	id: rootId
-	property VerificationConfiguration active: null
-	background: null
+	property alias active: itemRefId.reference
+	implicitHeight: 800
+	implicitWidth: childrenRect.width
 	signal itemRemoved(VerificationConfiguration item)
-
 	property int hSpacing: 15
-	ColumnLayout{
-		enabled: rootId.active !== null
-//		anchors.fill: parent
-		id:layout
-		spacing: 10
-
-		RowLayout{
-			Image {
-				id: titleIconId
-				Layout.preferredHeight: 48
-				Layout.preferredWidth: 48
-				source: "qrc:/icons/close.png"
-				state: modeRowId.checkedMode
-				states:[
-					State {	name: Arg.SafetyMode;	PropertyChanges { target: titleIconId; source:"qrc:/icons/Safty2x.png" }},
-					State {	name: Arg.ProgressMode;	PropertyChanges { target: titleIconId; source:"qrc:/icons/Progress2x.png" }},
-					State {	name: Arg.AccepanceMode;PropertyChanges { target: titleIconId; source:"qrc:/icons/Acceptance2x.png" }}
-				]
-			}
-
-			QsHeader{
-				id:headerId
-				text: rootId.active.name
-
-			}
-			Item {
-				id: emptySpace
-				Layout.fillWidth: true
-			}
-			QsToolButton{
-				imageSource: "qrc:/icons/close.png"
-				onClicked: rootId.itemRemoved(rootId.active)
-			}
-
-		}
+	QsVerifySettingsGroupHandler{
+		id: itemRefId
+	}
+	// configurations
 
 
-		// verfication Modes #########################
+	//########### begin Configuration section ######################
+	Row{
+		spacing: 8
+		padding: 4
+		anchors.top: parent.top
+		anchors.bottom: commentSectionId.top
 		Item{
-			id:verificationModeId
+			enabled: active !== null
+			id:configSecId
+			clip: true
+			anchors.top: parent.top
+			anchors.bottom: parent.bottom
 			implicitWidth: childrenRect.width
-			implicitHeight: childrenRect.height
-			Layout.alignment: Qt.AlignHCenter | Qt.AlignVCenter
-			ButtonGroup{
-				id:btnModeGroupId
+			MouseArea{
+				anchors.fill: layout
+				onWheel: {
+					if	(wheel.angleDelta.y<0)		configVbarID.increase()
+					else if(wheel.angleDelta.y>0)	configVbarID.decrease()
+
+				}
 			}
+			ColumnLayout{
+				id:layout
+				y: -configVbarID.position*height
+				//enabled: rootId.active !== null
+				//		anchors.fill: parent
+				spacing: 10
+				// ########### header section ############# row 1
+				RowLayout{
+					Image {
+						id: titleIconId
+						Layout.preferredHeight: 48
+						Layout.preferredWidth: 48
+						source: "qrc:/icons/close.png"
+						state: modeTabBarId.checkedMode
+						states:[
+							State {	name: Arg.SafetyMode;
+								PropertyChanges { target: titleIconId; source:"qrc:/icons/Safty2x.png" }
+								PropertyChanges {target: itemRefId; item.safetyMode.checked: true}
+							},
+							State {	name: Arg.ProgressMode;
+								PropertyChanges { target: titleIconId; source:"qrc:/icons/Progress2x.png" }
+								PropertyChanges {target: itemRefId; item.progressMode.checked: true}
+							},
 
-			Row{
-				id:modeRowId
-				spacing: 8
-				readonly property int sharedWidth: 150
-				property int checkedMode: Arg.SafetyMode
-				Repeater{
-					property alias c: rootId.active
-					model: [c.safetyMode
-						,c.progressMode
-						,c.acceptanceMode]
+							State {	name: Arg.AccepanceMode;
+								PropertyChanges { target: titleIconId; source:"qrc:/icons/Acceptance2x.png" }
+								PropertyChanges {target: itemRefId; item.acceptanceMode.checked: true}
+							}
+						]
+					}
 
-					QsButton{
-						id:saftyModeId
-						checkable: true
-						//readonly property bool selected:modeRowId.checkedMode === modelData.command
-						checked: modelData.checked
-						onCheckedChanged: if(checked){
-											  modeRowId.checkedMode = modelData.command
-											  rootId.active.updateSelectedVerifyMode(modelData.command)
-										  }
-						implicitWidth: 150
-						text: modelData.name
-						ButtonGroup.group: btnModeGroupId
-//						onClicked:{
-//							modeRowId.checkedMode = modelData.command
-////							modelData.checked = modeRowId.checkedMode === modelData.command
-//						}
+					QsHeader{
+						id:headerId
+						text: rootId.active.name
+
+					}
+					Item {
+						id: emptySpace
+						Layout.fillWidth: true
+					}
+					QsToolButton{
+						imageSource: "qrc:/icons/close.png"
+						onClicked: rootId.itemRemoved(rootId.active)
+					}
+
+				}
+				// ############# verfication Modes ######################## row 2
+				QsTabBar{
+					id:modeTabBarId
+					readonly property int sharedWidth: 150
+					property int checkedMode: Arg.SafetyMode
+					currentIndex: 0
+					onCurrentIndexChanged: {
+						var item = currentIndex;
+						switch(currentIndex){
+						case 0: item = Arg.SafetyMode; break
+						case 1: item = Arg.ProgressMode; break
+						case 2: item = Arg.AccepanceMode; break
+						}
+						checkedMode = item
+						itemRefId.item.updateSelectedVerifyMode(item)
+					}
+					Repeater{
+						model: [itemRefId.item.safetyMode
+							,itemRefId.item.progressMode
+							,itemRefId.item.acceptanceMode]
+
+						QsTabButton{
+							id:saftyModeId; implicitWidth: 150;Layout.minimumWidth: 150
+							text: modelData.name;
+						}
 					}
 				}
-			}
-		}
+				// spin optimazations -o[1..6] ##################### row 3
+				RowLayout{
+					id:optimizationGroupId
+					QsText{
+						Layout.fillWidth: true
+						text: qsTr("Optimizations")
+					}
+					Repeater{
+						property alias c: rootId.active
+						model: [c.o1, c.o2, c.o3, c.o4, c.o5, c.o6 ]
+						QsButtonSquare{
+							checked: modelData.checked
+							checkable: true
+							useToolTip: true
+							toolTip: modelData.name
 
-		// memory compression ############################
-		QsComboBox{
-			Layout.fillWidth: true
-			property alias c: rootId.active
-			model: ["no memory compression","Collapse","HC 0","HC 1","HC 2","HC 3"]
-		}
-
-
-		// spin optimazations -o[1..7] #####################
-		RowLayout{
-			id:optimizationGroupId
-			QsText{
-				Layout.fillWidth: true
-				text: qsTr("Optimizations")
-			}
-			Repeater{
-				property alias c: rootId.active
-				model: [c.o1, c.o2, c.o3, c.o4, c.o5, c.o6 ]
-				QsButtonSquare{
-					checked: modelData.checked
-					checkable: true
-					useToolTip: true
-					toolTip: modelData.name
-
-					text: qsTr("%1").arg(1+index)
+							text: qsTr("%1").arg(1+index)
+						}
+					}
 				}
-			}
+				// begin checkbox section #################
+				GridLayout{
+					columns: 2
+					rowSpacing: 8
+					columnSpacing: 8
+					Repeater{
+						property alias c: rootId.active
+						model:[c.safety, c.sfh, c.weakFairness, c.noFair, c.noReduce
+							, c.space, c.np, c.collapse,c.bfs, c.bfs_disk]
+						QsButton{
+							Layout.fillWidth: true
+							useToolTip: true
+							toolTip: modelData.argument()
+							enabled: modelData.enabled
+							onCheckedChanged: modelData.setChecked(checked)
+							checkable: true
+							checked: modelData.checked
+							text:modelData.name
+						}
+					}
 
-			/*			QsButtonSquare{
-				checkable: true
-				text: qsTr("1")
-			}
-			QsButtonSquare{
-				checkable: true
-				text: qsTr("2")
-			}
-			QsButtonSquare{
-				checkable: true
-				text: qsTr("3")
-			}
-			QsButtonSquare{
-				checkable: true
-				text: qsTr("4")
-			}
-			QsButtonSquare{
-				checkable: true
-				text: qsTr("5")
-			}
-			QsButtonSquare{
-				checkable: true
-				text: qsTr("6")
-			}*/
-			//			QsButtonSquare{
-			//				checkable: true
-			//				text: qsTr("7")
-			//			}
-		}
-
-		// first checkbox section #################
-		GridLayout{
-			columns: 2
-			rowSpacing: 8
-			columnSpacing: 8
-			Repeater{
-				property alias c: rootId.active
-				model:[c.safety, c.sfh, c.weakFairness, c.noFair, c.noReduce
-					, c.space, c.np, c.bfs, c.bfs_disk]
-				QsButton{
-					Layout.fillWidth: true
-					checkable: true
-					checked: modelData.checked
-					text:modelData.name
 				}
-			}
+				// ############ end checkbox section ########################################
 
-			/*			QsButton{
-				Layout.fillWidth: true
-				checkable: true
-				text:qsTr("Optimize safety")
-			}
+				// ########### begin spin boxsection ##########################
+				Repeater{
+					model: [itemRefId.item.bfs_disk_limit, itemRefId.item.bfs_limit,
+						itemRefId.item.hc, itemRefId.item.memLimit, itemRefId.item.vectorSZV,
+						itemRefId.item.hashSize, itemRefId.item.searchDepth, itemRefId.item.timeLimit]
+					QsSpinBox{
+						Layout.fillWidth: true
+						useToolTip: true
+						toolTip: modelData.argument()
+						enabled: modelData.enabled
+						checked: modelData.checked
+						onCheckedChanged: modelData.setChecked(checked)
+						//onCheckedChanged: console.debug("spin box checked changed:")+checked
+						label: modelData.name
+						value: modelData.commandValue
+						from:modelData.minValue
+						to: modelData.maxValue
 
-			QsButton{
-				Layout.fillWidth: true
-				checkable: true
-				text:qsTr("SFH")
-			}
+					}
+				}
+				// ########### end spin box section
 
-			QsButton{
-				Layout.fillWidth: true
-				checkable: true
-				text:qsTr("Weak fairness")
-			}
+				// ##########ltl text area begin ###############
 
+				ColumnLayout{
+					id: ltlSectionId
+					QsText{
+						text: qsTr("LTL:"); color: QsStyle.general.foreground
+						Layout.fillWidth: true
+						//						MouseArea{
+						//							anchors.fill: parent
+						//							onClicked: ltlTxtborderId.visible = !ltlTxtborderId.visible
+						//						}
+					}
 
+					Rectangle{
+						id: ltlTxtborderId
+						Layout.fillWidth: true
+						Layout.minimumHeight:  150
 
-			QsButton{
-				Layout.fillWidth: true
-				checkable: true
-				text:qsTr("Remove Weak fairnes code")
-			}
+						Layout.fillHeight: true
+						color: "transparent"
+						border.color: QsStyle.general.border
+						border.width: 1
+						radius: 3
+						QsCodeEditor{
+							id:ltlId
+							anchors.fill: parent
+							anchors.margins: 2
+						}
 
-
-
-			QsButton{
-				Layout.fillWidth: true
-				checkable: true
-				text:qsTr("No partial reduction algorithm")
-			}
-
-
-
-			QsButton{
-				Layout.fillWidth: true
-				checkable: true
-				text:qsTr("Optimize for Space")
-			}
-
-			QsButton{
-				Layout.fillWidth: true
-				checkable: true
-				text:qsTr("Non-progress cycles")
-			}
-
-			QsButton{
-				Layout.fillWidth: true
-				checkable: true
-				text:qsTr("Breadth First Search (BFS)")
-			}
-
-
-
-			QsButton{
-				Layout.fillWidth: true
-				checkable: true
-				text:qsTr("BFS disk")
-			}
-		*/
-		}
-
-		// first spin box section ##########################
-		Repeater{
-			property alias c: rootId.active
-			model: [c.bfs_disk_limit, c.bfs_limit, c.memLimit, c.vectorSZV, c.hashSize, c.searchDepth, c.timeLimit]
-			QsSpinBox{
-				Layout.fillWidth: true
-				label: modelData.name
-				value: modelData.commandValue
-				from:0
-				to: 2000000000
-
+					}
+				}
+				// ############# end ltl TextArea ###############
 			}
 		}
 
-//		QsSpinBox{
-//			Layout.fillWidth: true
-//			label: qsTr("BFS disk limit")
 
-//		}
-
-
-//		QsSpinBox{
-//			Layout.fillWidth: true
-//			label: qsTr("BFS limit")
-
-//		}
-
-
-//		QsSpinBox{
-//			Layout.fillWidth: true
-//			label: qsTr("Maximum memory used")
-
-//		}
-
-
-//		QsSpinBox{
-//			Layout.fillWidth: true
-//			label: qsTr("State vector size")
-//		}
-
-
-
-//		QsSpinBox{
-//			id: hashValueId
-//			Layout.fillWidth: true
-//			label: qsTr("Hash value")
-
-//		}
-//		QsSpinBox{
-//			Layout.fillWidth: true
-//			label: qsTr("Search depth")
-
-//		}
-//		QsSpinBox{
-//			Layout.fillWidth: true
-//			label: qsTr("Maximum memory usage")
-
-//		}
-//		QsSpinBox{
-//			Layout.fillWidth: true
-//			label: qsTr("Time limit")
-
-//		}
-		QsText{
-			text: qsTr("LTL:"); color: QsStyle.general.foreground
+		// ######### begin scrollbar #################################
+		QsScrollBar{
+			id:configVbarID
+			anchors.top: parent.top
+			hoverEnabled: true
+			active: hovered || pressed
+			anchors.bottom: parent.bottom
+			size: configSecId.height/layout.height > 1? 1 : configSecId.height/layout.height
+			orientation: Qt.Vertical
+			policy: QsScrollBar.AlwaysOn
 		}
-		// QsDivider{Layout.fillWidth: true; color: QSpinStyle.highlightColor}
-		Rectangle{
-			Layout.fillWidth: true
-			Layout.minimumHeight: 100
-
-			Layout.fillHeight: true
-			color: "transparent"
-			border.color: QsStyle.general.border
-			border.width: 1
-			radius: 3
-			QsTextEdit{
-				id:ltlId
-				anchors.fill: parent
-			}
-
-		}
-		// QsDivider{Layout.fillWidth: true; color: QSpinStyle.highlightColor}
-		//        }
-
-
-
-
-		QsDivider{
-			Layout.fillWidth: true
-		}
-
-		QsHeader{
-			Layout.alignment: Qt.AlignLeft | Qt.AlignBottom
-			text: qsTr("Comments")
-			Layout.fillWidth: true
-		}
-		Rectangle{
-
-			Layout.fillWidth: true
-			Layout.minimumHeight: 200
-			border.color: QsStyle.general.border
-			border.width: 1
-			radius: 3
-			color: "transparent"
-
-		}
+		// ############## end ScrollBar ####################################
 
 	}
+	// ########## end Configurations section #########################
+
+
+	// ############ begin comment section #############################
+	Item{
+		id:commentSectionId
+		anchors.left: parent.left
+		anchors.bottom: parent.bottom
+		anchors.rightMargin: 8
+		//implicitWidth: parent.implicitWidth
+		anchors.right: parent.right
+		anchors.margins: 4
+		implicitHeight: childrenRect.height
+		height: commentHeaderId.height+commmentAreaId.height
+
+
+
+
+		QsHeader{
+			id:commentHeaderId
+			anchors.left: parent.left
+			anchors.right: parent.right
+			anchors.bottom: commmentAreaId.top
+			//anchors.top: parent.top
+			text: qsTr("Comments")
+		}
+
+		Rectangle{
+			id: commmentAreaId
+			implicitHeight: 150
+			visible: false
+			height: visible ?150 : 0
+			anchors.left: parent.left
+			anchors.right: parent.right
+			anchors.bottom: parent.bottom
+			border.color: QsStyle.general.border
+			border.width: 1
+			radius: 3
+			color: "transparent"
+			QsCodeEditor{
+				anchors.fill: parent
+				anchors.margins: 2
+			}
+
+
+		}
+		MouseArea{
+			anchors.fill: commentHeaderId
+			onClicked: commmentAreaId.visible = !commmentAreaId.visible
+		}
+	}
+	QsDivider{
+		anchors.left: parent.left
+		anchors.right: parent.right
+		oritentation: Qt.Horizontal
+		anchors.top: commentSectionId.top
+		anchors.topMargin: 3
+		color: QsStyle.general.border
+	}
+	// ################ end comment section ############################
+
 }

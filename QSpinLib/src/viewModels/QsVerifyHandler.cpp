@@ -13,7 +13,7 @@ void QsVerifyHandler::setCurrentIndex(int value){
     emit currentIndexChanged();
     if(_currentIndex < 0 || _currentIndex>= _configurations.count() ) return;
     _currentItem = _configurations[_currentIndex];
-    emit currentConfigurationChanged();
+    emit currentConfigurationChanged(_currentItem);
     //}
 }
 
@@ -37,7 +37,6 @@ QVariant QsVerifyHandler::data(const QModelIndex &index, int role) const{
     case ProgressMode: return QVariant::fromValue(config->progressMode());
     case AcceptanceMode: return QVariant::fromValue(config->acceptanceMode());
     case VerifyMode:
-        //  qDebug()<<"current mode changed to"<< Arg::name(config->currentMode())<< "idx:" << idx;
         return config->currentMode();
     case Name: return config->name();
     }
@@ -79,17 +78,7 @@ void QsVerifyHandler::removeConfiguration(VerificationConfiguration *item){
 }
 
 void QsVerifyHandler::verifyModeUpdated(Arg::Type mode){
-    //qDebug()<<"verify mode updated. next should be data()";
     dataChanged(index(currentIndex()),index(currentIndex()),{VerifyMode});
 }
 
-//qreal QsVerifyHandler::verifyResults(QsVerifyHandler::ResultCode code){
-//	switch (code) {
-//		case PartialOrderReduction: return _results->fullStatespaceFor().partialOrderReduction;
-//		case NeverClaim: return _results->fullStatespaceFor().neverClaim;
-//		case AssertionVioLations: return _results->fullStatespaceFor().assertionViolations;
-//		case AcceptanceCycles: return  _results->fullStatespaceFor().acceptanceCycles;
-//		case InvalidEndStates: return _results->fullStatespaceFor().invalidEndStates;
-//		default: qFatal("not a verification result");
-//	}
-//}
+

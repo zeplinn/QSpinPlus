@@ -3,16 +3,16 @@
 #include "qspin/viewModels/EventAggregator.h"
 #include "qspin/viewModels/ColorScheme.h"
 class Qs{
-		EventAggregator _aggregator;
+        EventAggregator _aggregator;
         ColorScheme _colorScheme;
-		Qs();
-	public:
-		Qs(Qs const&)               = delete;
-		void operator=(Qs const&)   = delete;
+        Qs();
+    public:
+        Qs(Qs const&)               = delete;
+        void operator=(Qs const&)   = delete;
 
-		static Qs& instance();
-		// member functions
-		EventAggregator& msgService();
+        static Qs& instance();
+        // member functions
+        EventAggregator& msgService();
         ColorScheme& colorScheme();
 
 };

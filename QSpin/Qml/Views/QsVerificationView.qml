@@ -4,146 +4,132 @@ import QtQuick.Layouts 1.11
 import QSpin.CppItems 1.0
 import QSpin.Qml.Reusables 1.0
 import QtQml.Models 2.3
-Item {
-
+QsPane {
+	padding: 0
 	id: verifySettings
 	property int codeAreaWidth: 500
 	property int codeAreaHeight: 250
-
 	QsVerifyHandler{
 		id:verifyHandlerId
 		currentIndex: configSelectorId.currentIndex
 	}
-	MouseArea{
-		anchors.fill: currentVerifyConfigId
 
-		onWheel:{
-			if(wheel.angleDelta.y<0)
-				settingsScrollbarId.increase()
-			else settingsScrollbarId.decrease()
-		}
-	}
-
-	QsVerifySettingsGroup{
-		id:currentVerifyConfigId
-		y:-settingsScrollbarId.position *height
-		active:  verifyHandlerId.currentConfiguration
-		onItemRemoved: verifyHandlerId.removeConfiguration(item)
-	}
-	ScrollBar{
-		id:settingsScrollbarId
-		hoverEnabled: true
-		active: hovered || pressed
-		orientation: Qt.Vertical
-		size: verifySettings.height / currentVerifyConfigId.height
-		anchors.left: currentVerifyConfigId.right
+	RowLayout{
 		anchors.top: parent.top
 		anchors.bottom: parent.bottom
-		policy: ScrollBar.AlwaysOn
-
-	}
-
-	// list of configurations
-	ColumnLayout{
-		id:farLeftColumnId
-		anchors{
-			right: parent.right
-			bottom: parent.bottom
-			top: parent.top
-			left: settingsScrollbarId.right
-			leftMargin: 4
+		anchors.margins: 0
+		spacing: 0
+		QsVerifySettingsGroup{
+			Layout.fillHeight: true
+			Layout.minimumWidth: implicitWidth
+			id:currentVerifyConfigId
+			active:  verifyHandlerId.currentConfiguration
+			onItemRemoved: verifyHandlerId.removeConfiguration(item)
 		}
-
-
 		QsDivider{
-			oritentation: Qt.Horizontal
-			Layout.fillWidth: true
+			oritentation: Qt.Vertical
+			Layout.fillHeight: true
 			color: QsStyle.general.border
 		}
+		ColumnLayout{
+			id:farLeftColumnId
 
-		ListView{
-			id: configSelectorId
-			Layout.alignment: Qt.AlignLeft | Qt.AlignTop
-			Layout.fillWidth: true
-			Layout.preferredHeight: contentHeight
-			topMargin: 5
-			header:QsHeader{
-				text: qsTr("Configurations")
-
+			ListView{
+				id: configSelectorId
+				Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+				implicitWidth: 250
+				boundsBehavior: Flickable.StopAtBounds
+				Layout.preferredHeight: contentHeight+5
+				highlight: highlightId
+				highlightFollowsCurrentItem: true
+				topMargin: 5
+				header:QsHeader{
+					text: qsTr("Configurations")
+				}
+				model:visualModelId
 			}
-			model:visualModelId
-		}
+			// ################# begin add configuration #################
+			Item{
+				id:addConfigurationId
+				Layout.fillWidth: true
+				Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+				implicitHeight: 32
+				TextInput{
+					readonly property string defaultVal: qsTr("Add new Configuration")
+					property bool canceling: false
+					anchors.centerIn: parent
+					anchors.margins: 4
+					selectByMouse: true
 
-		Item{
-			id:addConfigurationId
-			Layout.fillWidth: true
-			Layout.alignment: Qt.AlignLeft | Qt.AlignTop
-			implicitHeight: 32
-			TextInput{
-				readonly property string defaultVal: qsTr("Add new Configuration")
-				property bool canceling: false
-				anchors.centerIn: parent
-				anchors.margins: 4
-				selectByMouse: true
-
-				onActiveFocusChanged: {
-					if(activeFocus) selectAll();
-					else{
+					onActiveFocusChanged: {
+						if(activeFocus) selectAll();
+						else{
+							text = defaultVal
+							focus = false
+						}
+					}
+					font.family: "candara"
+					font.pointSize: 10
+					onAccepted: {
+						if(!canceling){
+							verifyHandlerId.addConfiguration(text)
+							verifyHandlerId.setCurrentIndex(configSelectorId.count-1)
+						}
+						canceling =false
 						text = defaultVal
-						focus = false
+						activeFocus =false
 					}
-				}
-				font.family: "candara"
-				font.pointSize: 12
-				onAccepted: {
-					if(!canceling){
-						verifyHandlerId.addConfiguration(text)
-						verifyHandlerId.setCurrentIndex(configSelectorId.count-1)
+					Keys.onEscapePressed: {
+						canceling = true
+						focus= false
 					}
-					canceling =false
-					text = defaultVal
-					activeFocus =false
-				}
-				Keys.onEscapePressed: {
-					canceling = true
-					focus= false
-				}
 
-				color: QsStyle.general.foreground
-				text: defaultVal
+					color: QsStyle.general.foreground
+					text: defaultVal
+				}
+				QsDivider{
+					anchors.left: parent.left
+					anchors.right: parent.right
+					anchors.bottom: parent.bottom
+					anchors.bottomMargin: 1
+					oritentation: Qt.Horizontal
+					color: QsStyle.general.border
+				}
 			}
-			QsDivider{
-				anchors.left: parent.left
-				anchors.right: parent.right
-				anchors.bottom: parent.bottom
-				anchors.bottomMargin: 1
-				oritentation: Qt.Horizontal
-				color: QsStyle.general.border
+			//############## end add configuration ###################
+			// filler to push avoid vertical centering of objects
+			Item{
+				Layout.fillHeight: true
 			}
 		}
-		Item{
-			Layout.fillHeight: true
+
+	}
+	// ####### begin components #####################################################
+	Component {
+		id: highlightId
+		Rectangle {
+			opacity: 0.2
+			//width: configSelectorId.currentItem.width;
+			width: parent.width
+			height:40// configSelectorId.currentItem.height
+			color: QsStyle.general.hovered;
+			//y: configSelectorId.currentItem.y
+			Behavior on y {
+				SpringAnimation {
+					spring: 3
+					damping: 0.2
+				}
+			}
 		}
 	}
-	//vertical seperator
-	QsDivider{
-		anchors.left: farLeftColumnId.left
-		anchors.top: parent.top
-		anchors.bottom: parent.bottom
-		oritentation: Qt.Vertical
-		color: QsStyle.general.border
-	}
-	// list model Components
 	Component{
 		id:listViewDelegateId
 		Item{
 			id:listItemId
 			implicitHeight: 40
-			anchors.left: parent.left
-			anchors.right: parent.right
+			implicitWidth: 250
 			property int idx: index
-			property int visualIdx: listItemId.DelegateModel.itemsIndex// listItemId.DelegateModel.itemsIndex
-			Component.onCompleted: console.debug("config list-> idx: "+idx+", visualIdx: "+visualIdx)
+			property int visualIdx: listItemId.DelegateModel.itemsIndex
 			RowLayout{
 				//implicitHeight: 45
 				id:itemLayoutId
@@ -164,7 +150,8 @@ Item {
 					id: txtDelegateId
 					text: model.name_role
 					color: QsStyle.button.foreground
-					font.pointSize: 12
+
+					font.pointSize: 10
 					readOnly: false
 					Keys.onEscapePressed:{
 						canceling = true
@@ -179,8 +166,6 @@ Item {
 						}
 						canceling =false
 					}
-
-
 					MouseArea{
 						id:itemSelId
 						enabled: !parent.activeFocus
@@ -194,10 +179,8 @@ Item {
 							parent.forceActiveFocus()
 							parent.selectAll()
 						}
-
 					}
 				}
-
 				Image {
 					id:modeTypeIconId
 					property int size: 24
@@ -213,29 +196,25 @@ Item {
 						State {name: Arg.ProgressMode;	PropertyChanges { target: modeTypeIconId; source:"qrc:/icons/Progress.png" }},
 						State {name: Arg.AccepanceMode;	PropertyChanges { target: modeTypeIconId; source:"qrc:/icons/Acceptance.png" }}
 					]
-					//onStateChanged: console.debug("state changed")
-					//Component.onCompleted: console.debug(model.saftyMode_role)
 					Connections{
 						target: model.saftyMode_role
 					}
 				}
-
 			}
 			QsDivider{
 				anchors.left: parent.left
 				anchors.right: parent.right
 				anchors.bottom: parent.bottom
-				anchors.bottomMargin: 1
 				color: QsStyle.general.border
 			}
-
 		}
-
 	}
 
 	DelegateModel{
 		id:visualModelId
 		model: verifyHandlerId
 		delegate: listViewDelegateId
+
 	}
 }
+

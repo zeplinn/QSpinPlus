@@ -20,6 +20,7 @@
 #include "qspin/viewModels/QsVerifySettingsGroupHandler.h"
 #include "qspin/viewModels/QsTableHandler.h"
 #include "qspin/viewModels/QsSpinQueueHandler.h"
+#include "qspin/models/QsPromelaSyntaxHighlighter.h"
 class QSpinMain : public QObject
 {
 		Q_OBJECT

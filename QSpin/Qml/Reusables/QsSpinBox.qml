@@ -6,12 +6,13 @@ import QtQuick.Layouts 1.11
 
 SpinBox {
 	id: control
-
 	property int spinHeight: 20
-	property alias label: labelId.text
+	property alias label: btnTxt.text
 	property int minimumInputWidth: 150
-	property alias checked: buttonStateId.checked
-
+	property alias checked: btnCheck.checked
+	property string toolTip: ""
+	property bool useToolTip: false
+	opacity: enabled ? 1 : 0.1;
 	value: 0
 	editable: true
 	implicitHeight: 32
@@ -21,58 +22,59 @@ SpinBox {
 	contentItem:
 		RowLayout{
 		//anchors.horizontalCenter: control.horizontalCenter
-//		implicitHeight: childrenRect.height
-//		implicitWidth: childrenRect.width
-		spacing: 8
+		//		implicitHeight: childrenRect.height
+		//		implicitWidth: childrenRect.width
+		//spacing: 8
+		Button {
+			id:btnCheck
+			Layout.fillWidth: true
+			ToolTip.visible: hovered  && control.useToolTip
+			ToolTip.text: control.toolTip
+			ToolTip.delay: 500
+			text:qsTr("not yet filled")
+			highlighted: false
+			padding: 5
+			checkable:true
+			height: parent.height
 
-			QsText{
-				Layout.fillWidth: true
-//				anchors.left: parent.left
-//				anchors.verticalCenter: parent.verticalCenter
-				id:labelId
-				text: qsTr("default")
-				color: QsStyle.spinbox.foreground
-				MouseArea{
-					id: buttonStateId
-					property bool checked: false
-					hoverEnabled: true
-					anchors.fill: parent
-					cursorShape: Qt.ArrowCursor
-					onClicked: checked = !checked
-				}
-				states: State{
-					when: buttonStateId.containsMouse
-					PropertyChanges {
-						target: labelId
-						color: QsStyle.general.hovered
-
-					}
-				}
-			}
-
-
-			TextInput {
-				id:inputId
-				//Layout.fillWidth: true
-				rightPadding: 8
-				Layout.minimumWidth: control.minimumInputWidth
-				z: 2
-				selectByMouse: true
-				onFocusChanged: if(focus) selectAll()
-				text:control.value
-				font:labelId.font
-				color: QsStyle.spinbox.input
-				selectionColor: "#21be2b"
-				selectedTextColor: "#ffffff"
-				horizontalAlignment: Text.AlignRight
+			contentItem: QsText{
+				id:btnTxt
+				property bool isHovering: false
+				text: parent.text
 				verticalAlignment: Text.AlignVCenter
-				//verticalAlignment: Qt.AlignVCenter
+				horizontalAlignment: Text.AlignHCenter
+				color: hovered ? QsStyle.general.hovered : QsStyle.button.foreground
 
-				readOnly: !control.editable
-				validator: control.validator
-				inputMethodHints: Qt.ImhFormattedNumbersOnly
+
 			}
+
+			background: null
+
 		}
+
+
+		TextInput {
+			id:inputId
+			//Layout.fillWidth: true
+			rightPadding: 8
+			Layout.minimumWidth: control.minimumInputWidth
+			z: 2
+			selectByMouse: true
+			onFocusChanged: if(focus) selectAll()
+			text:control.value
+			font:btnTxt.font
+			color: QsStyle.spinbox.input
+			selectionColor: "#21be2b"
+			selectedTextColor: "#ffffff"
+			horizontalAlignment: Text.AlignRight
+			verticalAlignment: Text.AlignVCenter
+			//verticalAlignment: Qt.AlignVCenter
+
+			readOnly: !control.editable
+			validator: control.validator
+			inputMethodHints: Qt.ImhFormattedNumbersOnly
+		}
+	}
 
 	property int indicatorsPadding: 4
 	property int indicatorSize: 8
@@ -138,13 +140,13 @@ SpinBox {
 			anchors.topMargin: 1
 			anchors.bottom: parent.bottom
 			anchors.bottomMargin: 1
-			width: labelId.width
+			width: btnCheck.width
 			id:selectionColor
-			color: buttonStateId.checked ? QsStyle.spinbox.pressed : "transparent"
+			color: btnCheck.checked ? QsStyle.spinbox.pressed : "transparent"
 		}
 
 		QsDivider{
-			x:labelId.width
+			x:btnCheck.width
 			anchors.top: parent.top
 			anchors.bottom: parent.bottom
 			oritentation: Qt.Vertical

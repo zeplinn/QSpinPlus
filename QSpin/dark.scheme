@@ -27,5 +27,22 @@
         "pressed"           : [47,47,47],
 		"input"             : [250,250,250],
         "spinner"           : [200,50,50]
+    },
+        "promelaEditor":{
+        "foreground"        : [220,220,220],
+        "background"        : [30,30,30],
+        "selectedText"      : [51,153,255],
+        "pointSize"         : 10,
+        "tabIndents"         : 4,
+        "fontFamily"        : "consolas",
+        "syntaxHighlighter" :{
+            "classes"           : [78 ,201, 176],
+            "keywords"          : [86,156,214],
+            "comments"          : [74,166,74],
+            "types"             : [86,156,214],
+            "numbers"           : [244,183,55],
+            "operators"         : [139,228,254],  
+            "strings"           : [214,157,133]
+        }
     }
 }

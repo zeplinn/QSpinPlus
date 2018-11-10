@@ -12,6 +12,7 @@
 #include "qspin/QmlImportNames.h"
 #include "qspin/viewModels/QsVerifyResultHandler.h"
 #include "qspin/viewModels/QSpinMain.h"
+#include "qspin/Qs.h"
 
 int main(int argc, char *argv[])
 {
@@ -38,6 +39,7 @@ int main(int argc, char *argv[])
 
 	//TextGutterArea::registerAsQml();
 	QSpinMain::registerAllQmlTypes();
+    EventAggregator& a =Qs::instance().msgService();
 	QSpinMain qspin;
     qspin.loadColorScheme(":/misc/dark.scheme");
 	//QsDivider::registerAsQml();

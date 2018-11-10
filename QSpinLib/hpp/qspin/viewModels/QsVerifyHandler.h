@@ -26,7 +26,7 @@ public: //properties
     int currentIndex()const;
     Q_INVOKABLE void setCurrentIndex(int value);
 signals: // properties
-    void currentConfigurationChanged();
+    void currentConfigurationChanged(VerificationConfiguration* currentConfig);
     void currentIndexChanged();
 public:
     enum Role{

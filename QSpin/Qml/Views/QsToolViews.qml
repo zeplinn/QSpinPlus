@@ -9,13 +9,13 @@ default property alias tabs: tabsId.contentData
     SwipeView{
         interactive: false
         id: tabsId
-        anchors.fill: parent
-        currentIndex: 0
+		anchors.fill: parent
+		currentIndex: 0
         clip: true
 
 
 
-        contentItem: ListView {
+		contentItem: ListView {
                   model: tabsId.contentModel
                   interactive: tabsId.interactive
                   currentIndex: tabsId.currentIndex

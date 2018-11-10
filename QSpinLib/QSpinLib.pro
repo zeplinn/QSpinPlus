@@ -46,7 +46,11 @@ SOURCES += \
     src/models/QsItemConfiguration.cpp \
     src/viewModels/QsVerifySettingsGroupHandler.cpp \
     src/viewModels/QsTableHandler.cpp \
-    src/viewModels/QsSpinQueueHandler.cpp
+    src/viewModels/QsSpinQueueHandler.cpp \
+   # src/models/QsVeriyConfigList.cpp \
+    src/viewModels/QsItemConfigStateNotifier.cpp \
+    src/models/QsPromelaSyntaxHighlighter.cpp \
+    src/models/jsonQspinPlusSchemeIds.cpp
 
 HEADERS += \
     hpp/qspin/cppView/QsDivider.h \
@@ -76,7 +80,11 @@ HEADERS += \
     hpp/qspin/viewModels/QsVerifySettingsGroupHandler.h \
     hpp/qspin/viewModels/QsTableHandler.h \
     hpp/qspin/QpropertyHelper.h \
-    hpp/qspin/viewModels/QsSpinQueueHandler.h
+    hpp/qspin/viewModels/QsSpinQueueHandler.h \
+    #hpp/qspin/models/QsVeriyConfigList.h \
+    hpp/qspin/models/QsItemConfigStateNotifier.h \
+    hpp/qspin/models/QsPromelaSyntaxHighlighter.h \
+    hpp/qspin/models/jsonQspinPlusSchemeIds.h
 INCLUDEPATH+=\
     $$PWD/hpp
 

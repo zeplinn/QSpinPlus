@@ -70,7 +70,6 @@ bool QsProject::open(QsProject &project, const QString fileDest){
 }
 
 bool QsProject::saveAs(const QsProject &pro, const QString fileDest){
-	qDebug()<<"save file name"<<fileDest;
 	QFile saveFile(fileDest);
 
 	QJsonObject project;

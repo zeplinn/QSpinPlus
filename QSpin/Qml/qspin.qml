@@ -11,13 +11,13 @@ import QtQuick.Dialogs 1.3
 ApplicationWindow {
 	id:qspinAppId
 	visible: true
-	flags:  Qt.Window | Qt.FramelessWindowHint
+	//flags:  Qt.Window | Qt.FramelessWindowHint
 	width: 1600
 	height: 900
 	minimumHeight: 764
 	minimumWidth: 1024
-
-	title: qsTr("Hello World")
+	visibility: Window.Maximized
+	title: qsTr("QSpin+")
 	background: Rectangle{
 		color: QsStyle.general.background
 		border.color: QsStyle.general.background
@@ -25,10 +25,7 @@ ApplicationWindow {
 
 	}
 
-	//onWidthChanged: qspin.Minimized
-	// background: Rectangle{color: Qt.rgba(45/256)}
-
-	// menu bars ##################################################
+	//################## begin menu bars ################################
 
 	header:Rectangle{
 		implicitHeight: 32
@@ -38,33 +35,8 @@ ApplicationWindow {
 		border.width: 1
 		gradient: Gradient{
 			id: g
-			property real c1: 51/256
-			property real c2: 59/256
 			GradientStop{ position: 0; color: QsStyle.general.menubarGradiant0 }
 			GradientStop{ position: 1; color: QsStyle.general.menubarGradiant1}
-		}
-		MouseArea {
-			anchors.fill: parent;
-			property point clickPos: "1,1"
-
-			onPressed: {
-				clickPos = Qt.point(mouse.x,mouse.y)
-			}
-
-			onPositionChanged: {
-				var delta = Qt.point(mouse.x-clickPos.x, mouse.y-clickPos.y)
-				var new_x = qspinAppId.x + delta.x
-				var new_y = qspinAppId.y + delta.y
-				if (new_y <= 0)
-					qspinAppId.visibility = Window.Maximized
-				else
-				{
-					if (qspinAppId.visibility === Window.Maximized)
-						qspinAppId.visibility = Window.Windowed
-					qspinAppId.x = new_x
-					qspinAppId.y = new_y
-				}
-			}
 		}
 		//tool bar content
 		RowLayout{
@@ -78,57 +50,30 @@ ApplicationWindow {
 				//top: parent.top
 
 			}
-
-			Text{
-				id: appTitleId
-				height: parent.height
-				text: qsTr("QSpin+")
-				horizontalAlignment: Text.AlignHCenter
-				verticalAlignment: Text.AlignVCenter
-				color: QsStyle.general.foreground
-				font.pointSize: 16
-			}
 			spacing: 8
 
 			// selection tabs
 			Item{
 				Layout.fillWidth: true
 			}
+			// ############ begin tool view tabs "#######################
 			QsTabBar{
 				id: toolsTabId
 				Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
 				QsTabButton{
-					text:qsTr("Verification")
+					text:verifyViewId.header
 				}
 
 				QsTabButton{
-					text:qsTr("Verification Results")
+					text:simulationViewId.header
 				}
 				QsTabButton{
-					text: qsTr("Simulation")
+					text: verifyResultViewId.header
 				}
+				// ############ end tool view tabs "#######################
 			}
-			Item {
-				Layout.minimumWidth: 200
-				Layout.maximumWidth: 200
-			}
-			QsToolButton{
-				imageSource: "qrc:/icons/minimize.png"
-				onClicked: qspinAppId.showMinimized()
-				useTooltip: false
 
-			}
-			QsToolButton{
-				imageSource: "qrc:/icons/maximize.png"
-				onClicked: qspinAppId.showMaximized()
-				useTooltip: false
 
-			}
-			QsToolButton{
-				imageSource: "qrc:/icons/close.png"
-				onClicked: qspinAppId.close()
-				useTooltip: false
-			}
 		}
 	}
 
@@ -141,8 +86,8 @@ ApplicationWindow {
 		rightPadding: 8
 		background: Rectangle{
 			gradient: Gradient{
-				GradientStop{ position: 1; color: QsStyle.general.menubarGradiant0 }
-				GradientStop{ position: 0; color: QsStyle.general.menubarGradiant1}
+				GradientStop{ position: 0; color: QsStyle.general.menubarGradiant0 }
+				GradientStop{ position: 1; color: QsStyle.general.menubarGradiant1}
 			}
 			border.color: QsStyle.general.border
 			border.width: 1
@@ -168,101 +113,88 @@ ApplicationWindow {
 			}
 		}
 	}
+	// ############### end menu bars
 
-	// text editor area
-
-
-
-	ColumnLayout{
-		id:leftHalfWindowId
-		anchors{
-			left: parent.left
-			top: parent.top
-			bottom: parent.bottom
-			right: toolsViewId.left
-		}
+	// ####### begin worspace
+	RowLayout{
+		id: worskpaceLayoutId
+		anchors.fill: parent
 		spacing: 0
+		// text editor area
+		ColumnLayout{
+			id:leftHalfWindowId
 
-		QsCodeEditor{
+			spacing: 0
+
+			QsCodeEditor{
+				id: codeEditiorId
+				Layout.fillHeight: true
+				Layout.fillWidth: true
+				Layout.minimumHeight: 500
+				Layout.minimumWidth: 300
+				syntaxHighlighter: promelaHighlighterId
+				tabIndentSize: QsStyle.promelaEditor.tabIndents
+				foreground: QsStyle.promelaEditor.foreground
+				background: QsStyle.promelaEditor.background
+				font{
+					family: QsStyle.promelaEditor.fontFamily
+					pointSize: QsStyle.promelaEditor.pointSize
+				}
+
+				QsPromelaSyntaxHighlighter{
+					id:promelaHighlighterId
+					colors: QsStyle.promelaEditor.syntaxHighlighter
+				}
+
+			}
+
+			// popup menu
+			QsToolViews{
+				Layout.fillWidth: true
+				implicitHeight: 200
+				selectedTabIndex: footerTabsId.currentIndex
+				QsSpinQueueView{
+
+				}
+
+				QsButton{
+					text: "Console"
+				}
+				QsButton{
+					text: "Interactive"
+				}
+				QsButton{
+					text: "Interactive"
+				}
+			}
+
+		}
+		QsDivider{
+			oritentation: Qt.Vertical
 			Layout.fillHeight: true
-			Layout.fillWidth: true
-			Layout.minimumHeight: 500
-			Layout.minimumWidth: 800
-
+			color:  QsStyle.general.border
 		}
-		// popup menu
-		QsToolViews{
-			Layout.fillWidth: true
-			implicitHeight: 200
-			selectedTabIndex: footerTabsId.currentIndex
-			QsSpinQueueView{
-
-			}
-
-			QsButton{
-				text: "Console"
-			}
-			QsButton{
-				text: "Interactive"
-			}
-			QsButton{
-				text: "Interactive"
-			}
+		QsVerificationView{
+			id:verifyViewId
+			Layout.fillHeight: true
+			visible: toolsTabId.currentItem.text === header
+			readonly property string header: "Verification"
+		}
+		QsSimulationView{
+			id:simulationViewId
+			readonly property string header: "Simulation"
+			Layout.fillHeight: true
+			visible: toolsTabId.currentItem.text === header
+			//			visible: toolsTabId.currentIndex===1
+		}
+		QsInteractiveView{
+			id:verifyResultViewId
+			readonly property string header: "Verification Results"
+			Layout.fillHeight: true
+			visible: toolsTabId.currentItem.text === header
+			//			visible: toolsTabId.currentIndex===2
 		}
 
-		//bottom bar
-//		Rectangle{
-//			id: bottomBarId
-//			Layout.fillWidth: true
-//			Layout.minimumHeight: 32
-//			Layout.maximumHeight: 32
-
-//			gradient: Gradient{
-//				GradientStop{ position: 0; color: Qt.rgba(g.c2,g.c2,g.c2,1) }
-//				GradientStop{ position: 1; color: Qt.rgba(g.c1,g.c1,g.c1,1) }
-//			}
-
-//			QsDivider{
-//				anchors{
-//					top : parent.top
-//					left: parent.left
-//					right: parent.right
-
-//				}
-//				color: QsStyle.general.border
-//			}
-
-//			QsTabBar{
-//				id:btnBottomBar
-
-//				anchors.verticalCenter: parent.verticalCenter
-//				QsTabButton{
-//					text: qsTr("Verification scheduler")
-//				}
-//				QsTabButton{
-//					text: qsTr("Output")
-//				}
-
-//				QsTabButton{
-//					text: qsTr("Interactive selector")
-//				}
-//			}
-//		}
-
-	}
-	QsToolViews{
-		id:toolsViewId
-		anchors{
-			//left:editor.right
-			right: parent.right
-			top: parent.top
-			bottom:parent.bottom
-		}
-		width: parent.width*0.5
-		selectedTabIndex:toolsTabId.currentIndex
-		QsVerificationView{	}
-		QsInteractiveView{	}
-		QsSimulationView{	}
 	}
 
 	// dialogs
@@ -283,35 +215,4 @@ ApplicationWindow {
 		selectExisting: false
 		onAccepted: console.debug("implement save project")
 	}
-
-// splitWindow
-	QsDivider{
-		oritentation: Qt.Vertical
-		anchors.top: parent.top
-		anchors.bottom: parent.bottom
-		anchors.left: leftHalfWindowId.right
-		color:  QsStyle.general.border
-	}
-
-	// frame window
-	QsDivider{
-		anchors.bottom: parent.bottom
-		anchors.top: parent.top
-		anchors.left: parent.left
-		color: QsStyle.general.border
-		oritentation: Qt.Vertical
-	}
-	QsDivider{
-		anchors.bottom: parent.bottom
-		anchors.top: parent.top
-		anchors.right: parent.right
-		color: QsStyle.general.border
-		oritentation: Qt.Vertical
-	}
-	//	QsDivider{
-	//		anchors.bottom: parent.bottom
-	//		anchors.left: parent.left
-	//		anchors.right: parent.right
-	//		color: QsStyle.general.border
-	//	}
 }

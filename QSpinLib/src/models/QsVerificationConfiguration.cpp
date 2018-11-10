@@ -24,136 +24,124 @@ ItemConfiguration *VerificationConfiguration::o6() const{return spinConfigs[Arg:
 
 // compile configs
 
-ItemConfiguration *VerificationConfiguration::safety() const{return compileConfigs[Arg::Safety];}
+ItemConfiguration *VerificationConfiguration::safety() const{return spinConfigs[Arg::Safety];}
 
-ItemConfiguration *VerificationConfiguration::sfh() const{return compileConfigs[Arg::SFH];}
+ItemConfiguration *VerificationConfiguration::sfh() const{return spinConfigs[Arg::SFH];}
 
-ItemConfiguration *VerificationConfiguration::noFair() const{return compileConfigs[Arg::NoFair];}
+ItemConfiguration *VerificationConfiguration::noFair() const{return spinConfigs[Arg::NoFair];}
 
-ItemConfiguration *VerificationConfiguration::np() const{return compileConfigs[Arg::NonProgressCycle];}
+ItemConfiguration *VerificationConfiguration::np() const{return spinConfigs[Arg::NonProgressCycle];}
 
-ItemConfiguration *VerificationConfiguration::bfs() const{return compileConfigs[Arg::BFS];}
+ItemConfiguration *VerificationConfiguration::bfs() const{return spinConfigs[Arg::BFS];}
 
-ItemConfiguration *VerificationConfiguration::bfs_disk() const{return compileConfigs[Arg::BFS_DISK];}
+ItemConfiguration *VerificationConfiguration::bfs_disk() const{return spinConfigs[Arg::BFS_DISK];}
 
-ItemValueConfiguration *VerificationConfiguration::bfs_disk_limit() const{return qobject_cast<ItemValueConfiguration*>( compileConfigs[Arg::BFS_DISK_LIMIT]);}
+ItemValueConfiguration *VerificationConfiguration::bfs_disk_limit() const{return toValueItem(Arg::BFS_DISK_LIMIT);}
 
-ItemValueConfiguration *VerificationConfiguration::bfs_limit() const{return qobject_cast<ItemValueConfiguration*>( compileConfigs[Arg::BFS_LIMIT]);}
+ItemValueConfiguration *VerificationConfiguration::bfs_limit() const{return toValueItem( Arg::BFS_LIMIT);}
 
-ItemValueConfiguration *VerificationConfiguration::nfair() const{return qobject_cast<ItemValueConfiguration*>( compileConfigs[Arg::NFair]);}
+ItemValueConfiguration *VerificationConfiguration::nfair() const{return qobject_cast<ItemValueConfiguration*>( spinConfigs[Arg::NFair]);}
 
-ItemConfiguration *VerificationConfiguration::noReduce() const{return compileConfigs[Arg::NoReduce];}
+ItemConfiguration *VerificationConfiguration::noReduce() const{return spinConfigs[Arg::NoReduce];}
 
-ItemConfiguration *VerificationConfiguration::space() const{return compileConfigs[Arg::Space];}
+ItemConfiguration *VerificationConfiguration::space() const{return spinConfigs[Arg::Space];}
 
-ItemValueConfiguration *VerificationConfiguration::vectorSZV() const{return qobject_cast<ItemValueConfiguration*>(compileConfigs[Arg::VectorSZV]);}
+ItemValueConfiguration *VerificationConfiguration::vectorSZV() const{return qobject_cast<ItemValueConfiguration*>(spinConfigs[Arg::VectorSZV]);}
 
-ItemValueConfiguration *VerificationConfiguration::memLimit() const{return qobject_cast<ItemValueConfiguration*>(compileConfigs[Arg::MemLim]);}
+ItemValueConfiguration *VerificationConfiguration::memLimit() const{return qobject_cast<ItemValueConfiguration*>(spinConfigs[Arg::MemLim]);}
 
-ItemConfiguration *VerificationConfiguration::collapse() const{return compileConfigs[Arg::Collapse];}
+ItemConfiguration *VerificationConfiguration::collapse() const{return spinConfigs[Arg::Collapse];}
 
-ItemConfiguration *VerificationConfiguration::hc0() const{return compileConfigs[Arg::HC0];}
+ItemValueConfiguration *VerificationConfiguration::hc() const{ return toValueItem(Arg::HC);}
 
-ItemConfiguration *VerificationConfiguration::hc1() const{return compileConfigs[Arg::HC1];}
 
-ItemConfiguration *VerificationConfiguration::hc2() const{return compileConfigs[Arg::HC2];}
-
-ItemConfiguration *VerificationConfiguration::hc3() const{return compileConfigs[Arg::HC3];}
 
 // pan configs
 
-ItemValueConfiguration *VerificationConfiguration::timeLimit() const{return qobject_cast<ItemValueConfiguration*>(panConfigs[Arg::TimeLimit]);}
+ItemValueConfiguration *VerificationConfiguration::timeLimit() const{return toValueItem(Arg::TimeLimit);}
 
-ItemConfiguration *VerificationConfiguration::safetyMode() const{return panConfigs[Arg::SafetyMode];}
+ItemConfiguration *VerificationConfiguration::safetyMode() const{return spinConfigs[Arg::SafetyMode];}
 
-ItemConfiguration *VerificationConfiguration::progressMode() const{return panConfigs[Arg::ProgressMode];}
+ItemConfiguration *VerificationConfiguration::progressMode() const{return spinConfigs[Arg::ProgressMode];}
 
-ItemConfiguration *VerificationConfiguration::acceptanceMode() const{return panConfigs[Arg::AccepanceMode];}
+ItemConfiguration *VerificationConfiguration::acceptanceMode() const{return spinConfigs[Arg::AccepanceMode];}
 
-ItemValueConfiguration *VerificationConfiguration::hashSize() const{return qobject_cast<ItemValueConfiguration*>(panConfigs[Arg::HashSize]);}
+ItemValueConfiguration *VerificationConfiguration::hashSize() const{return toValueItem(Arg::HashSize);}
 
-ItemValueConfiguration *VerificationConfiguration::searchDepth() const{return qobject_cast<ItemValueConfiguration*> (panConfigs[Arg::SearchDepth]);}
+ItemValueConfiguration *VerificationConfiguration::searchDepth() const{return toValueItem( Arg::SearchDepth);}
 
-ItemConfiguration *VerificationConfiguration::weakFairness() const{return panConfigs[Arg::WeakFairness];}
+ItemConfiguration *VerificationConfiguration::weakFairness() const{return spinConfigs[Arg::WeakFairness];}
 
 Arg::Type VerificationConfiguration::currentMode(){return _currentMode;}
 
-//ItemChoiceConfiguration *VerificationConfiguration::verifyMode() const{ return _verifyMode;}
-
 VerificationConfiguration::VerificationConfiguration(QObject *parent):QObject(parent),_currentMode(Arg::SafetyMode)
-//  ,_saftyMode(new ItemConfiguration(Arg::SaftyMode,this))
-//  ,_progressMode(new ItemConfiguration(Arg::ProgressMode,this))
-//  ,_acceptanceMode(new ItemConfiguration(Arg::AccepanceMode,this))
-//  ,_verifyMode(new ItemChoiceConfiguration(Arg::SaftyMode))
+
 {
+    auto &list= *new ItemConfigStateNotifierList(this);
     // spin options
     auto c = new ItemConfiguration(Arg::Verify,this); // allways added
     c->setChecked(true);
+    c->setEnabled(true);
     spinConfigs[Arg::Verify] = c;
-    newSpinItem(Arg::O1);
-    newSpinItem(Arg::O2);
-    newSpinItem(Arg::O3);
-    newSpinItem(Arg::O4);
-    newSpinItem(Arg::O5);
-    newSpinItem(Arg::O6);
+    addNewConfigItem(list,Arg::O1);
+    addNewConfigItem(list,Arg::O2);
+    addNewConfigItem(list,Arg::O3);
+    addNewConfigItem(list,Arg::O4);
+    addNewConfigItem(list,Arg::O5);
+    addNewConfigItem(list,Arg::O6);
+// remember to add ltl item
 
 //    // compileTime options
-    newCompileItem(Arg::Safety)->onlyIf(Arg::SafetyMode);
-    newCompileItem(Arg::SFH)->onlyIf(Arg::SafetyMode);
-    newCompileItem(Arg::NoFair,2)->onlyIf(Arg::SafetyMode);
-    newCompileItem(Arg::NonProgressCycle)->onlyIf(Arg::ProgressMode);
-    newCompileItem(Arg::BFS);
-    newCompileItem(Arg::BFS_DISK)->onlyIf(Arg::BFS);
-    newCompileItem(Arg::BFS_DISK_LIMIT,1000000)->onlyIf(Arg::BFS);
-    newCompileItem(Arg::BFS_LIMIT,100000)->onlyIf(Arg::BFS);
-    newCompileItem(Arg::NFair);
-    newCompileItem(Arg::NoReduce);
-    newCompileItem(Arg::Space);
-    newCompileItem(Arg::VectorSZV,1024);
-    newCompileItem(Arg::MemLim,256);
+    addNewConfigItem(list,Arg::Safety)->required(Arg::SafetyMode);
+    addNewConfigItem(list,Arg::SFH)->required(Arg::SafetyMode);
+    addNewConfigItem(list,Arg::NoFair)->required(Arg::SafetyMode);
+    addNewConfigItem(list,Arg::NonProgressCycle)->required(Arg::ProgressMode);
+    addNewConfigItem(list,Arg::BFS);
+    addNewConfigItem(list,Arg::BFS_DISK)->required(Arg::BFS);
+    addNewConfigValueItem(list,Arg::BFS_DISK_LIMIT,INT32_MAX,128,1000000)->required(Arg::BFS);
+    addNewConfigValueItem(list,Arg::BFS_LIMIT,INT32_MAX,0,100000)->required(Arg::BFS);
+    addNewConfigValueItem(list,Arg::NFair,3,0,2);
+    addNewConfigItem(list,Arg::NoReduce);
+    addNewConfigItem(list,Arg::Space);
+    addNewConfigValueItem(list,Arg::VectorSZV,INT32_MAX,128,1024);
+    addNewConfigValueItem(list,Arg::MemLim,INT32_MAX,256,256);
     // compile memory compression
-    newCompileItem(Arg::Collapse);
-    newCompileItem(Arg::HC0);
-    newCompileItem(Arg::HC1);
-    newCompileItem(Arg::HC2);
-    newCompileItem(Arg::HC3);
+    addNewConfigItem(list,Arg::Collapse)->notIf(Arg::HC);
+    addNewConfigValueItem(list,Arg::HC,3,0,2)->notIf(Arg::Collapse);
 
     //pan runtime options
-    newPanItem(Arg::TimeLimit,30);
-    newPanItem(Arg::SafetyMode)->notIf(Arg::ProgressMode)->notIf(Arg::AccepanceMode)->setChecked(true);
-    newPanItem(Arg::ProgressMode)->notIf(Arg::SafetyMode)->notIf(Arg::AccepanceMode);
-    newPanItem(Arg::AccepanceMode)->notIf(Arg::SafetyMode)->notIf(Arg::ProgressMode);
-    newPanItem(Arg::HashSize,18);
-    newPanItem(Arg::SearchDepth,10000);
-    newPanItem(Arg::WeakFairness)->notIf(Arg::SafetyMode);
+    addNewConfigValueItem(list,Arg::TimeLimit,INT32_MAX,0,30);
+    addNewConfigItem(list,Arg::SafetyMode)->notIf(Arg::ProgressMode)->notIf(Arg::AccepanceMode);
+    addNewConfigItem(list,Arg::ProgressMode)->notIf(Arg::SafetyMode)->notIf(Arg::AccepanceMode);
+    addNewConfigItem(list,Arg::AccepanceMode)->notIf(Arg::SafetyMode)->notIf(Arg::ProgressMode);
+    addNewConfigValueItem(list,Arg::HashSize,18);
+    addNewConfigValueItem(list,Arg::SearchDepth,10000);
+    addNewConfigItem(list,Arg::WeakFairness)->notIf(Arg::SafetyMode);
+    list.updateAllRequirements();
 }
 
 void VerificationConfiguration::updateSelectedVerifyMode(int mode){
     _currentMode = static_cast<Arg::Type>( mode);
-    //qDebug()<<"update SelectedVerifyMode called ->"<< Arg::name(_currentMode);
     emit verifyModeChanged(currentMode());
 }
 
-ItemConfiguration *VerificationConfiguration::newSpinItem(Arg::Type command, int value){
-    ItemConfiguration* c;
-    if(value<0) c = new ItemConfiguration(command,this);
-    else c = new ItemValueConfiguration(command,value,this);
-    spinConfigs[command] = c;
-    return c;
+ItemConfigStateNotifier *VerificationConfiguration::addNewConfigItem(ItemConfigStateNotifierList &notifierList, Arg::Type command){
+    auto item = new ItemConfiguration(command,this);
+    ItemConfigStateNotifier* notifier = notifierList.getNotifier(command);
+    notifier->setConfig(item);
+    spinConfigs[command]=item;
+    return notifier;
 }
 
-ItemConfiguration *VerificationConfiguration::newCompileItem(Arg::Type command, int value){
-    ItemConfiguration* c;
-    if(value<0) c = new ItemConfiguration(command,this);
-    else c = new ItemValueConfiguration(command,value,this);
-    compileConfigs[command] = c;
-    return c;
+ItemConfigStateNotifier *VerificationConfiguration::addNewConfigValueItem(ItemConfigStateNotifierList &notifierList, Arg::Type command, int maxValue, int minValue, int value ){
+    auto item = new ItemValueConfiguration(command,value, minValue,maxValue,this);
+    auto notifier = notifierList.getNotifier(command);
+    notifier->setConfig(item);
+    spinConfigs[command]=item;
+    return notifier;
 }
 
-ItemConfiguration *VerificationConfiguration::newPanItem(Arg::Type command, int value){
-    ItemConfiguration* c;
-    if(value<0) c = new ItemConfiguration(command,this);
-    else c = new ItemValueConfiguration(command,value,this);
-    panConfigs[command] = c;
-    return c;
+ItemValueConfiguration *VerificationConfiguration::toValueItem(Arg::Type command) const{
+    return  qobject_cast<ItemValueConfiguration*>(spinConfigs[command]);
 }
+

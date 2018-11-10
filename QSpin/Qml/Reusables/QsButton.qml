@@ -3,6 +3,7 @@ import QtQuick.Controls 2.3
 import QSpin.CppItems 1.0
 Button {
     id:control
+	opacity: enabled ? 1 : 0.1
     text:qsTr("not yet filled")
     highlighted: true
     height: 32

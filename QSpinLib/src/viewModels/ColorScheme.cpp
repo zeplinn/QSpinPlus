@@ -1,9 +1,12 @@
 #include "qspin/viewModels/ColorScheme.h"
+
+
 ColorScheme::ColorScheme(QObject *parent):QObject(parent)
   ,_btnStyle(new ButtonStyle(this))
   ,_comboStyle(new ComboBoxStyle(this))
-  ,_spinboxStyle(new SpinBoxStyle())
-  ,_genereralStyle(new GeneralStyle(this)){}
+  ,_spinboxStyle(new SpinBoxStyle(this))
+  ,_genereralStyle(new GeneralStyle(this))
+  ,_promelaEditor(new PromelaEditor(this)){}
 
 void ColorScheme::open(const QString file, bool checkIsValidColorScheme){
     QFile scheme(file);
@@ -15,20 +18,23 @@ void ColorScheme::open(const QString file, bool checkIsValidColorScheme){
     QJsonDocument jsonDoc = QJsonDocument::fromJson(txtDoc);
     QJsonObject objRoot = jsonDoc.object();
     if(checkIsValidColorScheme){
-        QJsonObject obj = objRoot[propIds.general].toObject();
-         bool flag = _genereralStyle->isValidJsonObject(obj);
-        obj = objRoot[propIds.button].toObject();
+        QJsonObject obj = objRoot[jsonIds.general].toObject();
+        bool flag = _genereralStyle->isValidJsonObject(obj);
+        obj = objRoot[jsonIds.button].toObject();
         flag = flag && _btnStyle->isValidJsonObject(obj); // no error handling
-        obj = objRoot[propIds.spinbox].toObject();
+        obj = objRoot[jsonIds.spinbox].toObject();
         flag = flag && _spinboxStyle->isValidJsonObject(obj);
-        obj = objRoot[propIds.combobox].toObject();
+        obj = objRoot[jsonIds.combobox].toObject();
         flag = flag && _comboStyle->isValidJsonObject(obj);
+        obj = objRoot[jsonIds.promelaEditor].toObject();
+        flag = flag && _promelaEditor->isValidJsonObject(obj);
         if(!flag) throw QString("invalid color scheme");
     }
-    _genereralStyle->read(objRoot[propIds.general].toObject());
-    _btnStyle->read(objRoot[propIds.button].toObject()); // no error handling
-    _spinboxStyle->read(objRoot[propIds.spinbox].toObject());
-    _comboStyle->read(objRoot[propIds.combobox].toObject());
+    _genereralStyle->read(objRoot[jsonIds.general].toObject());
+    _btnStyle->read(objRoot[jsonIds.button].toObject()); // no error handling
+    _spinboxStyle->read(objRoot[jsonIds.spinbox].toObject());
+    _comboStyle->read(objRoot[jsonIds.combobox].toObject());
+    _promelaEditor->read(objRoot[jsonIds.promelaEditor].toObject());
 
 }
 
@@ -43,6 +49,8 @@ SpinBoxStyle *ColorScheme::spinbox() const{return _spinboxStyle;}
 ComboBoxStyle *ColorScheme::combobox() const{return _comboStyle;}
 
 GeneralStyle *ColorScheme::general() const{ return _genereralStyle;}
+
+PromelaEditor *ColorScheme::promelaEditor() const { return _promelaEditor;}
 
 QColor ButtonStyle::pressed() const{ return _pressed.color;}
 
@@ -66,8 +74,8 @@ ButtonStyle::ButtonStyle(QObject *parent):BaseStyle(parent){}
 
 void ButtonStyle::read(const QJsonObject &obj){
     BaseStyle::read(obj);
-    _pressed.color = jsonToColor(propIds.pressed,obj);
-    _border.color   = jsonToColor(propIds.border,obj);
+    _pressed.color = jsonIds.toColor(jsonIds.pressed,obj);
+    _border.color   = jsonIds.toColor(jsonIds.border,obj);
 
 }
 
@@ -77,8 +85,8 @@ void ButtonStyle::write(QJsonObject &obj) const{
 
 bool ButtonStyle::isValidJsonObject(QJsonObject &obj){
     return BaseStyle::isValidJsonObject(obj)
-            && isValidRGBArray(obj,propIds.pressed)
-            && isValidRGBArray(obj,propIds.border);
+            && jsonIds.isValidRGBArray(obj,jsonIds.pressed)
+            && jsonIds.isValidRGBArray(obj,jsonIds.border);
 
 }
 
@@ -94,12 +102,10 @@ GeneralStyle::GeneralStyle(QObject *parent):BaseStyle(parent){}
 
 void GeneralStyle::read(const QJsonObject &obj){
     BaseStyle::read(obj);
-    _border.color   = jsonToColor(propIds.border,obj);
-    _hovered.color = jsonToColor(propIds.hovered,obj);
-    qDebug()<<"menu bar before"<< _menubarGradiant0.color << _menubarGradiant1.color;
-    _menubarGradiant0.color = jsonToColor(propIds.menubarGradiant0,obj);
-    _menubarGradiant1.color = jsonToColor(propIds.menubarGradiant1,obj);
-    qDebug()<< "menubar after" <<_menubarGradiant0.color << _menubarGradiant1.color;
+    _border.color   = jsonIds.toColor(jsonIds.border,obj);
+    _hovered.color = jsonIds.toColor(jsonIds.hovered,obj);
+    _menubarGradiant0.color = jsonIds.toColor(jsonIds.menubarGradiant0,obj);
+    _menubarGradiant1.color = jsonIds.toColor(jsonIds.menubarGradiant1,obj);
 }
 
 void GeneralStyle::write(QJsonObject &obj) const{
@@ -108,10 +114,10 @@ void GeneralStyle::write(QJsonObject &obj) const{
 
 bool GeneralStyle::isValidJsonObject(QJsonObject &obj){
     return BaseStyle::isValidJsonObject(obj)
-            && isValidRGBArray(obj,propIds.border)
-            && isValidRGBArray(obj,propIds.hovered)
-            && isValidRGBArray(obj,propIds.menubarGradiant0)
-            && isValidRGBArray(obj,propIds.menubarGradiant1);
+            && jsonIds.isValidRGBArray(obj,jsonIds.border)
+            && jsonIds.isValidRGBArray(obj,jsonIds.hovered)
+            && jsonIds.isValidRGBArray(obj,jsonIds.menubarGradiant0)
+            && jsonIds.isValidRGBArray(obj,jsonIds.menubarGradiant1);
 }
 
 QColor BaseStyle::foreground() const{ return _foreground.color;}
@@ -132,13 +138,13 @@ void BaseStyle::setBackground(QColor value){
     }
 }
 
-BaseStyle::BaseStyle(QObject *parent):QObject(parent){
+BaseStyle::BaseStyle(QObject *parent):StyleRoot (parent){
 
 }
 
 void BaseStyle::read(const QJsonObject &obj){
-    _foreground.color = jsonToColor(propIds.foreground,obj);
-    _background.color   = jsonToColor(propIds.background,obj);
+    _foreground.color = jsonIds.toColor(jsonIds.foreground,obj);
+    _background.color   = jsonIds.toColor(jsonIds.background,obj);
 }
 
 void BaseStyle::write(QJsonObject &obj) const{
@@ -146,63 +152,112 @@ void BaseStyle::write(QJsonObject &obj) const{
 }
 
 bool BaseStyle::isValidJsonObject(QJsonObject &obj){
-    return  isValidRGBArray(obj,propIds.foreground)
-            &&  isValidRGBArray(obj,propIds.background);
+    return  jsonIds.isValidRGBArray(obj,jsonIds.foreground)
+            &&  jsonIds.isValidRGBArray(obj,jsonIds.background);
 }
 
 
 
-QColor BaseStyle::jsonToColor(const char id[], const QJsonObject &obj){
-    QJsonArray jrgb = obj[id].toArray();
-    if(jrgb.count()<3){
-        //notify
-        throw QString("invalid rgb array: %1").arg(id);
 
-    }
-    // red, green, blue (rgb)
-    return  QColor(jrgb[0].toInt(255), jrgb[1].toInt(255), jrgb[2].toInt(255));
-}
 
-bool BaseStyle::isValidRGBArray(QJsonObject &obj, const char id[]){
-    QJsonArray j = obj[id].toArray();
-    if(j.count()!=3) // r,g,b color channels
-    {
-        // notify gui
-        return false;
-    }
-    for(auto jvalue : j){
-        int colorCode = jvalue.toInt(-1);
-        if(colorCode<0 || colorCode >256) // single color channel range [ 0..255 ]
-        {
-            // notify gui
-            return false;
-        }
-    }
-    return true;
-}
+
 
 SpinBoxStyle::SpinBoxStyle(QObject *parent):ButtonStyle(parent){}
 
 bool SpinBoxStyle::isValidJsonObject(QJsonObject &obj){
     return ButtonStyle::isValidJsonObject(obj)
-            && isValidRGBArray(obj,propIds.input)
-            && isValidRGBArray(obj,propIds.spinner);
+            && jsonIds.isValidRGBArray(obj,jsonIds.input)
+            && jsonIds.isValidRGBArray(obj,jsonIds.spinner);
 }
 
 void SpinBoxStyle::read(const QJsonObject &obj){
     ButtonStyle::read(obj);
-    _input = jsonToColor(propIds.input,obj);
-    _spinner = jsonToColor(propIds.spinner,obj);
+    _input = jsonIds.toColor(jsonIds.input,obj);
+    _spinner = jsonIds.toColor(jsonIds.spinner,obj);
 }
 
 ComboBoxStyle::ComboBoxStyle(QObject *parent):ButtonStyle(parent){}
 
 bool ComboBoxStyle::isValidJsonObject(QJsonObject &obj){
     return ButtonStyle::isValidJsonObject(obj)
-            && isValidRGBArray(obj,propIds.icon);
+            && jsonIds.isValidRGBArray(obj,jsonIds.icon);
 }
 
 void ComboBoxStyle::read(const QJsonObject &obj){
     ButtonStyle::read(obj);
-    _icon = jsonToColor(propIds.icon,obj);
+    _icon = jsonIds.toColor(jsonIds.icon,obj);
 }
+
+StyleRoot::StyleRoot(QObject *parent):QObject(parent){
+    //    if(_msgService==nullptr)
+    //        _msgService = &Qs::instance().msgService();
+}
+
+
+
+
+
+
+
+
+
+int PromelaEditor::pointSize() const{return  _pointSize;}
+
+int PromelaEditor::tabIndents() const{return _tabIndents;}
+
+QString PromelaEditor::fontFamily() const{ return _fontFamily;}
+
+QColor PromelaEditor::selectedText() const{ return _selectedText;}
+
+PromelaTextHighlighter PromelaEditor::syntaxHighlighter() const{return _syntaxHighlighter;}
+
+PromelaEditor::PromelaEditor(QObject *parent):BaseStyle(parent)
+  ,_syntaxHighlighter(PromelaTextHighlighter()){}
+
+void PromelaEditor::read(const QJsonObject &obj){
+    BaseStyle::read(obj);
+    _pointSize = obj[jsonIds.pointSize].toInt(10);
+    _tabIndents = obj[jsonIds.tabIndents].toInt(4);
+    _fontFamily = obj[jsonIds.fontFamily].toString("");
+    _selectedText = jsonIds.toColor(jsonIds.selectedText,obj);
+    _syntaxHighlighter.read(obj[jsonIds.syntaxHighlighter].toObject());
+}
+
+void PromelaEditor::write(QJsonObject &obj) const{Q_UNUSED(obj)}
+
+bool PromelaEditor::isValidJsonObject(QJsonObject &obj) {
+    bool flag =BaseStyle::isValidJsonObject(obj);
+    flag = jsonIds.isValidInt(obj,jsonIds.pointSize);
+    flag = jsonIds.isValidInt(obj,jsonIds.tabIndents);
+    flag = jsonIds.isValidString(obj,jsonIds.fontFamily);
+    flag = jsonIds.isValidRGBArray(obj,jsonIds.selectedText);
+    auto syntaxObj = obj[jsonIds.syntaxHighlighter].toObject();
+    flag = _syntaxHighlighter.isValidJsonObject(syntaxObj);
+    return flag;
+}
+
+void PromelaTextHighlighter::read(const QJsonObject &obj){
+    _classes = jsonIds.toColor(jsonIds.classes,obj);
+    _keywords = jsonIds.toColor(jsonIds.keywords,obj);
+    _comments = jsonIds.toColor(jsonIds.comments,obj);
+    _types = jsonIds.toColor(jsonIds.types,obj);
+    _numbers = jsonIds.toColor(jsonIds.numbers,obj);
+    _operators = jsonIds.toColor(jsonIds.operators,obj);
+    _strings = jsonIds.toColor(jsonIds.strings,obj);
+    qDebug()<< _classes << keywords() << _types;
+
+}
+
+bool PromelaTextHighlighter::isValidJsonObject(QJsonObject &obj)
+{
+    bool flag = jsonIds.isValidRGBArray(obj,jsonIds.classes);
+    flag = jsonIds.isValidRGBArray(obj,jsonIds.keywords);
+    flag = jsonIds.isValidRGBArray(obj,jsonIds.operators);
+    flag = jsonIds.isValidRGBArray(obj,jsonIds.comments);
+    flag = jsonIds.isValidRGBArray(obj,jsonIds.strings);
+    flag = jsonIds.isValidRGBArray(obj,jsonIds.numbers);
+    flag = jsonIds.isValidRGBArray(obj,jsonIds.types);
+    return flag;
+}
+
+void PromelaTextHighlighter::write(QJsonObject &obj) const{Q_UNUSED(obj)}

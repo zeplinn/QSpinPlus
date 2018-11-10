@@ -26,7 +26,7 @@ public:
         VectorSZV, // state vector size
         MemLim,     // maximum memory (mega bytes )
         //compile memory compression
-        Collapse, HC0, HC1, HC2, HC3, // state vector compression modes
+        Collapse, HC, // state vector compression modes
 
         // pan runtime
         TimeLimit=128,
@@ -38,18 +38,19 @@ public:
     };
     Q_ENUM(Type)
     enum Category{
-        Spin=3, // start value of spin args
-        Compile = 35,   // start value of Compile args
-        Pan = 128   // start value of pan args
+        Spin=LTL, // start value of spin args
+        Compile = Safety,   // start value of Compile args
+        Pan = TimeLimit   // start value of pan args
     };
     explicit Arg(QObject* parent = nullptr);
 
     Q_INVOKABLE static QString name(Arg::Type type) noexcept;
     Q_INVOKABLE static QString val(Arg::Type type,QString extra=" ");
     static QString val(Arg::Type type,int extra){  return val(type,QString::number(extra));  }
-    static bool isSpinArgument(Arg::Type arg) noexcept;
-    static bool isCompileArgument(Arg::Type arg) noexcept;
-    static bool isPanArgument(Arg::Type arg) noexcept;
+    static Arg::Category getCategory(Arg::Type command);
+    static bool isSpinArgument(Arg::Type arg);
+    static bool isCompileArgument(Arg::Type arg);
+    static bool isPanArgument(Arg::Type arg);
 //    Q_INVOKABLE static Arg::Type toCode(const QString& name);
 private:
     // helper class for const map initilization

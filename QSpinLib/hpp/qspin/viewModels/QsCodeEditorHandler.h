@@ -12,12 +12,15 @@
 #include "QsError.h"
 #include <QTextCodec>
 #include "qspin/QmlImportNames.h"
+#include <QSyntaxHighlighter>
 
 class QsCodeEditorHandler : public QObject
 {
 		Q_OBJECT
 		Q_PROPERTY(QQuickTextDocument* textDocument READ textDocument WRITE setTextDocument NOTIFY textDocumentChanged)
 		QQuickTextDocument* _textDocument; // only safe if used with CodeEditor.qml
+        Q_PROPERTY(QSyntaxHighlighter* syntaxHighlighter READ syntaxHighlighter WRITE setSyntaxHighlighter NOTIFY syntaxHighlighterChanged)
+        QSyntaxHighlighter *_highlighter;
 		Q_PROPERTY(QUrl fileUrl READ fileUrl WRITE setFileUrl NOTIFY fileUrlChanged)
 		QUrl _fileUrl;
 	public: //properties
@@ -26,9 +29,12 @@ class QsCodeEditorHandler : public QObject
 
 		QUrl fileUrl()const;
 		void setFileUrl(QUrl value);
+        QSyntaxHighlighter* syntaxHighlighter()const;
+        void setSyntaxHighlighter(QSyntaxHighlighter* value);
 	signals:// properties
 		void textDocumentChanged();
 		void fileUrlChanged();
+        void syntaxHighlighterChanged();
 	public:
         explicit QsCodeEditorHandler(QObject *parent = nullptr);
 		static void registerAsQml();
@@ -42,6 +48,17 @@ class QsCodeEditorHandler : public QObject
 
 	private: // functions
 		QTextDocument* document()const;
+
+};
+class CodeEditorHandlerExposedMembers:public QObject{
+    Q_OBJECT
+    QsCodeEditorHandler* _editor;
+public:
+    explicit CodeEditorHandlerExposedMembers(QsCodeEditorHandler* parent=nullptr):QObject(parent){
+
+    }
+
+public slots:
 
 };
 

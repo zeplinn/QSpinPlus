@@ -4,10 +4,15 @@ import QSpin.CppItems 1.0
 Item{
     id:textEditor
     property alias font: textArea.font
-    property alias textColor: textArea.color
+	property int tabIndentSize: 4
+	property alias foreground: textArea.color
+	property alias background: backgroundId.color
     property alias fileUrl: docHandler.fileUrl
     property alias editorBackground: editorBackground.color
     readonly property alias documentHandler: docHandler // need better encapsulation to only expose what is needed to the outside
+	property alias syntaxHighlighter: docHandler.syntaxHighlighter
+	readonly property var saveDocument: docHandler.saveAs
+	readonly property var openDocument: docHandler.open
     Rectangle{
         anchors.fill: parent
         id: editorBackground
@@ -17,7 +22,10 @@ Item{
         id:docHandler
         textDocument: textArea.textDocument
     }
-
+FontMetrics{
+	id: fontMetricsId
+font: textArea.font
+}
     Flickable {
 
         property bool isScrolling: false
@@ -39,8 +47,8 @@ Item{
         //onMovingVerticallyChanged: {console.debug("moving vertically changed")}
 
         TextArea.flickable: TextArea {
-            id: textArea
-            //scale: 0.01
+			id: textArea
+			tabStopDistance: fontMetricsId.averageCharacterWidth+textEditor.tabIndentSize
             renderType: Text.NativeRendering
             textFormat: Qt.PlainText
             wrapMode: TextArea.WordWrap
@@ -55,9 +63,7 @@ Item{
             rightPadding: 6
             topPadding: 0
             bottomPadding: 0
-            background: null
-
-            text: qsTr("bkadjsakds \n jfsdklfjsdlkd \n kdfjdsklfs s jflsfd")
+			background: Rectangle{ id:backgroundId; color: QsStyle.general.background}
 			color: QsStyle.general.foreground
 
         }

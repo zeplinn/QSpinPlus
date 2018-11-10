@@ -199,6 +199,7 @@ class QsStyle : public QObject
     Q_PROPERTY(GeneralStyle* general READ general CONSTANT)
     Q_PROPERTY(SpinBoxStyle* spinbox READ spinbox CONSTANT)
     Q_PROPERTY(ComboBoxStyle* combobox READ combobox CONSTANT)
+    Q_PROPERTY(PromelaEditor* promelaEditor READ promelaEditor CONSTANT)
     ColorScheme& _colorScheme;
 public:
 public: // properties
@@ -206,6 +207,7 @@ public: // properties
   SpinBoxStyle* spinbox()const;
   ComboBoxStyle* combobox()const;
   GeneralStyle* general()const;
+  PromelaEditor* promelaEditor()const;
 
 
 public:
