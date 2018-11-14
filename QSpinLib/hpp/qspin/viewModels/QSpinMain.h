@@ -21,17 +21,21 @@
 #include "qspin/viewModels/QsTableHandler.h"
 #include "qspin/viewModels/QsSpinQueueHandler.h"
 #include "qspin/models/QsPromelaSyntaxHighlighter.h"
+#include "qspin/viewModels/QsMainHandler.h"
+#include "qspin/viewModels/QsTopToolbarHandler.h"
+#include "qspin/viewModels/QsPromelaHandler.h"
+#include "qspin/viewModels/QsConsoleHandler.h"
 class QSpinMain : public QObject
 {
 		Q_OBJECT
 		EventAggregator& msgService;
 	public:
-        static void registerAllQmlTypes();
+		static void registerAllQmlTypes();
 
-        void loadColorScheme(const QString filename);
+		void loadColorScheme(const QString filename);
 
 		explicit QSpinMain(QObject *parent = nullptr,EventAggregator& msgService = Qs::instance().msgService());
-        Q_INVOKABLE qsProject_ptr createNewProject(const QString& name,const QUrl filePath);
+		Q_INVOKABLE qsProject_ptr createNewProject(const QString& name,const QUrl filePath);
 	signals:
 
 	public slots:

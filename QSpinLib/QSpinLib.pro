@@ -50,7 +50,11 @@ SOURCES += \
    # src/models/QsVeriyConfigList.cpp \
     src/viewModels/QsItemConfigStateNotifier.cpp \
     src/models/QsPromelaSyntaxHighlighter.cpp \
-    src/models/jsonQspinPlusSchemeIds.cpp
+    src/models/jsonQspinPlusSchemeIds.cpp \
+    src/viewModels/QsMainHandler.cpp \
+    src/viewModels/QsTopToolbarHandler.cpp \
+    src/viewModels/QsPromelaHandler.cpp \
+    src/viewModels/QsConsoleHandler.cpp
 
 HEADERS += \
     hpp/qspin/cppView/QsDivider.h \
@@ -84,7 +88,17 @@ HEADERS += \
     #hpp/qspin/models/QsVeriyConfigList.h \
     hpp/qspin/models/QsItemConfigStateNotifier.h \
     hpp/qspin/models/QsPromelaSyntaxHighlighter.h \
-    hpp/qspin/models/jsonQspinPlusSchemeIds.h
+    hpp/qspin/models/jsonQspinPlusSchemeIds.h \
+    hpp/qspin/eventObjects/SelectedToolTabUpdated.h \
+    hpp/qspin/viewModels/QsMainHandler.h \
+    hpp/qspin/viewModels/QsTopToolbarHandler.h \
+    hpp/qspin/eventObjects/ProjectOpened.h \
+    hpp/qspin/eventObjects/ProjectSaved.h \
+    hpp/qspin/eventObjects/newProjectCreated.h \
+    hpp/qspin/eventObjects/PrintToConsole.h \
+    hpp/qspin/viewModels/QsPromelaHandler.h \
+    hpp/qspin/viewModels/QsConsoleHandler.h \
+    hpp/qspin/eventObjects/ProjectClosed.h
 INCLUDEPATH+=\
     $$PWD/hpp
 

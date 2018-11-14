@@ -5,10 +5,45 @@ import QtQuick.Controls 2.4
 import QSpin.CppItems 1.0
 import QtQuick.Dialogs 1.3 as Fd
 Dialog{
+    id: rootId
     title: qsTr("Create new Project")
+    padding: 8
+    header: QsText{
+        padding: 8
+        font.pointSize: 14
+        text: rootId.title
+    }
+    footer: Item{
+        implicitHeight: childrenRect.height
+        implicitWidth: childrenRect.width
+
+        Row{
+            anchors.right: parent.right
+
+
+            spacing: 8
+            QsButton{
+                text: qsTr("Create")
+                implicitWidth: 70
+            }
+            QsButton{
+                text: qsTr("Cancel")
+                implicitWidth: 70
+            }
+        }
+    }
+
+    property alias folder: folderExplorerId.folder
+    readonly property alias name: projectNameId.text
     modal: true
-    standardButtons: Dialog.Ok | Dialog.Cancel
+   // standardButtons: Dialog.Ok | Dialog.Cancel
     closePolicy: Popup.NoAutoClose | Popup.CloseOnEscape
+    background: Rectangle{
+        color: QsStyle.general.background
+        border.color: QsStyle.general.border
+        border.width: 1
+    }
+
     ColumnLayout{
         id:rootLayoutId
         anchors.fill: parent
@@ -24,8 +59,8 @@ Dialog{
             text: qsTr("Remove spaces for path")
         }
         RowLayout{
-            spacing: 10
-            Label{
+            spacing: 8
+            QsText{
                 text: qsTr("Path:")
             }
             QsText{

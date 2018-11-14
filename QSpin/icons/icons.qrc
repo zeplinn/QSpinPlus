@@ -14,5 +14,6 @@
         <file>save.png</file>
         <file>Settings Icon.png</file>
         <file>Settings Icon2x.png</file>
+        <file>undoRedo.png</file>
     </qresource>
 </RCC>

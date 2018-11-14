@@ -32,5 +32,6 @@
         <file>Views/QsConsoleView.qml</file>
         <file>Views/QsSpinQueueView.qml</file>
         <file>Reusables/QsTable.qml</file>
+        <file>QsTopToolBar.qml</file>
     </qresource>
 </RCC>

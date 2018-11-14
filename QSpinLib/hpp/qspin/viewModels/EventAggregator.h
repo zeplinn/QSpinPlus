@@ -12,7 +12,7 @@ class ISubscriber{
 
 	public:
 		virtual ~ISubscriber(){}
-		virtual void subscriber(const std::shared_ptr<T> event)=0;
+		virtual void subscriber(const T& event)=0;
 };
 
 class EventAggregator: public QObject{
@@ -22,7 +22,7 @@ class EventAggregator: public QObject{
 		QMutex mutex;
 
 	public:
-        explicit EventAggregator(QObject* parent=nullptr);
+		explicit EventAggregator(QObject* parent=nullptr);
 
 		template<typename T>
 		bool subscribe(ISubscriber<T>* subsrciber){
@@ -40,10 +40,10 @@ class EventAggregator: public QObject{
 			return true;
 		}
 		template<typename T>
-		void publish(const std::shared_ptr<T> object){
+		void publish(const T& object){
 			size_t id = typeid (ISubscriber<T>).hash_code();
 			QLinkedList<s_ptr> subcribersToRemove;
-            QLinkedList<s_ptr> subscribers(getSubsrcibers(id));
+			QLinkedList<s_ptr> subscribers(getSubsrcibers(id));
 
 			if(!hs.contains(id)) return; // post error msg?
 			QMutableLinkedListIterator<s_ptr>iq(subscribers);
@@ -65,7 +65,7 @@ class EventAggregator: public QObject{
 			mutex.unlock();
 		}
 	private:
-        QLinkedList<s_ptr> getSubsrcibers(size_t id);
+		QLinkedList<s_ptr> getSubsrcibers(size_t id);
 
 };
 #endif // EVENTAGGREGATOR_H

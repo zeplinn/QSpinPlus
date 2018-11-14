@@ -8,7 +8,8 @@ Button {
     implicitWidth: 24
     property alias imageSource: imageId.source
     property string tooltip: ""
-	property bool useTooltip: false
+    property bool useTooltip: false
+    property alias imageRotation: imageId.rotation
     padding: 4
     rightPadding: 4
     leftPadding: 4
@@ -27,6 +28,6 @@ Button {
     ToolTip.timeout: 2000
 
     background: Rectangle{
-		color: hovered || pressed ? QsStyle.button.pressed : "transparent"
+        color: hovered || pressed ? QsStyle.button.pressed : "transparent"
     }
 }
