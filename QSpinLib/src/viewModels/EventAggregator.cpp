@@ -25,7 +25,7 @@ EventAggregator::EventAggregator(QObject *parent):QObject(parent){}
 QLinkedList<EventAggregator::s_ptr> EventAggregator::getSubsrcibers(size_t id){
     mutex.lock();
     QLinkedList<s_ptr> tmp(hs[id]);
-    mutex.lock();
+    mutex.unlock();
     return tmp;
 }
 

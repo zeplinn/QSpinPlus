@@ -8,7 +8,7 @@ void TextGutterArea::setTextDocument(QQuickTextDocument *doc){
 		// attach draw update to event blockCountChanged
 		_totalBlockCountConnection
 				= connect(document(),&QTextDocument::blockCountChanged
-                          ,[=](int newBlockCount){Q_UNUSED(newBlockCount) /*qDebug()<< "block count updated";*/ update(boundingRect().toRect()); } );
+                          ,[=](int newBlockCount){Q_UNUSED(newBlockCount) update(boundingRect().toRect()); } );
 		// ensure gutter is updated when document is set for initial first line display
 		update(boundingRect().toRect());
 	}
@@ -68,8 +68,7 @@ void TextGutterArea::paint(QPainter *painter){
 }
 
 void TextGutterArea::documentViewportVerticalupdate(qreal vTop, qreal vBottom, bool isPanning){
-	//qDebug()<< "viewport update started";
-	_visibleTop = (int) vTop;
+    _visibleTop = (int) vTop;
 	_visibleBottom = (int) vBottom;
 
 	QTextBlock block = firstVisibleTextBlock();
@@ -88,8 +87,7 @@ void TextGutterArea::documentViewportVerticalupdate(qreal vTop, qreal vBottom, b
 		blockBounds = layout()->blockBoundingRect(block).toRect();
 	}
 	if (_firstVisibleBlock< 0) _firstVisibleBlock = 0;
-	//qDebug()<<"viewport update ended";
-	if(isPanning){
+    if(isPanning){
 		update(boundingRect().toRect());
 	}
 }

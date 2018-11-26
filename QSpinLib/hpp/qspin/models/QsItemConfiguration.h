@@ -1,11 +1,25 @@
 #ifndef QSITEMCONFIGURATION_H
 #define QSITEMCONFIGURATION_H
-#include "qspin/models/Arg.h"
 #include <QObject>
+#include <QXmlStreamReader>
 #include <QDebug>
+#include <QRegularExpression>
+#include <QDir>
+//#include "qspin/Qs.h"
+#include "qspin/QObjectBase.h"
+class QSpinPlus;
+#include "qspin/models/QSpinPlus.h"
+#include "qspin/models/Arg.h"
 #include "qspin/QpropertyHelper.h"
+#include "qspin/models/IQsSerialization.h"
 
-class ItemConfiguration: public QObject{
+
+////////////////////////////////////////////////////////////////////
+/// \brief The ItemConfiguration class
+///////////////////////////////////////////////////////////////////
+
+
+class ItemConfiguration: public QObjectBase, public IQXmlSerialization{
     Q_OBJECT
     Q_PROPERTY(Arg::Type command READ command NOTIFY commandChanged)
     Arg::Type _command;
@@ -21,10 +35,7 @@ public:// properties
     bool checked()const;
 
     bool enabled()const;
-    void setEnabled(bool value){
-        _enabled = value;
-        emit enabledChanged();
-    }
+    void setEnabled(bool value);
     Q_INVOKABLE virtual QString argument()const;
 public slots:
     void setChecked(bool value);
@@ -38,12 +49,24 @@ private:
     Arg::Category _category;
 public:
     // used for making arguments chaining
-    explicit ItemConfiguration(Arg::Type commandId,QObject* parent= nullptr);
-    Arg::Category category()const{return  _category;}
+    explicit ItemConfiguration(Arg::Type commandId,QObject* parent= nullptr, EventAggregator* msgService=nullptr);
+    ItemConfiguration(ItemConfiguration* item);
+    Arg::Category category()const;
+    virtual void read(QXmlStreamReader& xml) override;
+    virtual void write(QXmlStreamWriter& xml)override;
+
+    virtual QString writeCommand()const;
 protected:
     void setCommand(Arg::Type value);
+    void readXmlAttributes(QXmlStreamAttributes attr);
 
 };
+
+
+///////////////////////////////////////////////////////////////////////////////////////
+/// \brief The ItemValueConfiguration class
+//////////////////////////////////////////////////////////////////////////////////
+
 
 class ItemValueConfiguration: public ItemConfiguration{
     Q_OBJECT
@@ -54,26 +77,62 @@ class ItemValueConfiguration: public ItemConfiguration{
 public://properties
     int commandValue()const;
     void setCommandValue(int value);
-    int maxValue()const{ return _maxValue;}
-    int minValue()const{ return _minValue;}
+    int maxValue()const;
+    int minValue()const;
 
 signals: // properties
     void commandValueChanged();
 
 public:
-    explicit ItemValueConfiguration(Arg::Type command,int value,int minValue,int maxValue,QObject* parent = nullptr);
+    explicit ItemValueConfiguration(Arg::Type command,int value,int minValue,int maxValue
+                                    ,QObject* parent = nullptr, EventAggregator* msgService = nullptr);
+   ItemValueConfiguration(ItemValueConfiguration* item);
     Q_INVOKABLE virtual QString argument()const override;
+    virtual void read(QXmlStreamReader& xml)override;
+    virtual void write(QXmlStreamWriter& xml)override;
+
+    virtual QString writeCommand()const override{
+        return Arg::val(command(),commandValue());
+    }
 };
 
-class ItemTextFileConfiguration:public ItemConfiguration{
+
+////////////////////////////////////////////////////////////////////////////////////////////
+/// \brief The ItemLTLConfiguration class
+////////////////////////////////////////////////////////////////////////////////////////
+
+
+class ItemLTLConfiguration
+        :public ItemConfiguration
+        ,public ISubscriber<ProjectOpened>
+        ,public ISubscriber<ProjectSaved>
+{
     Q_OBJECT
-    Q_PROPERTY(Arg::Type choice READ choice WRITE setChoice NOTIFY choiceChanged)
+    Q_PROPERTY(QString document READ document WRITE setDocument NOTIFY documentChanged)
+    QString _document;
 public: // properties
-    Arg::Type choice()const;
-    void setChoice(Arg::Type value);
+    QString document()const{ return _document; }
+    void setDocument(QString value){
+        if(_document != value){
+            _document = value;
+            emit documentChanged();
+        }
+    }
 signals:
-    void choiceChanged();
+    void documentChanged();
+private:
+    QDir _destinationDir;
 public:
-    explicit ItemTextFileConfiguration(Arg::Type defaultCommand=Arg::None,QObject* parent=nullptr);
+    using ItemConfiguration::ItemConfiguration;
+    explicit ItemLTLConfiguration(Arg::Type commandId, QObject* parent =nullptr, EventAggregator* msgService=nullptr);
+   // explicit ItemLTLConfiguration(Arg::Type defaultCommand=Arg::None,QObject* parent=nullptr);
+    ItemLTLConfiguration(ItemLTLConfiguration* item);
+
+    virtual void subscriber(const ProjectOpened& event) override;
+    virtual void subscriber(const ProjectSaved& event) override;
+
+    virtual QString writeCommand()const override;
 };
+/*#include "qspin/eventObjects/ProjectOpened.h"
+#include "qspin/eventObjects/ProjectSaved.h*/
 #endif // QSITEMCONFIGURATION_H

@@ -72,52 +72,112 @@ ItemValueConfiguration *VerificationConfiguration::searchDepth() const{return to
 
 ItemConfiguration *VerificationConfiguration::weakFairness() const{return spinConfigs[Arg::WeakFairness];}
 
+
 Arg::Type VerificationConfiguration::currentMode(){return _currentMode;}
 
-VerificationConfiguration::VerificationConfiguration(QObject *parent):QObject(parent),_currentMode(Arg::SafetyMode)
-
+VerificationConfiguration::VerificationConfiguration(QObject *parent, EventAggregator *msgService)
+    :QObjectBase(parent,msgService)
+    ,_currentMode(Arg::SafetyMode)
 {
-    auto &list= *new ItemConfigStateNotifierList(this);
-    // spin options
+
     auto c = new ItemConfiguration(Arg::Verify,this); // allways added
     c->setChecked(true);
     c->setEnabled(true);
     spinConfigs[Arg::Verify] = c;
-    addNewConfigItem(list,Arg::O1);
-    addNewConfigItem(list,Arg::O2);
-    addNewConfigItem(list,Arg::O3);
-    addNewConfigItem(list,Arg::O4);
-    addNewConfigItem(list,Arg::O5);
-    addNewConfigItem(list,Arg::O6);
-// remember to add ltl item
+    addNewConfigItem(Arg::O1);
+    addNewConfigItem(Arg::O2);
+    addNewConfigItem(Arg::O3);
+    addNewConfigItem(Arg::O4);
+    addNewConfigItem(Arg::O5);
+    addNewConfigItem(Arg::O6);
+    // remember to add ltl item
 
-//    // compileTime options
-    addNewConfigItem(list,Arg::Safety)->required(Arg::SafetyMode);
-    addNewConfigItem(list,Arg::SFH)->required(Arg::SafetyMode);
-    addNewConfigItem(list,Arg::NoFair)->required(Arg::SafetyMode);
-    addNewConfigItem(list,Arg::NonProgressCycle)->required(Arg::ProgressMode);
-    addNewConfigItem(list,Arg::BFS);
-    addNewConfigItem(list,Arg::BFS_DISK)->required(Arg::BFS);
-    addNewConfigValueItem(list,Arg::BFS_DISK_LIMIT,INT32_MAX,128,1000000)->required(Arg::BFS);
-    addNewConfigValueItem(list,Arg::BFS_LIMIT,INT32_MAX,0,100000)->required(Arg::BFS);
-    addNewConfigValueItem(list,Arg::NFair,3,0,2);
-    addNewConfigItem(list,Arg::NoReduce);
-    addNewConfigItem(list,Arg::Space);
-    addNewConfigValueItem(list,Arg::VectorSZV,INT32_MAX,128,1024);
-    addNewConfigValueItem(list,Arg::MemLim,INT32_MAX,256,256);
+    //    // compileTime options
+    addNewConfigItem(Arg::Safety)->required(Arg::SafetyMode);
+    addNewConfigItem(Arg::SFH)->required(Arg::SafetyMode);
+    addNewConfigItem(Arg::NoFair)->required(Arg::SafetyMode);
+    addNewConfigItem(Arg::NonProgressCycle)->required(Arg::ProgressMode);
+    addNewConfigItem(Arg::BFS);
+    addNewConfigItem(Arg::BFS_DISK)->required(Arg::BFS);
+    addNewConfigValueItem(Arg::BFS_DISK_LIMIT,INT32_MAX,128,1000000)->required(Arg::BFS);
+    addNewConfigValueItem(Arg::BFS_LIMIT,INT32_MAX,0,100000)->required(Arg::BFS);
+    addNewConfigValueItem(Arg::NFair,3,0,2);
+    addNewConfigItem(Arg::NoReduce);
+    addNewConfigItem(Arg::Space);
+    addNewConfigValueItem(Arg::VectorSZV,INT32_MAX,128,1024);
+    addNewConfigValueItem(Arg::MemLim,INT32_MAX,256,256);
     // compile memory compression
-    addNewConfigItem(list,Arg::Collapse)->notIf(Arg::HC);
-    addNewConfigValueItem(list,Arg::HC,3,0,2)->notIf(Arg::Collapse);
+    addNewConfigItem(Arg::Collapse)->notIf(Arg::HC);
+    addNewConfigValueItem(Arg::HC,3,0,2)->notIf(Arg::Collapse);
 
     //pan runtime options
-    addNewConfigValueItem(list,Arg::TimeLimit,INT32_MAX,0,30);
-    addNewConfigItem(list,Arg::SafetyMode)->notIf(Arg::ProgressMode)->notIf(Arg::AccepanceMode);
-    addNewConfigItem(list,Arg::ProgressMode)->notIf(Arg::SafetyMode)->notIf(Arg::AccepanceMode);
-    addNewConfigItem(list,Arg::AccepanceMode)->notIf(Arg::SafetyMode)->notIf(Arg::ProgressMode);
-    addNewConfigValueItem(list,Arg::HashSize,18);
-    addNewConfigValueItem(list,Arg::SearchDepth,10000);
-    addNewConfigItem(list,Arg::WeakFairness)->notIf(Arg::SafetyMode);
-    list.updateAllRequirements();
+    addNewConfigValueItem(Arg::TimeLimit,INT32_MAX,0,30);
+    addNewConfigItem(Arg::SafetyMode)->notIf(Arg::ProgressMode)->notIf(Arg::AccepanceMode);
+    addNewConfigItem(Arg::ProgressMode)->notIf(Arg::SafetyMode)->notIf(Arg::AccepanceMode);
+    addNewConfigItem(Arg::AccepanceMode)->notIf(Arg::SafetyMode)->notIf(Arg::ProgressMode);
+    addNewConfigValueItem(Arg::HashSize,INT32_MAX,1,18);
+    addNewConfigValueItem(Arg::SearchDepth,INT32_MAX,256,10000);
+    addNewConfigItem(Arg::WeakFairness)->notIf(Arg::SafetyMode);
+}
+
+
+SpinCommands *VerificationConfiguration::getSpinCommands(){
+    auto commands = new SpinCommands();
+    for(auto c: spinConfigs){
+        if(c->checked() && c->enabled()){
+            commands->append(c);
+        }
+
+    }
+    return commands;
+}
+
+void VerificationConfiguration::queueVerification(QDir destination){
+    if(!readonly()){
+        setReadonly(true);
+        auto commands = new SpinCommands();
+
+        auto package = new VerificationResultContainer();
+        package->setCommands(commands); auto fInfo =package->saveAs(_name,destination);
+
+        _msgService->publish(
+                    AppendToVeriyQueue(fInfo,package->created())
+                    );
+
+        setReadonly(false);
+    }
+
+}
+
+void VerificationConfiguration::read(QXmlStreamReader &xml){
+    auto attr = xml.attributes();
+    if(attr.hasAttribute("name"))
+        setName(attr.value("name").toString());
+    else setName("nameMissing");
+    while (xml.readNextStartElement()) {
+        QString n = xml.name().toString();
+        if(xml.name()=="ItemValueConfiguration"|| xml.name()=="ItemConfiguration")
+        {
+
+            auto attr = xml.attributes();
+            auto index = static_cast<Arg::Type>(attr.value("command").toInt());
+            spinConfigs[index]->read(xml);
+        }
+        else{
+            xml.raiseError("invalid configuration object");
+        }
+    }
+    updateConfigurations();
+
+}
+
+void VerificationConfiguration::write(QXmlStreamWriter &xml){
+    xml.writeStartElement("VerificationConfiguration");
+    xml.writeAttribute("name",name());
+    for(auto ic: spinConfigs)
+        ic->write(xml);
+    xml.writeEndElement();// verification configuration
+
 }
 
 void VerificationConfiguration::updateSelectedVerifyMode(int mode){
@@ -125,17 +185,21 @@ void VerificationConfiguration::updateSelectedVerifyMode(int mode){
     emit verifyModeChanged(currentMode());
 }
 
-ItemConfigStateNotifier *VerificationConfiguration::addNewConfigItem(ItemConfigStateNotifierList &notifierList, Arg::Type command){
+void VerificationConfiguration::updateConfigurations(){
+    notifiers.updateAllRequirements();
+}
+
+ItemConfigStateNotifier *VerificationConfiguration::addNewConfigItem(Arg::Type command){
     auto item = new ItemConfiguration(command,this);
-    ItemConfigStateNotifier* notifier = notifierList.getNotifier(command);
+    ItemConfigStateNotifier* notifier = notifiers.getNotifier(command);
     notifier->setConfig(item);
     spinConfigs[command]=item;
     return notifier;
 }
 
-ItemConfigStateNotifier *VerificationConfiguration::addNewConfigValueItem(ItemConfigStateNotifierList &notifierList, Arg::Type command, int maxValue, int minValue, int value ){
+ItemConfigStateNotifier *VerificationConfiguration::addNewConfigValueItem(Arg::Type command, int maxValue, int minValue, int value ){
     auto item = new ItemValueConfiguration(command,value, minValue,maxValue,this);
-    auto notifier = notifierList.getNotifier(command);
+    auto notifier = notifiers.getNotifier(command);
     notifier->setConfig(item);
     spinConfigs[command]=item;
     return notifier;

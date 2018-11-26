@@ -2,32 +2,44 @@
 #define COLORSCHEME_H
 #include <QObject>
 #include <QColor>
-#include "qspin/models/IQsSerialization.h"
 #include <QFile>
 #include <QJsonArray>
 #include <QJsonDocument>
 #include <QJsonObject>
 #include <QDebug>
+class QObjectBase;
+#include "qspin/QObjectBase.h"
+#include "qspin/models/IQsSerialization.h"
 #include "qspin/models/jsonQspinPlusSchemeIds.h"
-#include "qspin/viewModels/EventAggregator.h"
 
 //static constexpr jsonQspinPlusSchemeIds jsonIds;
-
+class QObjectBase;
 struct colorProperty{
     QColor color;
     QString id;
 };
+
+
 // style types
-class StyleRoot: public QObject, public IQJsonSerialization{
+///////////////////////////////////////////////////
+/// \brief The StyleRoot class
+//////////////////////////////////////////////////
+
+class StyleRoot: public QObjectBase, public IQJsonSerialization{
     Q_OBJECT
     Q_INTERFACES(IQJsonSerialization)
 public:
-    explicit StyleRoot(QObject* parent=nullptr);
+    using QObjectBase::QObjectBase;
     ~StyleRoot(){}
 protected:
     jsonQspinPlusSchemeIds jsonIds;
 protected:
 };
+
+////////////////////////////////////////////////
+/// \brief The BaseStyle class
+/////////////////////////////////////////////////
+
 
 class BaseStyle : public StyleRoot
 {
@@ -45,13 +57,18 @@ signals:
     void foregroundChanged();
     void backgroundChanged();
 public:
-    explicit BaseStyle(QObject *parent = nullptr);
+    using StyleRoot::StyleRoot;
     virtual void read(const QJsonObject& obj) override;
     virtual void write(QJsonObject& obj)const override;
     virtual bool isValidJsonObject(QJsonObject& obj)override;
 protected:
 
 };
+
+
+//////////////////////////////////////////////////
+/// \brief The GeneralStyle class
+//////////////////////////////////////////////////
 
 class GeneralStyle : public BaseStyle{
     Q_OBJECT
@@ -75,11 +92,17 @@ signals: // properties
     void menubarGradiant0Changed();
     void menubarGradiant1Changed();
 public:
-    explicit GeneralStyle(QObject* parent = nullptr);
+    using BaseStyle::BaseStyle;
     virtual void read(const QJsonObject& obj) override;
     virtual void write(QJsonObject& obj)const override;
     virtual bool isValidJsonObject(QJsonObject& obj) override;
 };
+
+
+/////////////////////////////////////////////////////
+/// \brief The ButtonStyle class
+/////////////////////////////////////////////////////
+
 
 class ButtonStyle: public BaseStyle{
     Q_OBJECT
@@ -96,13 +119,18 @@ signals:
     void pressedChanged();
     void borderChanged();
 public:
-    explicit ButtonStyle(QObject* parent = nullptr);
+    using BaseStyle:: BaseStyle;
     virtual void read(const QJsonObject& obj)override;
     virtual void write(QJsonObject& obj)const override;
     virtual bool isValidJsonObject(QJsonObject& obj) override;
 private:// member functions
 
 };
+
+
+//////////////////////////////////////////////////////////
+/// \brief The SpinBoxStyle class
+/////////////////////////////////////////////////////////
 
 class SpinBoxStyle: public ButtonStyle{
     Q_OBJECT
@@ -116,11 +144,16 @@ signals: // properties
     void inputChanged();
     void spinnerChanged();
 public:
-    explicit SpinBoxStyle(QObject* parent = nullptr);
+    using ButtonStyle::ButtonStyle;
     virtual bool isValidJsonObject(QJsonObject& obj)override;
     virtual void read(const QJsonObject& obj)override;
 };
 
+
+
+///////////////////////////////////////////////////////////
+/// \brief The ComboBoxStyle class
+////////////////////////////////////////////////////////////
 
 class ComboBoxStyle: public ButtonStyle{
     Q_OBJECT
@@ -131,13 +164,16 @@ public: // properties
 signals: // properties;
     void iconChanged();
 public:
-    explicit ComboBoxStyle(QObject* parent= nullptr);
+    using ButtonStyle::ButtonStyle;
     virtual bool isValidJsonObject(QJsonObject& obj)override;
     virtual void read(const QJsonObject& obj)override;
 
 };
 
 
+////////////////////////////////////////////////////////////
+/// \brief The PromelaTextHighlighter class
+/////////////////////////////////////////////////////////
 
 class PromelaTextHighlighter:public IQJsonSerialization{
     QColor _classes, _keywords, _operators, _comments,_strings,_numbers,_types;
@@ -159,6 +195,11 @@ public:
 
 Q_DECLARE_METATYPE(PromelaTextHighlighter);
 // begin promela editor
+
+////////////////////////////////////////////////////
+/// \brief The PromelaEditor class
+///////////////////////////////////////////////////
+
 class PromelaEditor: public BaseStyle{
     Q_OBJECT
     Q_PROPERTY(int pointSize READ pointSize NOTIFY pointSizeChanged)
@@ -182,8 +223,9 @@ signals:
     void fontFamilyChanged();
     void selectedTextChanged();
     void syntaxHighlighterChanged();
+
 public:
-    explicit PromelaEditor(QObject* parent=nullptr);
+    using BaseStyle::BaseStyle;
     // IQJsonSerialization interface
 public:
     void virtual read(const QJsonObject &obj)override;
@@ -194,7 +236,12 @@ public:
 // end promela editor
 
 // Style Container
-class ColorScheme: public QObject{
+
+///////////////////////////////////////////////
+/// \brief The ColorScheme class
+/////////////////////////////////////////////
+
+class ColorScheme: public QObjectBase{
     Q_OBJECT
     ButtonStyle* _btnStyle;
     ComboBoxStyle* _comboStyle;
@@ -202,8 +249,9 @@ class ColorScheme: public QObject{
     GeneralStyle* _genereralStyle;
     PromelaEditor* _promelaEditor;
     jsonQspinPlusSchemeIds jsonIds;
+
 public:
-    explicit ColorScheme(QObject* parent=nullptr);
+    explicit ColorScheme(QObject* parent=nullptr, EventAggregator* msgService= nullptr);
     void open(const QString file, bool checkIsValidColorScheme=true);
     void save(const QString filename);
     ButtonStyle* button()const;
@@ -215,4 +263,5 @@ public:
 
 
 
+#include "qspin/QObjectBase.h"
 #endif // COLORSCHEME_H

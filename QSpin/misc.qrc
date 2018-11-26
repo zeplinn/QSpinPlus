@@ -1,5 +1,6 @@
 <RCC>
-    <qresource prefix="misc">
+    <qresource prefix="/misc">
         <file>dark.scheme</file>
+        <file>default.qsp</file>
     </qresource>
 </RCC>

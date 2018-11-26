@@ -1,10 +1,10 @@
 #ifndef QSITEMCONFIGSTATENOTIFIER_H
 #define QSITEMCONFIGSTATENOTIFIER_H
 #include <QObject>
-#include "qspin/models/QsItemConfiguration.h"
 #include <QSharedPointer>
+class ItemConfiguration;
 class ItemConfigStateNotifier;
-
+#include "qspin/models/Arg.h"
 class ItemConfigStateNotifierList:public QObject{
     Q_OBJECT
     typedef QHash<Arg::Type,ItemConfigStateNotifier*> notifierList;
@@ -15,6 +15,7 @@ explicit ItemConfigStateNotifierList(QObject* parent= nullptr);
     ItemConfigStateNotifier* getNotifier(Arg::Type key);
     bool contains(Arg::Type key){return  _list.contains(key);}
     ItemConfigStateNotifier *attachItemConfigurationTo(ItemConfiguration* item,Arg::Type key);
+    bool isEmpty()const{ return _list.isEmpty();}
 signals:
     void allRequirementsUpdated();
 };
@@ -51,4 +52,5 @@ private:
     ItemConfigStateNotifierList& list(){return *_notifierList;}
     void removeAndUpdate(Arg::Type command);
 };
+#include "qspin/models/QsItemConfiguration.h"
 #endif // QSITEMCONFIGSTATENOTIFIER_H

@@ -124,7 +124,6 @@ ComboBox {
 						popupId.close()
 					else if (mouseY<4 || mouseY>popupId.height-4)
 						popupId.close()
-						console.debug("popup exited")
 				}
 
 			}

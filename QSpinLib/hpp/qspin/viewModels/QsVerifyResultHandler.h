@@ -4,10 +4,11 @@
 #include <QObject>
 #include "qspin/models/QsVerificationResults.h"
 #include <memory>
-#include "qspin/viewModels/EventAggregator.h"
-#include "qspin/Qs.h"
+#include "qspin/QObjectBase.h"
+//#include "qspin/viewModels/EventAggregator.h"
+//#include "qspin/Qs.h"
 // missing subscription object
-class QsVerifyResultHandler : public QObject
+class QsVerifyResultHandler : public QObjectBase
 {
     Q_OBJECT
     // ############### result properties start ##################################
@@ -34,8 +35,8 @@ class QsVerifyResultHandler : public QObject
     Q_PROPERTY(qreal forHashTable READ forHashTable NOTIFY resultsUpdated)
     Q_PROPERTY(qreal forSearchStack READ forSearchStack NOTIFY resultsUpdated)
     Q_PROPERTY(qreal inTotal READ inTotal NOTIFY resultsUpdated)
-    EventAggregator& msgService;
-    verifyResult_ptr _results; //
+
+    verifyResult_ptr _results = nullptr; //
 public:// result properies only
     bool partialOrderReduction()const;
     bool neverClaim()const;
@@ -58,8 +59,9 @@ public:// result properies only
     qreal inTotal()const;
 signals:
     void resultsUpdated();
+protected:
 public:
-    explicit QsVerifyResultHandler(QObject *parent = nullptr);
+    using QObjectBase::QObjectBase;
 
 public slots:
 };

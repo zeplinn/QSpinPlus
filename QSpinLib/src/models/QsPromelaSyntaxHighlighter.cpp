@@ -12,7 +12,6 @@ _colors = value;
 	numberFormat.setForeground(_colors->numbers);
 	stringFormat.setForeground(_colors->strings)*/;
 
-	qDebug() << "highlighting rules before"<<highlightingRules.count();
 	highlightingRules.clear();
 	classRules(_colors.classes());
 	keywordRules(_colors.keywords());
@@ -20,8 +19,7 @@ _colors = value;
 	symbolRules(_colors.operators());
 	numberRules(_colors.numbers());
 	stringRules(_colors.strings());
-	commentRules(_colors.comments());
-	qDebug() << "highlighting rules after"<<highlightingRules.count();
+    commentRules(_colors.comments());
 	emit colorsChanged();
 }
 

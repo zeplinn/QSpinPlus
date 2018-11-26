@@ -84,8 +84,9 @@ Item {
 
 				}
 				// ############# verfication Modes ######################## row 2
-				QsTabBar{
+				TabBar{
 					id:modeTabBarId
+					opacity: enabled ? 1: 0.2
 					readonly property int sharedWidth: 150
 					property int checkedMode: Arg.SafetyMode
 					currentIndex: 0
@@ -99,17 +100,45 @@ Item {
 						checkedMode = item
 						itemRefId.item.updateSelectedVerifyMode(item)
 					}
+					background: null
 					Repeater{
 						model: [itemRefId.item.safetyMode
 							,itemRefId.item.progressMode
 							,itemRefId.item.acceptanceMode]
+						TabButton {
+							id:btnId
+							//implicitWidth: childrenRect.width
+							implicitWidth: 150
+							implicitHeight: 24
+							leftPadding: 4
+							rightPadding: 4
+							text: modelData.name
+							contentItem: QsText{
+								id: txtId
+								text: btnId.text
+								verticalAlignment: Text.AlignVCenter
+								horizontalAlignment: Text.AlignHCenter
+								color: hovered ? QsStyle.general.hovered: QsStyle.button.foreground
 
-						QsTabButton{
-							id:saftyModeId; implicitWidth: 150;Layout.minimumWidth: 150
-							text: modelData.name;
+							}
+
+							background: Rectangle{
+								property color selcolor: selColorF()
+								function selColorF(){
+									var c = 47/256
+									return Qt.rgba(c,c,c,1)
+								}
+
+								color: checked ? QsStyle.button.pressed : "transparent"
+								border.width:  checked ? 1 : 0
+								border.color:  QsStyle.button.border
+								radius: 2
+
+							}
 						}
 					}
 				}
+
 				// spin optimazations -o[1..6] ##################### row 3
 				RowLayout{
 					id:optimizationGroupId
@@ -166,7 +195,6 @@ Item {
 						enabled: modelData.enabled
 						checked: modelData.checked
 						onCheckedChanged: modelData.setChecked(checked)
-						//onCheckedChanged: console.debug("spin box checked changed:")+checked
 						label: modelData.name
 						value: modelData.commandValue
 						from:modelData.minValue
@@ -183,10 +211,6 @@ Item {
 					QsText{
 						text: qsTr("LTL:"); color: QsStyle.general.foreground
 						Layout.fillWidth: true
-						//						MouseArea{
-						//							anchors.fill: parent
-						//							onClicked: ltlTxtborderId.visible = !ltlTxtborderId.visible
-						//						}
 					}
 
 					Rectangle{

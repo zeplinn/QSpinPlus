@@ -5,8 +5,11 @@ QQuickTextDocument*QsCodeEditorHandler::textDocument() const{ return _textDocume
 void QsCodeEditorHandler::setTextDocument(QQuickTextDocument*value){
 	if(_textDocument !=value){
 		_textDocument = value;
-		if(_textDocument != nullptr && _highlighter !=nullptr)
+        if(_textDocument != nullptr && _highlighter !=nullptr){
+            QObject::connect(document(),&QTextDocument::undoAvailable,this,&QsCodeEditorHandler::setCanUndo);
+            QObject::connect(document(),&QTextDocument::redoAvailable,this,&QsCodeEditorHandler::setCanRedo);
 			_highlighter->setDocument(document());
+        }
 	}
 	emit textDocumentChanged();
 }
@@ -26,9 +29,8 @@ void QsCodeEditorHandler::setSyntaxHighlighter(QSyntaxHighlighter *value){
 		emit syntaxHighlighterChanged();
 	}
 }
-
 QsCodeEditorHandler::QsCodeEditorHandler(QObject *parent) : QObject(parent),_textDocument(nullptr)
-  ,_highlighter(nullptr)
+  ,_highlighter(nullptr),_canUndo(false),_canRedo(false)
 {
 
 }

@@ -7,6 +7,9 @@
         <file>files/colorscheme/generalStyle.scheme</file>
         <file>files/colorscheme/spinboxStyle.scheme</file>
         <file>files/colorscheme/comboboxStyle.scheme</file>
+        <file>files/QSpinPlusSerialization/ItemConfiguration.xml</file>
+        <file>files/QSpinPlusSerialization/ItemValueConfiguration.xml</file>
+        <file>files/QSpinPlusSerialization/VerificationConfiguration.xml</file>
     </qresource>
     <qresource prefix="/"/>
 </RCC>

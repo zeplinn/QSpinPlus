@@ -11,28 +11,28 @@ QsPane {
     property int codeAreaHeight: 250
     QsVerifyHandler{
         id:verifyHandlerId
-        currentIndex: configSelectorId.currentIndex
-    }
+		currentIndex: configSelectorId.currentIndex
+	}
 
-    RowLayout{
-        anchors.top: parent.top
-        anchors.bottom: parent.bottom
-        anchors.margins: 0
-        spacing: 0
-        QsVerifySettingsGroup{
-            Layout.fillHeight: true
-            Layout.minimumWidth: implicitWidth
-            id:currentVerifyConfigId
-            active: dummyConfigId
-            enabled:false
-            onItemRemoved: verifyHandlerId.removeConfiguration(item)
-            states:State{
-                when: configSelectorId.count !== 0
-                PropertyChanges {
-                    target: currentVerifyConfigId
-                    active:  verifyHandlerId.currentConfiguration
-                    enabled: true
-                }
+	RowLayout{
+		anchors.top: parent.top
+		anchors.bottom: parent.bottom
+		anchors.margins: 0
+		spacing: 0
+		QsVerifySettingsGroup{
+			Layout.fillHeight: true
+			Layout.minimumWidth: implicitWidth
+			id:currentVerifyConfigId
+			active: dummyConfigId
+			enabled:false
+			onItemRemoved: verifyHandlerId.removeConfiguration(item)
+			states:State{
+				when: verifyHandlerId.isProjectOpen && configSelectorId.count !== 0
+				PropertyChanges {
+					target: currentVerifyConfigId
+					active:  verifyHandlerId.currentConfiguration
+					enabled: true
+				}
             }
             VerificationConfiguration{
                 id:dummyConfigId
@@ -45,6 +45,28 @@ QsPane {
         }
         ColumnLayout{
             id:farLeftColumnId
+			spacing: 4
+			Item{
+				height: btnQueueId.height
+				Layout.fillWidth: true
+			QsButton{
+				id:btnQueueId
+				enabled: verifyHandlerId.isProjectOpen
+				anchors.left: parent.left
+				anchors.right: parent.right
+				anchors.leftMargin: 4
+				anchors.rightMargin: 4
+				text: qsTr("Add toQueue")
+				onClicked: verifyHandlerId.queueVerification(verifyHandlerId.currentConfiguration)
+				Layout.fillWidth: true
+			}
+			}
+
+			QsDivider{
+				oritentation: Qt.Horizontal
+				Layout.fillWidth: true;
+				color: QsStyle.general.border
+			}
 
             ListView{
                 id: configSelectorId
@@ -58,12 +80,14 @@ QsPane {
                 header:QsHeader{
                     text: qsTr("Configurations")
                 }
-                model:visualModelId
+				model:visualModelId
             }
             // ################# begin add configuration #################
             Item{
                 id:addConfigurationId
-                Layout.fillWidth: true
+				enabled: verifyHandlerId.isProjectOpen
+				opacity: enabled ? 1 : 0.2
+				Layout.fillWidth: true
                 Layout.alignment: Qt.AlignLeft | Qt.AlignTop
                 implicitHeight: 32
                 TextInput{
@@ -84,8 +108,8 @@ QsPane {
                     font.pointSize: 10
                     onAccepted: {
                         if(!canceling){
-                            verifyHandlerId.addConfiguration(text)
-                            verifyHandlerId.setCurrentIndex(configSelectorId.count-1)
+							verifyHandlerId.addConfiguration(text)
+							verifyHandlerId.setCurrentIndex(configSelectorId.count-1)
                         }
                         canceling =false
                         text = defaultVal
@@ -139,6 +163,7 @@ QsPane {
         id:listViewDelegateId
         Item{
             id:listItemId
+
             implicitHeight: 40
             implicitWidth: 250
             property int idx: index
@@ -225,8 +250,8 @@ QsPane {
 
     DelegateModel{
         id:visualModelId
-        model: verifyHandlerId
-        delegate: listViewDelegateId
+		model: verifyHandlerId
+		delegate: listViewDelegateId
 
     }
 }

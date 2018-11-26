@@ -3,6 +3,7 @@ import QtQuick.Controls 2.4
 import QSpin.CppItems 1.0
 Item{
     id:textEditor
+	property alias readonly: textArea.readOnly
     property alias font: textArea.font
     property int tabIndentSize: 4
     property alias foreground: textArea.color
@@ -48,10 +49,10 @@ font: textArea.font
             gutterArea.documentViewportVerticalupdate(contentY,contentY+height,vScrollBar.active)
         }
 
-        //onMovingVerticallyChanged: {console.debug("moving vertically changed")}
-
         TextArea.flickable: TextArea {
             id: textArea
+			implicitHeight: 300
+			implicitWidth: 500
             tabStopDistance: fontMetricsId.averageCharacterWidth+textEditor.tabIndentSize
             renderType: Text.NativeRendering
             textFormat: Qt.PlainText
@@ -88,16 +89,9 @@ font: textArea.font
         ]
         ScrollBar.vertical: QsScrollBar {
             id:vScrollBar
-            //onPressedChanged: {pressed ? console.debug("scrollBar started") :console.debug("scollbar stopped")}
 
         }
-    }
-    //	GutterLine{
-    //		x:gutterArea.width
-    //		height: textArea.height
-    //		opacity: 0.5
-
-    //	}
+	}
     QsTextGutterArea{
         id:gutterArea
         anchors{

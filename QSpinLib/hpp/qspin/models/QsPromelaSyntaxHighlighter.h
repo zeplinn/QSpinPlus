@@ -4,8 +4,9 @@
 // copied from https://github.com/flamingoen/qspin
 // the above link is based on the qt example
 // http://doc.qt.io/qt-5/qtwidgets-richtext-syntaxhighlighter-example.html
-#include "qspin/viewModels/ColorScheme.h"
-#include "qspin/Qs.h"
+//#include "qspin/viewModels/ColorScheme.h"
+//#include "qspin/Qs.h"
+#include "qspin/QObjectBase.h"
 class PromelaSyntaxHighlighter : public QSyntaxHighlighter {
 
     Q_OBJECT

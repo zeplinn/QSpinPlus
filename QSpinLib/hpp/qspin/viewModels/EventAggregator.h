@@ -36,7 +36,7 @@ class EventAggregator: public QObject{
 				hs[id]=  list_type();
 			}
 			hs[id].append(s_ptr(obj));
-			mutex.lock();
+            mutex.unlock();
 			return true;
 		}
 		template<typename T>

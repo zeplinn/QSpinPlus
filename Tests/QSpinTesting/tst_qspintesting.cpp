@@ -13,6 +13,7 @@ int main(int argc, char** argv){
 	int status=0;
 	// only added so qt creators test result tab is working.
 	QCoreApplication app(argc,argv);
+    QDir::addSearchPath("verify","D:/projects/Bachelor/QSpinPlus/Tests/QSpinTesting/files/verification");
 	auto tests = TestSuite::tests();
 	EmptyTest tst2;
 	status |=  QTest::qExec(&tst2,argc,argv);

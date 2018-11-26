@@ -10,6 +10,7 @@
 #include "TestSuite.h"
 #include "qspin/viewModels/QsStyle.h"
 #include "qspin/models/IQsSerialization.h"
+#include "qspin/models/jsonQspinPlusSchemeIds.h"
 class ColorSchemeSerialzationTests : public TestSuite
 {
     Q_OBJECT

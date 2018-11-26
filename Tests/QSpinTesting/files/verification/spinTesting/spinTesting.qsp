@@ -1,0 +1,54 @@
+
+<QSpinPlus>
+    <Configurations>
+        <VerificationConfiguration name="Safety">
+            <ItemConfiguration command="36" checked="false" enabled="true" name="Safety more memory"/>
+            <ItemConfiguration command="39" checked="false" enabled="true" name="Breadth first Search (BFS)"/>
+            <ItemConfiguration command="38" checked="false" enabled="false" name="Non Progress Cycle detection"/>
+            <ItemConfiguration command="129" checked="true" enabled="true" name="Safty mode"/>
+            <ItemValueConfiguration command="128" checked="false" enabled="true" name="Time limit">
+                <value>30</value>
+            </ItemValueConfiguration>
+            <ItemConfiguration command="131" checked="false" enabled="false" name="Acceptance mode"/>
+            <ItemConfiguration command="130" checked="false" enabled="false" name="Liveness mode"/>
+            <ItemValueConfiguration command="133" checked="true" enabled="true" name="Search depth">
+                <value>0</value>
+            </ItemValueConfiguration>
+            <ItemValueConfiguration command="132" checked="false" enabled="true" name="Hash size">
+                <value>0</value>
+            </ItemValueConfiguration>
+            <ItemConfiguration command="134" checked="false" enabled="false" name="Weak fairness"/>
+            <ItemValueConfiguration command="49" checked="false" enabled="true" name="Collapse state vector size">
+                <value>2</value>
+            </ItemValueConfiguration>
+            <ItemConfiguration command="48" checked="false" enabled="true" name="Collapse"/>
+            <ItemConfiguration command="9" checked="false" enabled="true" name="Disable dead variable elimination"/>
+            <ItemConfiguration command="8" checked="false" enabled="true" name="Disable data-flow optimizations"/>
+            <ItemConfiguration command="11" checked="false" enabled="true" name="Enable Rendouz optimization"/>
+            <ItemConfiguration command="10" checked="false" enabled="true" name="Disable satement merging"/>
+            <ItemConfiguration command="13" checked="false" enabled="true" name="Old interpretation tags"/>
+            <ItemValueConfiguration command="41" checked="false" enabled="false" name="BFS disk limit">
+                <value>1000000</value>
+            </ItemValueConfiguration>
+            <ItemConfiguration command="12" checked="false" enabled="true" name="Disable case caching"/>
+            <ItemConfiguration command="40" checked="false" enabled="false" name="BFS disk"/>
+            <ItemValueConfiguration command="43" checked="false" enabled="true" name="Allocate weak fairness">
+                <value>2</value>
+            </ItemValueConfiguration>
+            <ItemValueConfiguration command="42" checked="false" enabled="false" name="BFS limit">
+                <value>100000</value>
+            </ItemValueConfiguration>
+            <ItemConfiguration command="45" checked="false" enabled="true" name="Optimize space"/>
+            <ItemConfiguration command="44" checked="false" enabled="true" name="No partial reduction"/>
+            <ItemValueConfiguration command="47" checked="false" enabled="true" name="Max memory use (mb)">
+                <value>256</value>
+            </ItemValueConfiguration>
+            <ItemValueConfiguration command="46" checked="false" enabled="true" name="State vector size">
+                <value>1024</value>
+            </ItemValueConfiguration>
+            <ItemConfiguration command="4" checked="true" enabled="true" name="Verification"/>
+            <ItemConfiguration command="35" checked="true" enabled="true" name="Safety less memory"/>
+            <ItemConfiguration command="37" checked="false" enabled="true" name="Disable weak fairness"/>
+        </VerificationConfiguration>
+    </Configurations>
+</QSpinPlus>

@@ -33,5 +33,7 @@
         <file>Views/QsSpinQueueView.qml</file>
         <file>Reusables/QsTable.qml</file>
         <file>QsTopToolBar.qml</file>
+        <file>Views/QsVeriryResultMinimalView.qml</file>
+        <file>Views/QsVerificationResultView.qml</file>
     </qresource>
 </RCC>

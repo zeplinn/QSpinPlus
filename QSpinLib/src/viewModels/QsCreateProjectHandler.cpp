@@ -13,8 +13,8 @@ QString QsCreateProjectHandler::absolutePath() const{
 	return d.filePath(name()+".xml");
 }
 
-QsCreateProjectHandler::QsCreateProjectHandler(QObject*parent, EventAggregator&msgService)
-	:QObject (parent),msgService(msgService),_name(""),_folder(QUrl(QDir::currentPath()))
-{
+//QsCreateProjectHandler::QsCreateProjectHandler(QObject*parent, EventAggregator&msgService)
+//	:QObject (parent),msgService(msgService),_name(""),_folder(QUrl(QDir::currentPath()))
+//{
 
-}
+//}

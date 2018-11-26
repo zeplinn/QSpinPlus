@@ -15,7 +15,7 @@
 #include <QColor>
 #include <QFont>
 #include <QQmlEngine>
-#include "qspin/Qs.h"
+//#include "qspin/Qs.h"
 class TextGutterArea : public QQuickPaintedItem
 {
 	Q_OBJECT

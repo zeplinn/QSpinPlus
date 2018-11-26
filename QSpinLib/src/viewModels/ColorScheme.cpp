@@ -1,12 +1,14 @@
 #include "qspin/viewModels/ColorScheme.h"
 
 
-ColorScheme::ColorScheme(QObject *parent):QObject(parent)
-  ,_btnStyle(new ButtonStyle(this))
-  ,_comboStyle(new ComboBoxStyle(this))
-  ,_spinboxStyle(new SpinBoxStyle(this))
-  ,_genereralStyle(new GeneralStyle(this))
-  ,_promelaEditor(new PromelaEditor(this)){}
+ColorScheme::ColorScheme(QObject *parent, EventAggregator *msgService)
+    :QObjectBase(parent,msgService)
+    ,_btnStyle(new ButtonStyle(this,msgService))
+    ,_comboStyle(new ComboBoxStyle(this,msgService))
+    ,_spinboxStyle(new SpinBoxStyle(this,msgService))
+    ,_genereralStyle(new GeneralStyle(this,msgService))
+    ,_promelaEditor(new PromelaEditor(this,msgService))
+{}
 
 void ColorScheme::open(const QString file, bool checkIsValidColorScheme){
     QFile scheme(file);
@@ -70,8 +72,6 @@ void ButtonStyle::setBorder(QColor value){
     }
 }
 
-ButtonStyle::ButtonStyle(QObject *parent):BaseStyle(parent){}
-
 void ButtonStyle::read(const QJsonObject &obj){
     BaseStyle::read(obj);
     _pressed.color = jsonIds.toColor(jsonIds.pressed,obj);
@@ -98,7 +98,6 @@ QColor GeneralStyle::menubarGradiant0() const{return _menubarGradiant0.color;}
 
 QColor GeneralStyle::menubarGradiant1() const{return _menubarGradiant1.color;}
 
-GeneralStyle::GeneralStyle(QObject *parent):BaseStyle(parent){}
 
 void GeneralStyle::read(const QJsonObject &obj){
     BaseStyle::read(obj);
@@ -138,9 +137,6 @@ void BaseStyle::setBackground(QColor value){
     }
 }
 
-BaseStyle::BaseStyle(QObject *parent):StyleRoot (parent){
-
-}
 
 void BaseStyle::read(const QJsonObject &obj){
     _foreground.color = jsonIds.toColor(jsonIds.foreground,obj);
@@ -159,11 +155,6 @@ bool BaseStyle::isValidJsonObject(QJsonObject &obj){
 
 
 
-
-
-
-SpinBoxStyle::SpinBoxStyle(QObject *parent):ButtonStyle(parent){}
-
 bool SpinBoxStyle::isValidJsonObject(QJsonObject &obj){
     return ButtonStyle::isValidJsonObject(obj)
             && jsonIds.isValidRGBArray(obj,jsonIds.input)
@@ -176,7 +167,6 @@ void SpinBoxStyle::read(const QJsonObject &obj){
     _spinner = jsonIds.toColor(jsonIds.spinner,obj);
 }
 
-ComboBoxStyle::ComboBoxStyle(QObject *parent):ButtonStyle(parent){}
 
 bool ComboBoxStyle::isValidJsonObject(QJsonObject &obj){
     return ButtonStyle::isValidJsonObject(obj)
@@ -186,11 +176,6 @@ bool ComboBoxStyle::isValidJsonObject(QJsonObject &obj){
 void ComboBoxStyle::read(const QJsonObject &obj){
     ButtonStyle::read(obj);
     _icon = jsonIds.toColor(jsonIds.icon,obj);
-}
-
-StyleRoot::StyleRoot(QObject *parent):QObject(parent){
-    //    if(_msgService==nullptr)
-    //        _msgService = &Qs::instance().msgService();
 }
 
 
@@ -211,8 +196,6 @@ QColor PromelaEditor::selectedText() const{ return _selectedText;}
 
 PromelaTextHighlighter PromelaEditor::syntaxHighlighter() const{return _syntaxHighlighter;}
 
-PromelaEditor::PromelaEditor(QObject *parent):BaseStyle(parent)
-  ,_syntaxHighlighter(PromelaTextHighlighter()){}
 
 void PromelaEditor::read(const QJsonObject &obj){
     BaseStyle::read(obj);
@@ -244,7 +227,6 @@ void PromelaTextHighlighter::read(const QJsonObject &obj){
     _numbers = jsonIds.toColor(jsonIds.numbers,obj);
     _operators = jsonIds.toColor(jsonIds.operators,obj);
     _strings = jsonIds.toColor(jsonIds.strings,obj);
-    qDebug()<< _classes << keywords() << _types;
 
 }
 

@@ -3,10 +3,8 @@
 #include <QObject>
 #include <QQuickTextDocument>
 #include <QTextDocument>
-#include "qspin/Qs.h"
-#include "qspin/viewModels/EventAggregator.h"
-#include <qspin/eventObjects/PrintToConsole.h>
-class QsConsoleHandler: public QObject, public ISubscriber<PrintToConsole>{
+#include "qspin/QObjectBase.h"
+class QsConsoleHandler: public QObjectBase, public ISubscriber<PrintToConsole>{
 		Q_OBJECT
 
 		Q_PROPERTY(QQuickTextDocument* document READ document WRITE setDocument NOTIFY documentChanged)
@@ -15,9 +13,10 @@ class QsConsoleHandler: public QObject, public ISubscriber<PrintToConsole>{
 		QQuickTextDocument* document()const;
 		void setDocument(QQuickTextDocument* value);
 	signals:
-		void documentChanged();
+        void documentChanged();
 	public:
-		explicit QsConsoleHandler(QObject* parent= nullptr, EventAggregator* msgService= &Qs::instance().msgService());
+        using QObjectBase::QObjectBase;
+        explicit QsConsoleHandler(QObject* parent = nullptr, EventAggregator* msgService=nullptr);
 
 		virtual void subscriber(const PrintToConsole& event) override;
 	signals:

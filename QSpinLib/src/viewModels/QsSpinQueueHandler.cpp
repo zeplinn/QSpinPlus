@@ -1,59 +1,56 @@
 #include "qspin/viewModels/QsSpinQueueHandler.h"
-namespace{
-enum{
-    Name_role = Qt::UserRole,
-    Created_role,
-    Status_role,
-    Started_Role
-};
-}
-QsSpinQueueHandler::QsSpinQueueHandler(QObject *parent, EventAggregator &msgService) : QAbstractListModel (parent), msgService(msgService)
-{
-}
 
-QVariant QsSpinQueueHandler::data(const QModelIndex &index, int role) const{
-    int idx = index.row()+role;
-    if(idx<0 || idx>= _itemsQueued.count()) return QVariant(QVariant::Invalid);
 
-    auto item = _itemsQueued[idx];
-    switch (role) {
-    case Name_role: return item->name();
-    case Created_role: return  item->createdTimeStamp();
-    case Status_role: return  item->status();
-    case Started_Role: return item->status();
+bool QsSpinQueueHandler::isRunning() const{ return _isRunning; }
+
+void QsSpinQueueHandler::setIsRunning(bool value){
+    if(_isRunning != value){
+        _isRunning = value;
+        emit isRunningChanged();
     }
-
-    return QVariant();
 }
 
-QHash<int, QByteArray> QsSpinQueueHandler::roleNames() const{
-    QHash<int, QByteArray> r;
-    r[Name_role] = "name_role";
-    r[Created_role] = "created_role";
-    r[Status_role] = "status_role";
-    r[Started_Role] = "started_role";
-    r[Status_role] = "status_role";
-    return r;
+VerificationQueue *QsSpinQueueHandler::verifyQueue() const{ return _verifyQueue; }
+
+QsSpinQueueHandler::QsSpinQueueHandler(QObject *parent, EventAggregator *msgService)
+    :QObjectBase(parent,msgService)
+    ,_verifyQueue(new VerificationQueue(this,msgService))
+{
+    this->msgService()->subscribe<AppendToVeriyQueue>(this);
+    this->msgService()->subscribe<ProjectOpened>(this);
+    this->msgService()->subscribe<ProjectClosed>(this);
+
+    // ensures that queuedVerifictions always are added on the main thread
+    connect(this,&QsSpinQueueHandler::addingNewQueueItem
+            ,this,&QsSpinQueueHandler::addNewQueueItem
+            ,Qt::QueuedConnection);
 }
 
-int QsSpinQueueHandler::rowCount(const QModelIndex &index) const{
-    Q_UNUSED(index)
-    return _itemsQueued.count();
+
+void QsSpinQueueHandler::subscriber(const ProjectOpened &event){
+    if(_project.data()!=event.project())
+        _project = event.project();
+    _verifyQueue->setbuildDir(_project->binDir());
 }
 
-void QsSpinQueueHandler::run(){
-    spin.start("powershell",QStringList()<<"wsl"<<"spin");
-    spin.waitForFinished();
-
-    spin.readAllStandardOutput();
+void QsSpinQueueHandler::subscriber(const ProjectClosed &event){
+    Q_UNUSED(event);
+    _project = nullptr;
+    _verifyQueue->setbuildDir(QDir());
 }
 
-void QsSpinQueueHandler::start(){
-
+void QsSpinQueueHandler::statusUpdated(){
 }
 
-void QsSpinQueueHandler::stop(){}
+void QsSpinQueueHandler::verificationRequsted(){}
 
-bool QsSpinQueueHandler::isStarted(){
-    return _isStarted;
+void QsSpinQueueHandler::subscriber(const AppendToVeriyQueue &event){
+    auto f = event;
+    emit addingNewQueueItem(f.fileInfo(),f.createdAt());
+}
+
+void QsSpinQueueHandler::addNewQueueItem(QFileInfo info, QDateTime createdAt){
+    _verifyQueue->append(new QueuedVerification(info,createdAt));
+
+
 }

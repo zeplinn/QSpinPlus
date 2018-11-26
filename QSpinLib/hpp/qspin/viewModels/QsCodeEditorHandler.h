@@ -9,8 +9,9 @@
 #include <QFileSelector>
 #include <QQmlFileSelector>
 #include <QQmlFile>
-#include "QsError.h"
 #include <QTextCodec>
+#include "qspin/QObjectBase.h"
+#include "QsError.h"
 #include "qspin/QmlImportNames.h"
 #include <QSyntaxHighlighter>
 

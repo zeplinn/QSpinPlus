@@ -4,6 +4,7 @@ import QSpin.CppItems 1.0
 
 Button {
     id: btnrootId
+	opacity: enabled ? 1 : 0.2
     implicitHeight: 24
     implicitWidth: 24
     property alias imageSource: imageId.source

@@ -4,15 +4,15 @@
 #include <QObject>
 #include <QDir>
 #include <QUrl>
-#include "qspin/viewModels/EventAggregator.h"
-#include "qspin/Qs.h"
-class QsCreateProjectHandler: public QObject{
-		Q_OBJECT
-		EventAggregator& msgService;
+#include "qspin/QObjectBase.h"
+//#include "qspin/viewModels/EventAggregator.h"
+//#include "qspin/Qs.h"
+class QsCreateProjectHandler: public QObjectBase{
+        Q_OBJECT
 		Q_PROPERTY(QString name READ name WRITE setName NOTIFY nameChanged)
-		QString _name;
+        QString _name="";
 		Q_PROPERTY(QUrl folder READ folder WRITE setFolder NOTIFY folderChanged)
-		QUrl _folder;
+        QUrl _folder= QUrl(QDir::currentPath());
 		Q_PROPERTY(QString absolutePath READ absolutePath NOTIFY absolutePathChanged)
 
 
@@ -28,8 +28,9 @@ class QsCreateProjectHandler: public QObject{
 		void nameChanged();
 		void folderChanged();
 		void absolutePathChanged();
-	public:
-		explicit QsCreateProjectHandler(QObject* parent=nullptr,EventAggregator& msgService = Qs::instance().msgService());
+public:
+        using QObjectBase:: QObjectBase;
+//		explicit QsCreateProjectHandler(QObject* parent=nullptr,EventAggregator& msgService = Qs::instance().msgService());
 
 };
 

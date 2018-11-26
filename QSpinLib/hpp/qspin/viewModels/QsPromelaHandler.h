@@ -4,39 +4,73 @@
 #include <QUrl>
 #include <QFileInfo>
 #include <QDir>
-#include "qspin/Qs.h"
-#include "qspin/viewModels/EventAggregator.h"
+#include "qspin/QObjectBase.h"
+#include "qspin/models/QSpinPlus.h"
 #include "qspin/viewModels/QsCodeEditorHandler.h"
-#include "qspin/eventObjects/ProjectSaved.h"
-#include "qspin/eventObjects/PrintToConsole.h"
-class QsPromelaHandler : public QObject{
-		Q_OBJECT
+#include <QDateTime>
+class QsPromelaHandler : public QObjectBase{
+    Q_OBJECT
+    // --> ############ begin properties ############################
+    Q_PROPERTY(QsCodeEditorHandler* editor READ editor WRITE setEditor NOTIFY editorChanged)
+    QsCodeEditorHandler* _editor;
+    Q_PROPERTY(bool isEditable READ isEditable NOTIFY isEditableChanged)
+    bool _isEditable=false;
+    Q_PROPERTY(bool isOpen READ isOpen NOTIFY isOpenChanged)
+    bool _isOpen =false;
 
-		Q_PROPERTY(QsCodeEditorHandler* editor READ editor WRITE setEditor NOTIFY editorChanged)
-		QsCodeEditorHandler* _editor;
+public:
+    QsCodeEditorHandler* editor()const;
+    void setEditor(QsCodeEditorHandler* value);
+    bool isEditable()const;
+    void setIsEditable(bool value);
+    bool isOpen()const;
+    void setIsOpen(bool value);
+signals:
+    void editorChanged();
+    void isEditableChanged();
+    void isOpenChanged();
+    // <--- ############ end properties ############################
 
-	public:
-		QsCodeEditorHandler* editor()const;
-		void setEditor(QsCodeEditorHandler* value);
-	signals:
-		void editorChanged();
-	private:
-		EventAggregator* _msgService;
+private:
+    QSpinPlus* _project=nullptr;
+public:
+    using QObjectBase::QObjectBase;
 
-		EventAggregator& msgService();
-	public:
-		explicit QsPromelaHandler(QObject* parent=nullptr,
-								  EventAggregator* msgService = &Qs::instance().msgService());
-	signals:
-		void projectSaved(QUrl url);
-	public slots:
-		void saveDocument(QUrl fileUrl);
-		void openDocument(QUrl fileUrl){
-			editor()->open(fileUrl);
-		}
-		void closeDocument(QUrl fileUrl){
-			Q_UNUSED(fileUrl)
-		}
+signals:
+    void projectSaved(QUrl url);
+    void validatedocumentFailed();
+public slots:
+    void saveDocument(QUrl fileUrl);
+    void openDocument(QUrl fileUrl);
+
+    void createDocument(QString name,QUrl folder){
+        QDir dir(folder.toLocalFile());
+
+        //create promelaFile
+        QString document = QString("// %1 created at: %2").arg(name).arg(QDateTime::currentDateTime().toString());
+        QFile pml(dir.absoluteFilePath(name+".pml"));
+
+        pml.open(QIODevice::WriteOnly);
+        QTextStream write(&pml);
+        write << document;
+        pml.close();
+        // create intitial project structure
+        // open promela file
+        QFileInfo pmlInfo (dir.absoluteFilePath(name+".pml"));
+        auto project = QSpinPlus::createBasicProject(name,pmlInfo.absoluteDir());
+        editor()->open(pmlInfo.absoluteFilePath());
+        msgService()->publish(newProjectCreated(pmlInfo.absoluteFilePath()));
+        if(_project!= nullptr){
+            _project->deleteLater();
+        }
+        _project  =project;
+        setIsEditable(true);
+    }
+    void closeDocument(QUrl fileUrl){
+        Q_UNUSED(fileUrl)
+        setIsEditable(false);
+
+    }
 
 
 };

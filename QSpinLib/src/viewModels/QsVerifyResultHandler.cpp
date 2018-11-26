@@ -33,35 +33,3 @@ qreal QsVerifyResultHandler::forHashTable() const{ return _results ? _results->m
 qreal QsVerifyResultHandler::forSearchStack() const{ return _results ? _results->memoryUsed().forSearchStack : 0 ;}
 
 qreal QsVerifyResultHandler::inTotal() const{ return _results ? _results->memoryUsed().inTotal : 0 ;}
-
-
-QsVerifyResultHandler::QsVerifyResultHandler(QObject *parent) : QObject(parent)
-  ,msgService(Qs::instance().msgService()),_results(nullptr)
-{
-
-}
-
-//qreal QsVerifyResultHandler::result(QsVerifyResultHandler::ResultCode code) const{
-//    switch (code) {
-//    case PartialOrderReduction: return results->fullStatespaceFor().partialOrderReduction;
-//    case NeverClaim: return results->fullStatespaceFor().neverClaim;
-//    case AssertionVioLations: return results->fullStatespaceFor().assertionViolations;
-//    case AcceptanceCycles: return results->fullStatespaceFor().acceptanceCycles;
-//    case InvalidEndStates: return results->fullStatespaceFor().invalidEndStates;
-
-//    case DepthReached: return results->fullStatespaceSpecifications().depthReached;
-//    case StoredStates: return results->fullStatespaceSpecifications().storedStates;
-//    case MathedStates: return results->fullStatespaceSpecifications().mathedStates;
-//    case TranisitionsTaken: return results->fullStatespaceSpecifications().transitionsTaken;
-//    case AtomicSteps: return results->fullStatespaceSpecifications().atomicSteps;
-//    case StateSize: return results->fullStatespaceSpecifications().stateSize;
-//    case HashConflicts: return results->fullStatespaceSpecifications().hashConflicts;
-//    case HashSize: return results->fullStatespaceSpecifications().hashSize;
-
-//    case ForStates: return results->memoryUsage().forStates;
-//    case ForHashTable: return results->memoryUsage().forHashTable;
-//    case ForSearchStack: return results->memoryUsage().forSearchStack;
-//    case InTotal: return results->memoryUsage().inTotal;
-
-//    }
-//}

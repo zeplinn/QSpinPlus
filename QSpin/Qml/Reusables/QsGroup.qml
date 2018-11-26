@@ -6,6 +6,7 @@ QsPane {
 	property alias header: headerId.text
 	property alias containerWidth: container.width
 	property alias headerWrapMode: headerId.wrapMode
+	background: null
 	rightPadding: 5
 	ColumnLayout{
 		id:container

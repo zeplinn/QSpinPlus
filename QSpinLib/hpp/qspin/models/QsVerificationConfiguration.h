@@ -1,19 +1,38 @@
 #ifndef QSVERIFICATIONCONFIGURATION_H
 #define QSVERIFICATIONCONFIGURATION_H
 #include <QObject>
+#include <QDateTime>
 #include <stdint.h>
+//#include "qspin/Qs.h"
+//#include <QXmlStreamReader>
+#include "qspin/QObjectBase.h"
+class SpinCommands;
+#include "qspin/models/SpinCommands.h"
+#include "qspin/models/VerificationResultContainer.h"
 #include "Arg.h"
-
+#include "qspin/models/IQsSerialization.h"
+class ItemConfiguration;
 class ItemValueConfiguration;
-#include "qspin/models/QsItemConfiguration.h"
 #include "qspin/models/QsItemConfigStateNotifier.h"
-//typedef SimpleConfiguration sc;
-class VerificationConfiguration: public QObject{
+#include "qspin/models/QsItemConfiguration.h"
+class VerificationConfiguration: public QObjectBase, public IQXmlSerialization{
     Q_OBJECT
     // ##################### begin properties ######################
     Q_PROPERTY(QString name READ name WRITE setName NOTIFY nameChanged)
     QString _name;
-
+    Q_PROPERTY(bool readonly READ readonly NOTIFY readonlyChanged)
+    bool _readonly=false;
+public:
+    bool readonly()const{ return _readonly; }
+    void setReadonly(bool value){
+        if(_readonly != value){
+            _readonly = value;
+            emit readonlyChanged();
+        }
+    }
+signals:
+    void readonlyChanged();
+private:
     //spin configs
     Q_PROPERTY(ItemConfiguration* o1 READ o1 CONSTANT)
     Q_PROPERTY(ItemConfiguration* o2 READ o2 CONSTANT)
@@ -91,19 +110,29 @@ signals:// properties
     void saftyModeChanged();
     // ##################### end properties ######################
 private:
+    EventAggregator * _msgService;
     QHash<Arg::Type,ItemConfiguration*> spinConfigs;
     QHash<Arg::Type,ItemConfigStateNotifier*> _itemNotifier; // item config notifier service
+    ItemConfigStateNotifierList notifiers;
+
+
 public:
     Arg::Type currentMode();
-    explicit VerificationConfiguration(QObject* parent = nullptr);
+    explicit VerificationConfiguration(QObject* parent = nullptr, EventAggregator* msgService=nullptr);
+    SpinCommands* getSpinCommands();
+    void queueVerification(QDir destination);
+    // interface
+    virtual void read(QXmlStreamReader& xml) override;
+    virtual void write(QXmlStreamWriter& xml)override;
 signals:
     void itemConfigurationChanged();
     void verifyModeChanged(Arg::Type mode);
 public slots:
     void updateSelectedVerifyMode(int mode);
+    void updateConfigurations();
 private:
-    ItemConfigStateNotifier* addNewConfigItem(ItemConfigStateNotifierList &notifierList, Arg::Type command);
-    ItemConfigStateNotifier* addNewConfigValueItem(ItemConfigStateNotifierList& notifierList, Arg::Type command,int maxValue,int minValue=0,int value =0);
+    ItemConfigStateNotifier* addNewConfigItem( Arg::Type command);
+    ItemConfigStateNotifier* addNewConfigValueItem( Arg::Type command,int maxValue,int minValue=0,int value =0);
     ItemValueConfiguration* toValueItem(Arg::Type command)const;
 
 

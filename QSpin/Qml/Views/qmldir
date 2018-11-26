@@ -8,3 +8,5 @@ QsSpinQueueView 1.0 QsSpinQueueView.qml
 QsTableView 1.0 QsTableView.qml
 QsToolViews 1.0 QsToolViews.qml
 QsVerificationView 1.0 QsVerificationView.qml
+QsVeriryResultMinimalView 1.0 QsVeriryResultMinimalView.qml
+QsVerificationResultView 1.0 QsVerificationResultView.qml

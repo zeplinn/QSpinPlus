@@ -3,6 +3,7 @@
 
 namespace  {
 ColorSchemeSerialzationTests __T;
+static constexpr jsonQspinPlusSchemeIds propIds;
 
 void isValidStyleScheme(IQJsonSerialization& style,const QString fn,const char groupId[]){
     //const QString fn("qrc:/colorScheme/buttonStyle.scheme");

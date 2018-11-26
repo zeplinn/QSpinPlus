@@ -11,7 +11,9 @@ SOURCES +=  tst_qspintesting.cpp \
     #QsSpinRunTesting.cpp \
     #QsSpinConfigurationTesting.cpp \
     TestSuite.cpp \
-    colorSchemeTests/ColorSchemeSerialzationTests.cpp
+    colorSchemeTests/ColorSchemeSerialzationTests.cpp \
+    Serialization/QSpinPlusSerilization.cpp \
+    VerificationTests/VerificationTests.cpp
    # SpinRunnerTests/RunSpinConfigurationTests.cpp \
     #SpinConfiguratisonTests/GenerateRunDataTests.cpp \
     #QsProjectTesting/QsProjectCreationTesting.cpp
@@ -24,7 +26,9 @@ HEADERS += \
     EmptyTest.h \
    # QsSpinConfigurationTesting.h \ # \
     TestSuite.h \
-    colorSchemeTests/ColorSchemeSerialzationTests.h
+    colorSchemeTests/ColorSchemeSerialzationTests.h \
+    Serialization/QSpinPlusSerilization.h \
+    VerificationTests/VerificationTests.h
     #../Precompiled.h
    # SpinRunnerTests/RunSpinConfigurationTests.h \
     #SpinConfiguratisonTests/GenerateRunDataTests.h \

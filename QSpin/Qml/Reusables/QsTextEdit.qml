@@ -12,8 +12,6 @@ Flickable {
     property alias text: textArea.text
     property alias padding: textArea.padding
 
-    //onMovingVerticallyChanged: {console.debug("moving vertically changed")}
-
     TextArea.flickable: TextArea {
         id: textArea
         //scale: 0.01
@@ -35,7 +33,6 @@ Flickable {
 
     ScrollBar.vertical: QsScrollBar {
         id:vScrollBar
-        //onPressedChanged: {pressed ? console.debug("scrollBar started") :console.debug("scollbar stopped")}
 
     }
 }

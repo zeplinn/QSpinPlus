@@ -6,10 +6,12 @@ void QsConsoleHandler::setDocument(QQuickTextDocument*value){
 	emit documentChanged();
 }
 
-QsConsoleHandler::QsConsoleHandler(QObject*parent, EventAggregator*msgService):QObject(parent){
-	msgService->subscribe(this);
+QsConsoleHandler::QsConsoleHandler(QObject *parent, EventAggregator *msgService)
+    :QObjectBase(parent,msgService)
+{
+    this->msgService()->subscribe<PrintToConsole>(this);
 }
 
 void QsConsoleHandler::subscriber(const PrintToConsole&event){
-	emit messageSend(event.message());
+    emit messageSend(event.message());
 }
