@@ -30,10 +30,10 @@ Item {
 			}
 		}
 
-	QsVerifyResults{
-		anchors.left: parent.left
-		anchors.right: parent.right
-	}
+//	QsVerifyResults{
+//		anchors.left: parent.left
+//		anchors.right: parent.right
+//	}
 	}
 
 }

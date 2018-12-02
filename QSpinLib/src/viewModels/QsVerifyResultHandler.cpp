@@ -1,35 +1,190 @@
 #include "qspin/viewModels/QsVerifyResultHandler.h"
 
-bool QsVerifyResultHandler::partialOrderReduction() const{ return _results ? _results->fullStatespaceFor().partialOrderReduction : 0 ;}
+QsVerifyResultList *QsVerifyResultHandler::results() const{ return _resultList; }
 
-bool QsVerifyResultHandler::neverClaim() const{ return _results ? _results->fullStatespaceFor().neverClaim : 0 ;}
+VerificationResultContainer *QsVerifyResultHandler::currentItem() const{ return _currentItem; }
 
-bool QsVerifyResultHandler::assertionViolations() const{ return _results ? _results->fullStatespaceFor().assertionViolations : 0 ;}
+void QsVerifyResultHandler::setCurrentItem(VerificationResultContainer *value){
+    _currentItem = value;
+    emit currentItemChanged();
+    if(_currentItem!=nullptr)
+        setSelectedResults(_currentItem->VerificationReport());
+    else
+        setSelectedResults(nullptr);
 
-bool QsVerifyResultHandler::acceptanceCycles() const{ return _results ? _results->fullStatespaceFor().acceptanceCycles : 0 ;}
+}
 
-bool QsVerifyResultHandler::invalidEndStates() const{ return _results ? _results->fullStatespaceFor().invalidEndStates : 0 ;}
+VerificationResults *QsVerifyResultHandler::selectedResults() const{ return   _selectedResults; }
 
-qreal QsVerifyResultHandler::depthReached() const{ return _results ? _results->fullStatespaceSpecifications().depthReached : 0 ;}
+void QsVerifyResultHandler::setSelectedResults(VerificationResults *value){
+    _selectedResults = value;
+    emit selectedResultsChanged();
 
-qreal QsVerifyResultHandler::storedStates() const{ return _results ? _results->fullStatespaceSpecifications().storedStates : 0 ;}
+}
 
-qreal QsVerifyResultHandler::matchedStates() const{ return _results ? _results->fullStatespaceSpecifications().matchedStates : 0 ;}
+int QsVerifyResultHandler::currentIndex() const{ return _currentIndex; }
 
-qreal QsVerifyResultHandler::transitionsTaken() const{ return _results ? _results->fullStatespaceSpecifications().transitionsTaken : 0 ;}
+void QsVerifyResultHandler::setCurrentIndex(int value){
+    _currentIndex = value;
+    emit currentIndexChanged();
+    if(value>=0)
+        setCurrentItem(_resultList->get(value));
+    else setCurrentItem(nullptr);// safe call
+}
 
-qreal QsVerifyResultHandler::atomicSteps() const{ return _results ? _results->fullStatespaceSpecifications().atomicSteps : 0 ;}
+QString QsVerifyResultHandler::spinCommands() const{
+    if(currentItem()==nullptr) return "";
+    auto cmds = currentItem()->commands().CommandsToStringLists();
+    return cmds.spin.join("  ");
+}
 
-qreal QsVerifyResultHandler::stateSize() const{ return _results ? _results->fullStatespaceSpecifications().stateSize : 0 ;}
+QString QsVerifyResultHandler::gccCommands() const{
+    if(currentItem()==nullptr) return "";
+    auto cmds = currentItem()->commands().CommandsToStringLists();
+    return cmds.gcc.join("  ");
+}
 
-qreal QsVerifyResultHandler::hashConflicts() const{ return _results ? _results->fullStatespaceSpecifications().hashConflicts : 0 ;}
+QString QsVerifyResultHandler::panCommands() const{
+    if(currentItem()==nullptr) return "";
+    auto cmds = currentItem()->commands().CommandsToStringLists();
+    return cmds.pan.join("  ");
 
-qreal QsVerifyResultHandler::hashSize() const{ return _results ? _results->fullStatespaceSpecifications().hashSize : 0 ;}
+}
 
-qreal QsVerifyResultHandler::forStates() const{ return _results ? _results->memoryUsed().forStates : 0 ;}
+QString QsVerifyResultHandler::unreached() const{
+    if(currentItem()==nullptr) return "";
+    return currentItem()->VerificationReport()->unreachedStates();
+}
 
-qreal QsVerifyResultHandler::forHashTable() const{ return _results ? _results->memoryUsed().forHashTable : 0 ;}
+QsVerifyResultHandler::QsVerifyResultHandler(QObject *parent, EventAggregator *msg)
+    :QObjectBase(parent,msg)
+    ,_currentItem(nullptr)
+    ,_selectedResults(nullptr)
+    ,_resultList(new QsVerifyResultList(this,msgService()))
+    ,_project(nullptr)
+    ,_fileWatcher(new QFileSystemWatcher(this))
+{
+    msgService()->subscribe<VerificationResultFileChanged>(this);
+    msgService()->subscribe<ProjectOpened>(this);
+    msgService()->subscribe<ProjectSaved>(this);
+    msgService()->subscribe<ProjectClosed>(this);
+    connect(_fileWatcher,&QFileSystemWatcher::fileChanged
+            ,this,&QsVerifyResultHandler::fileUpdated);
+}
 
-qreal QsVerifyResultHandler::forSearchStack() const{ return _results ? _results->memoryUsed().forSearchStack : 0 ;}
+void QsVerifyResultHandler::subscriber(const ProjectOpened &event){
+    if(event.project()!= nullptr){
+        // add folder to listen to
+        auto files = _fileWatcher->files();
+        if(!files.isEmpty())
+            _fileWatcher->removePaths(files);
 
-qreal QsVerifyResultHandler::inTotal() const{ return _results ? _results->memoryUsed().inTotal : 0 ;}
+        auto nfiles = event.project()->resultsDir().entryInfoList({"*.qspr"},QDir::Files | QDir::NoDotAndDotDot);
+        _watchedFiles.clear();
+        _resultList->clear();
+        for(auto f : nfiles){
+            _fileWatcher->addPath(f.absoluteFilePath());
+            fileUpdated(f.absoluteFilePath());
+        }
+        _project=event.project();
+    }
+
+
+}
+
+void QsVerifyResultHandler::subscriber(const ProjectSaved &event){
+    if(_project!= event.project()){
+        // clear list
+        auto files = _fileWatcher->files();
+
+        _fileWatcher->removePaths(files);
+
+        auto nfiles = event.project()->resultsDir().entryInfoList({"*.qspr"},QDir::Files | QDir::NoDotAndDotDot);
+        _watchedFiles.clear();
+        _resultList->clear();
+        for(auto f : nfiles){
+            _fileWatcher->addPath(f.absoluteFilePath());
+            fileUpdated(f.absoluteFilePath());
+        }
+        _project =event.project();
+        //auto files =
+        //remove folder to listen to
+        // add new folder to listen to
+    }
+}
+
+void QsVerifyResultHandler::subscriber(const ProjectClosed &event){
+    Q_UNUSED(event)
+    setCurrentIndex(-1); // clears all related to at current item
+    auto files = _fileWatcher->files();
+    _fileWatcher->removePaths(files);
+    if(!_watchedFiles.isEmpty())
+        _watchedFiles.clear();
+    _resultList->clear();
+    _project = nullptr;
+    // clear list
+    // remove folder to listen to
+}
+
+void QsVerifyResultHandler::subscriber(const VerificationResultFileChanged &event){
+    auto e = event;
+    if(e.status()==VerificationResultFileChanged::Created)
+        fileUpdated(e.destination().absoluteFilePath());
+    else if (e.status() == VerificationResultFileChanged::Deleted){
+        QFile::remove(e.destination().absoluteFilePath());
+    }
+}
+
+void QsVerifyResultHandler::remove(int index){
+    auto item = _resultList->get(index);
+    if( currentIndex()== index)
+        setCurrentIndex(-1);
+    QFile::remove(item->filename().absoluteFilePath());
+}
+
+bool QsVerifyResultHandler::compareToCurrentDocument(){
+    if(_project!= nullptr && currentItem()!= nullptr){
+        return _project->currentDocument() == currentItem()->document();
+    }
+    return false;
+}
+
+QString QsVerifyResultHandler::getXmlReport(){
+    if(_project!=nullptr && currentItem()!= nullptr){
+        return qs().readTextFile(currentItem()->filename().absoluteFilePath());
+    }
+    return "";
+}
+
+void QsVerifyResultHandler::fileUpdated(QString path){
+    QFileInfo fi(path);
+    if(fi.suffix()!= "qspr") return;
+    auto basename  = qs().extractResultFileBaseName(fi.fileName());
+    bool isValid;
+    auto createdAt = qs().extractEpochSinceFromFile(fi.fileName(),&isValid);
+    auto epoch = qs().getTimeSinceEpochFrom(createdAt);
+    if(!isValid){
+        toConsole("invalid result file. %"+fi.absoluteFilePath());
+        return;
+    }
+
+    if(fi.exists()){
+        if(!_watchedFiles.contains(epoch)){
+            _watchedFiles[qs().getTimeSinceEpochFrom(createdAt)]=true;
+            _fileWatcher->addPath(fi.absoluteFilePath());
+            //auto item = new VerificationResultContainer(this,msgService());
+            //qs().OpenXml(item,path);
+            auto item = new QsVerifyResultListItem(fi,this,msgService());
+            _resultList->append(epoch,item);
+        }
+    }
+    else{
+
+        if(_watchedFiles.contains(epoch)){
+            _watchedFiles.remove(epoch);
+            _fileWatcher->removePath(fi.absolutePath());
+            _resultList->remove(epoch);
+        }
+    }
+
+}

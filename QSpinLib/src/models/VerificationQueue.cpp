@@ -1,17 +1,20 @@
 #include "qspin/models/VerificationQueue.h"
 
 
-void VerificationQueue::setbuildDir(QDir dir){
-    _binDir = dir;
+void VerificationQueue::setProject(QSpinPlus *project){
+    _project = project;
 }
 
 void VerificationQueue::append(QueuedVerification *item){
     beginInsertRows(QModelIndex(),_queue.count(),_queue.count());
     item->setParent(this);
-    //QObject::connect(item,&QueuedVerification::removedFromQueue,this,&VerificationQueue::removeItem);
+    connect(item,&QueuedVerification::variablesChanged,this,&VerificationQueue::itemDataChanged);
+    connect(this,&VerificationQueue::allQueuedItemsCanceled
+            ,item,&QueuedVerification::cancelVerifcation);
+    connect(this,&VerificationQueue::allitemsCleared
+            ,item,&QueuedVerification::deleteLater);
     _queue << item;
     endInsertRows();
-    startNewVerification();
 }
 
 void VerificationQueue::removeItem(int index){
@@ -23,16 +26,15 @@ void VerificationQueue::removeItem(int index){
     item->deleteLater();
 }
 
+int VerificationQueue::position(QueuedVerification *item){
+    return  _queue.indexOf(item);
+}
+
 QueuedVerification *VerificationQueue::get(int index){
     return _queue[index];
 }
 
-void VerificationQueue::startNewVerification(){
-    _queue.takeFirst();
-    if(_queue.count()>0 && _queue[0]->status()==QsSpinRunner::Waiting){
-        _queue[0]->start(_binDir);
-    }
-}
+
 
 int VerificationQueue::rowCount(const QModelIndex &parent) const
 {
@@ -50,6 +52,7 @@ QVariant VerificationQueue::data(const QModelIndex &index, int role) const
     switch (role) {
     case Name_role: return item->name();   // not properly implemented yet
     case CreatedAt_role: return item->createdAt();
+    case StartedAt_role: return item->startedAt();
     case statusLabelRole: return  item->statusLabel();
     }
 

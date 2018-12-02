@@ -1,5 +1,11 @@
 #include "qspin/models/VerificationResultContainer.h"
 
+VerificationResultContainer::VerificationResultContainer(QObject *parent, EventAggregator *msgService)
+    :QObjectBase(parent,msgService)
+    ,_commands(new SpinCommands(this,msgService))
+    ,_results(nullptr)
+{}
+
 void VerificationResultContainer::read(QXmlStreamReader &xml)
 {
     if(xml.name()==Qs::nameof(this)){
@@ -19,8 +25,14 @@ void VerificationResultContainer::read(QXmlStreamReader &xml)
             else if(xml.name()=="Document"){
                 _document =xml.readElementText().toLocal8Bit();
             }
-            else if(xml.name()=="SpinCommands"){
+            else if(xml.name()=="TrailDocument")
+                _trailDocument = xml.readElementText();
+            else if(xml.name()==qs().nameof(_commands)){
                 _commands->read(xml);
+            }
+            else if(xml.name() == VerificationResults::staticMetaObject.className()){
+                _results = new VerificationResults(this,msgService());
+                _results->read(xml);
             }
         }
     }
@@ -30,15 +42,20 @@ void VerificationResultContainer::write(QXmlStreamWriter &xml)
 {
     xml.writeStartElement(Qs::nameof(this));
     xml.writeAttribute("name",_name);
-    if(_createdSet)
+    if(_created.isValid())
         xml.writeTextElement("Created",_created.toString());
     if(_started.isValid()){
         xml.writeTextElement("Started",_started.toString());
     }
     if(_finished.isValid())
         xml.writeTextElement("Finished",_finished.toString());
-    xml.writeTextElement("Document",_document);
     _commands->write(xml);
+    if(_results != nullptr)
+        _results->write(xml);
+    if(!_document.isEmpty())
+    xml.writeTextElement("Document",_document);
+    if(!_trailDocument.isEmpty())
+        xml.writeTextElement("TrailDocument",_trailDocument);
     xml.writeEndElement();
 }
 
@@ -49,46 +66,32 @@ void VerificationResultContainer::setCommands(SpinCommands *value){
     _commands->setParent(this);
 }
 
-QFileInfo VerificationResultContainer::saveAs(QString name, QDir destination){
-    _name= name;
+QString VerificationResultContainer::document(){ return _document; }
+
+void VerificationResultContainer::setDocument(QString document){
+    _document = document;
+}
+
+
+QDateTime VerificationResultContainer::createdAt() const { return _created;}
+
+void VerificationResultContainer::setCreatedAt(QDateTime time){
     if(!_created.isValid()){
-        _created = QDateTime::currentDateTime();
+        _created = time;
     }
-    if(!destination.exists() && ! destination.mkpath(destination.currentPath())){
-        qCritical("failed create destination folder");
-        return QFileInfo();
-    }
-    QString fileName =QString("%1_%2.qspr")
-            .arg(name)
-            .arg(_created.toMSecsSinceEpoch());
-    QFileInfo _fileInfo = destination.absoluteFilePath(fileName);
-
-    QFile f(_fileInfo.absoluteFilePath());
-
-    if(!f.open(QIODevice::WriteOnly | QIODevice::Text)){
-        qCritical("failed to open export path");
-        return QFileInfo();
-
-    }
-    QXmlStreamWriter writer(&f);
-    write(writer);
-    f.close();
-    return _fileInfo;
 }
 
-bool VerificationResultContainer::open(const QFileInfo &filepath){
-    if(!filepath.exists())
-        return false;
-    QFile f(filepath.absoluteFilePath());
-    if(!f.open(QIODevice::ReadOnly | QIODevice::Text)){
-        return false;
-    }
-    QXmlStreamReader reader(&f);
-    read(reader);
-
-
-    f.close();
-    return true;
+void VerificationResultContainer::addResults(VerificationResults *results){
+    _results = results;
+    _results->setParent(this);
 }
 
-QDateTime VerificationResultContainer::created() const { return _created;}
+VerificationResults *VerificationResultContainer::VerificationReport() const{ return _results;}
+
+QString VerificationResultContainer::name() const{ return _name;}
+
+void VerificationResultContainer::setName(QString value){
+    if(_name.isEmpty()){
+        _name = value;
+    }
+}

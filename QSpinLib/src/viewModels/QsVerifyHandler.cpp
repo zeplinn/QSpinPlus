@@ -17,6 +17,8 @@ void QsVerifyHandler::setCurrentIndex(int value){
     //}
 }
 
+bool QsVerifyHandler::isProjectOpen() const{ return _isProjectOpen;}
+
 QsVerifyHandler::QsVerifyHandler(QObject *parent, EventAggregator *msgService)
     :QObjectListBase(parent,msgService)
     ,_currentIndex(0)
@@ -64,11 +66,36 @@ QHash<int, QByteArray> QsVerifyHandler::roleNames() const{
     return r;
 }
 
+void QsVerifyHandler::setIsProjectOpen(bool value){
+    _isProjectOpen = value;
+    emit isProjectOpenChanged();
+}
+
+void QsVerifyHandler::subscriber(const ProjectOpened &event){
+    beginResetModel();
+    _project = event.project();
+    auto c = _project->configurations();
+    endResetModel();
+    if(c->count()>0){
+        setCurrentIndex(0);
+    }
+    setIsProjectOpen(true);
+}
+
+void QsVerifyHandler::subscriber(const ProjectSaved &event){
+    if(_project == event.project()) return;
+}
+
+void QsVerifyHandler::subscriber(const ProjectClosed &event){
+    Q_UNUSED(event)
+    setIsProjectOpen(false);
+}
+
 void QsVerifyHandler::addConfiguration(QString name){
     if(_project==nullptr) return;
-    auto vc = new VerificationConfiguration(this);
-    vc->updateConfigurations();
     auto c = _project->configurations();
+    auto vc = new VerificationConfiguration(this,c->msgService() );
+    vc->updateConfigurations();
     vc->setName(name);
     QObject::connect(vc,&VerificationConfiguration::verifyModeChanged,this,&QsVerifyHandler::verifyModeUpdated);
     beginInsertRows(QModelIndex(),c->count(),c->count());
@@ -89,12 +116,44 @@ void QsVerifyHandler::removeConfiguration(VerificationConfiguration *item){
 }
 
 void QsVerifyHandler::queueVerification(VerificationConfiguration *item){
-    if(!_project.isNull() && item != nullptr)
-        item->queueVerification(_project->queuedDir());
+    if(_project.isNull() || item == nullptr) return;
+
+    auto resultContatiner = new VerificationResultContainer(this,msgService());
+    resultContatiner->setCommands(item->getSpinCommands());
+    QString document =  _project->currentDocument();//  qs().readTextFile(_project->pmlInfo().absoluteFilePath());
+    resultContatiner->setDocument(document);
+
+    auto date =QDateTime::currentDateTime();
+    auto fileInfo = qs().constructResultFileName(_project->queuedDir(),item->name(),date);
+    resultContatiner->setFile(fileInfo);
+    resultContatiner->setName(item->name());
+    resultContatiner->setCreatedAt(date);
+    qs().WriteXml(resultContatiner,fileInfo.absoluteFilePath());
+    msgService()->publish(AppendToVeriyQueue(fileInfo,item->name(),resultContatiner->createdAt()));
+    resultContatiner->deleteLater();
 
 }
+
+
 
 void QsVerifyHandler::verifyModeUpdated(Arg::Type mode){
     Q_UNUSED(mode)
     dataChanged(index(currentIndex()),index(currentIndex()),{VerifyMode});
+}
+
+void QsVerifyHandler::checkSyntax(){
+    QProcess p;
+    QDir workDir = _project->projectDir();
+    QString tmpDir ="sc_check_"+currentConfiguration()->name();
+    workDir.mkdir(tmpDir);
+    workDir.cd(tmpDir);
+    p.setWorkingDirectory(workDir.absolutePath());
+    auto vResult = new VerificationResultContainer();
+    auto spinCommands = new SpinCommands();
+    auto vc = currentConfiguration();
+
+    //        for ( auto ic : _project->configurations())
+    //            set
+    //        spinCommands->append()
+
 }

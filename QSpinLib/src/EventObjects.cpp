@@ -13,9 +13,10 @@ QString PrintToConsole::message() const{
     }
 }
 
-AppendToVeriyQueue::AppendToVeriyQueue(QFileInfo info, QDateTime createdAt)
+AppendToVeriyQueue::AppendToVeriyQueue(QFileInfo info, QString name, QDateTime createdAt)
     :_file(info)
     ,_createdAt(createdAt)
+    ,_name(name)
 {
 
 }
@@ -42,3 +43,12 @@ QSpinPlus *ProjectSaved::project() const{ return _fileInFo;}
 SelectedToolTabUpdated::SelectedToolTabUpdated(int value):_value(value){}
 
 int SelectedToolTabUpdated::value() const{ return _value; }
+
+VerificationResultFileChanged::VerificationResultFileChanged(QFileInfo destination, VerificationResultFileChanged::Status status)
+    :_file(destination)
+    ,_status(status)
+{}
+
+QFileInfo VerificationResultFileChanged::destination(){ return _file; }
+
+VerificationResultFileChanged::Status VerificationResultFileChanged::status(){ return _status;}

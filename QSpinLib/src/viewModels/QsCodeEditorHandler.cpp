@@ -29,6 +29,14 @@ void QsCodeEditorHandler::setSyntaxHighlighter(QSyntaxHighlighter *value){
 		emit syntaxHighlighterChanged();
 	}
 }
+
+void QsCodeEditorHandler::setText(QString text){
+    document()->setPlainText(text);
+}
+
+void QsCodeEditorHandler::clearText(){
+    document()->clear();
+}
 QsCodeEditorHandler::QsCodeEditorHandler(QObject *parent) : QObject(parent),_textDocument(nullptr)
   ,_highlighter(nullptr),_canUndo(false),_canRedo(false)
 {

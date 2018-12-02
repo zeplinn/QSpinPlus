@@ -13,8 +13,8 @@ ApplicationWindow {
 	//flags:  Qt.Window | Qt.FramelessWindowHint
 	width: 1400
 	height: 764
-	minimumHeight: 764
-	minimumWidth: 1024
+	minimumHeight: 1024
+	minimumWidth: 1280
 	visibility: Window.Maximized
 	title: qsTr("QSpin+")
 	background: Rectangle{
@@ -103,7 +103,7 @@ ApplicationWindow {
 					id: codeEditiorId
 					Layout.fillHeight: true
 					Layout.fillWidth: true
-					Layout.minimumWidth: 300
+					Layout.minimumWidth: 150
 					syntaxHighlighter: promelaHighlighterId
 					tabIndentSize: QsStyle.promelaEditor.tabIndents
 					foreground: QsStyle.promelaEditor.foreground
@@ -125,6 +125,7 @@ ApplicationWindow {
 					id:tabBtn
 					visible: footerTabsId.currentIndex === 0
 					Layout.fillWidth: true
+					Layout.preferredHeight: height
 
 				}
 				QsVeriryResultMinimalView{
@@ -133,9 +134,11 @@ ApplicationWindow {
 				}
 
 				QsConsoleView{
+					Layout.preferredHeight: 400
 					Layout.fillWidth: true
 					visible: footerTabsId.currentIndex === 2
 				}
+
 			}
 
 		}
@@ -157,7 +160,7 @@ ApplicationWindow {
 			visible: topToolBarId.isSimulationTabSelected
 			//			visible: toolsTabId.currentIndex===1
 		}
-		QsInteractiveView{
+		QsVerificationResultView{
 			id:verifyResultViewId
 			readonly property string header: "Verification Results"
 			Layout.fillHeight: true

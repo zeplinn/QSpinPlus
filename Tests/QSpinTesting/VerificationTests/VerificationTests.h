@@ -3,6 +3,10 @@
 
 #include <QObject>
 #include <TestSuite.h>
+#include "qspin/QObjectBase.h"
+
+#include "qspin/viewModels/QsSpinQueueHandler.h"
+
 class VerificationTests : public TestSuite
 {
     Q_OBJECT

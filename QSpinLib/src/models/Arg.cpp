@@ -86,8 +86,8 @@ QString Arg::val(Arg::Type type, QString extra)
     case ProgressMode: return "-l";
     case AccepanceMode: return "-a";
     case WeakFairness: return "-f";
-    case SearchDepth: return QString("-w%1").arg(extra);
-    case HashSize: return QString("-m%1").arg(extra);
+    case SearchDepth: return QString("-m%1").arg(extra);
+    case HashSize: return QString("-w%1").arg(extra);
     case None: return  "";
     default: qFatal("no such argument to compile");
     }
@@ -96,17 +96,17 @@ QString Arg::val(Arg::Type type, QString extra)
 
 Arg::Category Arg::getCategory(Arg::Type command){
     if(isSpinArgument(command)) return  Spin;
-    if(isCompileArgument(command)) return Compile;
+    if(isCompileArgument(command)) return Gcc;
     if(isPanArgument(command)) return  Pan;
     throw QString("command do not belong to any category: %1").arg(name(command));
 }
 
 bool Arg::isSpinArgument(Arg::Type arg){
-    return arg>= static_cast<Type>(Spin) && arg< static_cast<Type>(Compile);
+    return arg>= static_cast<Type>(Spin) && arg< static_cast<Type>(Gcc);
 }
 
 bool Arg::isCompileArgument(Arg::Type arg){
-    return arg>= static_cast<Type>(Compile) && arg< static_cast<Type>(TimeLimit);
+    return arg>= static_cast<Type>(Gcc) && arg< static_cast<Type>(TimeLimit);
 }
 
 bool Arg::isPanArgument(Arg::Type arg){

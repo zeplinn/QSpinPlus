@@ -37,11 +37,12 @@ class AppendToVeriyQueue
 {
     QFileInfo _file;
     QDateTime _createdAt;
+    QString _name;
 public:
-     explicit AppendToVeriyQueue(QFileInfo info,QDateTime createdAt);
+     explicit AppendToVeriyQueue(QFileInfo info,QString name,QDateTime createdAt);
     QFileInfo fileInfo();
     QDateTime createdAt();
-
+    QString name()const { return _name;}
 
 };
 
@@ -67,7 +68,12 @@ class newProjectCreated{
 
 
 class ProjectClosed{
-
+ QSpinPlus* _project;
+public:
+ explicit ProjectClosed(QSpinPlus* project)
+     :_project(project)
+ {}
+ QSpinPlus* project()const{ return _project; }
 };
 
 
@@ -113,9 +119,27 @@ public:
 };
 
 
-// project includes goes here to avoid import conflicts conflicts
+////////////////////////////////////////////////////
+/// \brief The VerificationResultCreated class
+////////////////////////////////////////////////////
 
-//#include "qspin/models/QSpinPlus.h"
 
+class VerificationResultFileChanged{
+public:
+    enum Status{
+        Created,
+        Deleted,
+        Canceled
+    };
+private:
+    QFileInfo _file;
+    Status _status;
+
+public:
+    VerificationResultFileChanged(QFileInfo destination,Status status);
+
+    QFileInfo destination();
+    Status status();
+};
 
 #endif // EVENTOBJECTS_H

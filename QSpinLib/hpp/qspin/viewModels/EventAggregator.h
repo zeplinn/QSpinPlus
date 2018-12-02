@@ -15,14 +15,14 @@ class ISubscriber{
 		virtual void subscriber(const T& event)=0;
 };
 
-class EventAggregator: public QObject{
+class EventAggregator{
 		typedef  QPointer<QObject> s_ptr;
 		typedef QLinkedList<s_ptr> list_type;
 		QHash<size_t,list_type> hs;
 		QMutex mutex;
 
 	public:
-		explicit EventAggregator(QObject* parent=nullptr);
+        explicit EventAggregator();
 
 		template<typename T>
 		bool subscribe(ISubscriber<T>* subsrciber){

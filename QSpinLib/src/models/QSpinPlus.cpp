@@ -1,19 +1,17 @@
 #include "qspin/models/QSpinPlus.h"
 
 
-QSpinPlus *QSpinPlus::openProject(QString promelaPath){
-
-    QFile f(promelaPath);
-    auto project = new QSpinPlus();
-    f.open(QFile::ReadOnly |QFile::Text);
+void QSpinPlus::openProject(QFileInfo promelaPath){
+    QString projectPath = QString("%1/%2/%2.qsp")
+            .arg(promelaPath.absoluteDir().absolutePath())
+            .arg(promelaPath.baseName());
+    QFile f(projectPath);
+    qs().OpenXml(this,projectPath);
     QXmlStreamReader reader(&f);
-    project->read(reader);
-    project->setPmlInfo(promelaPath);
-    f.close();
-    return  project;
+    setPmlInfo(promelaPath);
 }
 
-QSpinPlus* QSpinPlus::createBasicProject(QString name, QDir dir){
+void QSpinPlus::createBasicProject(QString name, QDir dir){
     //toConsole("Project folder created:" +dir.path()+"/"+name);
     dir.mkdir(name);
     dir.cd(name);
@@ -31,7 +29,6 @@ QSpinPlus* QSpinPlus::createBasicProject(QString name, QDir dir){
     write << read.readAll();
     initital.close();
     newProject.close();
-    return openProject(dir.absoluteFilePath(filename));
 }
 
 void QSpinPlus::save(QFileInfo info){
@@ -39,7 +36,7 @@ void QSpinPlus::save(QFileInfo info){
         auto from = projectDir();
         auto old_project_name = projectInfo().fileName();
         setPmlInfo(info);
-        QsCopy::copyFolder(from,projectDir());
+        Qs::copyFolder(from,projectDir());
         QFile::remove(projectDir().absoluteFilePath(old_project_name));
     }
     QFile f(projectInfo().absoluteFilePath());
@@ -49,6 +46,11 @@ void QSpinPlus::save(QFileInfo info){
     write(writer);
     f.close();
 }
+
+QSpinPlus::QSpinPlus(QObject *parent, EventAggregator *msgService)
+    :QObjectBase(parent,msgService)
+    ,_configurations(new Configurations(this,msgService))
+{}
 
 Configurations *QSpinPlus::configurations() const{ return _configurations;}
 
@@ -69,17 +71,24 @@ void QSpinPlus::setPmlInfo(QFileInfo info){
     _resultFolder = projectDir().absolutePath()+"/results";
     _binFolder = projectDir().absolutePath()+"/bin";
     _queuedFolder = projectDir().absolutePath()+"/queued";
+
 }
 
 void QSpinPlus::read(QXmlStreamReader &xml){
-    if(xml.readNextStartElement() && xml.name() == "QSpinPlus"){
+
+    QString x =xml.name().toString();
+    if(qs().nameof(this) ==x ){
         while (xml.readNextStartElement()) {
-            if(xml.name() == "Configurations"){
+            x = xml.name().toString();
+            QString y = qs().nameof(_configurations);
+            if(x== qs().nameof(_configurations)){
                 _configurations->read(xml);
             }
         }
     }else{
         // invalid project file
+        qCritical("invaild qspin project file");
+        toConsole("Reading Project file: Invalid project format");
     }
 }
 
@@ -88,4 +97,14 @@ void QSpinPlus::write(QXmlStreamWriter &xml){
     xml.writeStartElement("QSpinPlus");
     _configurations->write(xml);
     xml.writeEndElement();// QSpinPlus
+}
+
+QString QSpinPlus::currentDocument() const{ return _currentDocument->text(); }
+
+void QSpinPlus::attachCurrentDocument(QsCodeEditorHandler *current){
+    _currentDocument = current;
+}
+
+void QSpinPlus::SendToQueue(){
+
 }

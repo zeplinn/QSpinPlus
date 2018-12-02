@@ -7,10 +7,11 @@ import QSpin.CppItems 1.0
 Item {
 	id:rootId
 
-	implicitHeight: 200
+	implicitHeight: 250
 	QsSpinQueueHandler{
 		id: handlerId
 	}
+
 	ListView{
 		anchors.fill: parent
 		id:spinListId
@@ -38,6 +39,7 @@ Item {
 					color: QsStyle.general.border
 				}
 			}
+
 			RowLayout{
 				anchors.left: parent.left
 				anchors.right: parent.right
@@ -58,7 +60,6 @@ Item {
 
 
 	}
-
 
 	Component{
 		id:rowDelegateId
@@ -96,7 +97,7 @@ Item {
 					implicitHeight: 18
 					implicitWidth: 18
 					imageSource: "qrc:/icons/close.png"
-				onClicked: handlerId.verifyQueue.removeItem(listItemRoot.idx)
+				onClicked: handlerId.removeItem(listItemRoot.idx)
 				}
 			}
 			QsDivider{
@@ -116,63 +117,5 @@ Item {
 		delegate: rowDelegateId
 		//model: handlerId
 		model: handlerId.verifyQueue
-	}
-	ListModel{
-		id:dummyModelId
-		ListElement{
-			name_role: "some name"
-			createdTime_role: "created at"
-			status_role: "some status"
-			startTime_role : "started at"
-		}
-		ListElement{
-			name_role: "some name"
-			createdTime_role: "created at"
-			status_role: "some status"
-			startTime_role : "started at"
-		}
-		ListElement{
-			name_role: "some name"
-			createdTime_role: "created at"
-			status_role: "some status"
-			startTime_role : "started at"
-		}
-		ListElement{
-			name_role: "some name"
-			createdTime_role: "created at"
-			status_role: "some status"
-			startTime_role : "started at"
-		}
-		ListElement{
-			name_role: "some name"
-			createdTime_role: "created at"
-			status_role: "some status"
-			startTime_role : "started at"
-		}
-		ListElement{
-			name_role: "some name"
-			createdTime_role: "created at"
-			status_role: "some status"
-			startTime_role : "started at"
-		}
-		ListElement{
-			name_role: "some name"
-			createdTime_role: "created at"
-			status_role: "some status"
-			startTime_role : "started at"
-		}
-		ListElement{
-			name_role: "some name"
-			createdTime_role: "created at"
-			status_role: "some status"
-			startTime_role : "started at"
-		}
-		ListElement{
-			name_role: "some name"
-			createdTime_role: "created at"
-			status_role: "some status"
-			startTime_role : "started at"
-		}
-
 	}
 }

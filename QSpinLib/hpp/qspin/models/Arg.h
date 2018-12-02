@@ -39,7 +39,7 @@ public:
     Q_ENUM(Type)
     enum Category{
         Spin=LTL, // start value of spin args
-        Compile = Safety,   // start value of Compile args
+        Gcc = Safety,   // start value of Compile args
         Pan = TimeLimit   // start value of pan args
     };
     explicit Arg(QObject* parent = nullptr);

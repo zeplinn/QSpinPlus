@@ -46,12 +46,12 @@ public: //properties
     VerificationConfiguration* currentConfiguration()const;
     int currentIndex()const;
     Q_INVOKABLE void setCurrentIndex(int value);
-    bool isProjectOpen()const{ return _isProjectOpen;}
+    bool isProjectOpen()const;
 signals: // properties
     void currentConfigurationChanged(VerificationConfiguration* currentConfig);
     void currentIndexChanged();
     void isProjectOpenChanged();
-protected:
+public:
 
     explicit QsVerifyHandler(QObject *parent = nullptr,EventAggregator* msgService=nullptr);
     //Q_INVOKABLE qreal verifyResults(ResultCode code);
@@ -59,50 +59,19 @@ protected:
     virtual QVariant data(const QModelIndex& index,int role = Qt::DisplayRole)const override;
     virtual int rowCount(const QModelIndex& index = QModelIndex())const override;
     virtual QHash<int,QByteArray> roleNames()const override;
-    void setIsProjectOpen(bool value){
-        _isProjectOpen = value;
-        emit isProjectOpenChanged();
-    }
-    virtual void subscriber(const ProjectOpened& event)override{
-        beginResetModel();
-        _project = event.project();
-        auto c = _project->configurations();
-        endResetModel();
-        if(c->count()>0){
-            setCurrentIndex(0);
-        }
-        setIsProjectOpen(true);
-    }
-    virtual void subscriber(const ProjectSaved& event)override{
-        Q_UNUSED(event)
-    }
-    virtual void subscriber(const ProjectClosed& event)override{
-        Q_UNUSED(event)
-        setIsProjectOpen(false);
-    }
+    void setIsProjectOpen(bool value);
+    virtual void subscriber(const ProjectOpened& event)override;
+    virtual void subscriber(const ProjectSaved& event)override;
+    virtual void subscriber(const ProjectClosed& event)override;
 public slots:
     void addConfiguration(QString name);
     void removeConfiguration(VerificationConfiguration* item);
     void queueVerification(VerificationConfiguration* item);
+
 private slots:
     void verifyModeUpdated(Arg::Type mode);
 
-    void checkSyntax(){
-        QProcess p;
-        QDir workDir = _project->projectDir();
-        QString tmpDir ="sc_check_"+currentConfiguration()->name();
-        workDir.mkdir(tmpDir);
-        workDir.cd(tmpDir);
-        p.setWorkingDirectory(workDir.absolutePath());
-        auto vResult = new VerificationResultContainer();
-        auto spinCommands = new SpinCommands();
-        auto vc = currentConfiguration();
-
-//        for ( auto ic : _project->configurations())
-//            set
-//        spinCommands->append()
-
-    }
+    void checkSyntax();
 };
 
 #endif // VERIFICATIONMENUHANDLER_H

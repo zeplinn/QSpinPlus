@@ -4,6 +4,7 @@
 #include <QDateTime>
 #include <QFile>
 #include "qspin/QObjectBase.h"
+#include "qspin/models/QsVerificationResults.h"
 class SpinCommands;
 #include "qspin/models/SpinCommands.h"
 #include "qspin/models/IQsSerialization.h"
@@ -13,27 +14,37 @@ class VerificationResultContainer : public QObjectBase, public IQXmlSerializatio
     QDateTime _created;
     QDateTime _started;
     QDateTime _finished;
-    bool _createdSet= false, _startedSet=false,_finishedSet=false;
-    SpinCommands* _commands;
+    SpinCommands* _commands= nullptr;
+    VerificationResults* _results;
     QString _document;
+    QString _trailDocument="";
     QString _name;
+    QFileInfo _file;
 
 public:
-    using QObjectBase::QObjectBase;
+    explicit VerificationResultContainer(QObject* parent= nullptr, EventAggregator* msgService = nullptr);
 
 
     // IQXmlSerialization interface
 public:
-    explicit VerificationResultContainer(QObject* parent= nullptr, EventAggregator* msgService = nullptr)
-        :QObjectBase(parent,msgService)
-        ,_commands(new SpinCommands(this,msgService))
-    {}
     virtual void read(QXmlStreamReader &xml) override;
     virtual void write(QXmlStreamWriter &xml) override;
-    SpinCommands& commands();
     void setCommands(SpinCommands* value);
-    QFileInfo saveAs(QString name,QDir destination);
-    bool open(const QFileInfo& filepath);
-    QDateTime created()const;
+    void setDocument(QString document);
+   // QFileInfo saveAs(QString name,QDir destination);
+   // bool open(const QFileInfo& filepath);
+    QDateTime createdAt()const;
+    void setCreatedAt(QDateTime time);
+    void addResults(VerificationResults* results);
+    void setFile(QFileInfo path){_file = path;}
+public slots:
+    SpinCommands& commands();
+    QString document();
+    QString name()const;
+    void setName(QString value);
+    QString TrailDocument()const {return _trailDocument;}
+    void setTrailDocument(QString trail_document) {_trailDocument = trail_document;}
+    QFileInfo& filename(){return _file;}
+    VerificationResults* VerificationReport()const;
 };
 #endif // VERIFICATIONRESULTSCONTAINER_H

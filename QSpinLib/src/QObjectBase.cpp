@@ -11,8 +11,8 @@ QObjectBase::QObjectBase(QObject *parent, EventAggregator *msgService)
 
 EventAggregator *QObjectBase::msgService() const {return _msgService;}
 
-void QObjectBase::toConsole(QString message){
-    msgService()->publish(PrintToConsole(message));
+void QObjectBase::toConsole(QString message, PrintToConsole::MessageType type){
+    msgService()->publish(PrintToConsole(message,type));
 }
 
 Qs &QObjectBase::qs(){ return Qs::instance(); }

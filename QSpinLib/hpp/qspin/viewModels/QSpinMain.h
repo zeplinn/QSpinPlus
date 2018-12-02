@@ -25,6 +25,11 @@
 #include "qspin/cppView/TextGutterArea.h"
 #include "qspin/models/Configurations.h"
 #include "qspin/models/QsVerificationConfiguration.h"
+#include "qspin/models/QsSpinRunner.h"
+#include "qspin/models/QsVerificationResults.h"
+#include "qspin/models/QsVerifyResultList.h"
+#include "qspin/models/VerificationResultContainer.h"
+#include "qspin/viewModels/QsVerifyResultReportHandler.h"
 class QSpinMain : public QObjectBase
 {
         Q_OBJECT

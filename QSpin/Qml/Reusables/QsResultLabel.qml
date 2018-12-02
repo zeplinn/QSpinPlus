@@ -6,12 +6,13 @@ import QSpin.CppItems 1.0
 		implicitHeight: childrenRect.height
 		id:resultLabel
 		property alias label: labelId.text
-		property real result: 0
+		property var result:-1
 
 		QsText{
 			id:labelId
 			verticalAlignment: Text.AlignVCenter
 			Layout.maximumHeight: labelId.height
+			Layout.minimumWidth: contentWidth
 
 		}
 		QsDivider{
@@ -23,10 +24,33 @@ import QSpin.CppItems 1.0
 		QsText{
 			Layout.maximumHeight: labelId.height
 			id:resultId
-			visible: result !==0
 			verticalAlignment: Text.AlignVCenter
 			horizontalAlignment: Text.AlignRight
 			text: resultLabel.result
+			state: resultLabel.result
+			states:[
+				State {
+					name: "true"
+					PropertyChanges {
+						target: resultId
+						text: "true"
+					}
+				},
+				State {
+					name: "false"
+					PropertyChanges {
+						target: resultId
+						text: "false"
+					}
+				},
+				State {
+					name: "-1"
+					PropertyChanges {
+						target: resultId
+						text: ""
+					}
+				}
+			]
 		}
 
 	}

@@ -12,8 +12,9 @@ void QsPromelaHandler::saveDocument(QUrl fileUrl){
 }
 
 void QsPromelaHandler::openDocument(QUrl fileUrl){
-    if(_project != nullptr)
+    if(_project != nullptr){
         closeDocument(_project->pmlInfo().absoluteFilePath());
+    }
 
     QFileInfo info(fileUrl.toLocalFile());
     if(!info.exists()){
@@ -26,7 +27,11 @@ void QsPromelaHandler::openDocument(QUrl fileUrl){
         QSpinPlus::createBasicProject(info.baseName(),dir);
     }
 
-    auto project = QSpinPlus::openProject(info.absoluteFilePath());
+    auto project = new QSpinPlus(this, msgService());
+    project->openProject(info);
+    project->attachCurrentDocument( editor() );
+    if(project == nullptr)
+        toConsole("failed to open project file");
     editor()->open(fileUrl);
     msgService()->publish(ProjectOpened(project));
     if(_project != nullptr)
@@ -35,6 +40,41 @@ void QsPromelaHandler::openDocument(QUrl fileUrl){
     QDir::setCurrent(info.absoluteDir().path());
     setIsEditable(true);
     setIsOpen(true);
+
+}
+
+void QsPromelaHandler::createDocument(QString name, QUrl folder){
+    QDir dir(folder.toLocalFile());
+
+    //create promelaFile
+    QString document = QString("// %1 created at: %2").arg(name).arg(QDateTime::currentDateTime().toString());
+    QFile pml(dir.absoluteFilePath(name+".pml"));
+
+    pml.open(QIODevice::WriteOnly);
+    QTextStream write(&pml);
+    write << document;
+    pml.close();
+    // create intitial project structure
+    // open promela file
+    QFileInfo pmlInfo (dir.absoluteFilePath(name+".pml"));
+    QSpinPlus::createBasicProject(name,pmlInfo.absoluteDir());
+    openDocument(pmlInfo.absoluteFilePath());
+}
+
+void QsPromelaHandler::closeDocument(QUrl fileUrl){
+    Q_UNUSED(fileUrl)
+    if(_project != nullptr){
+        if(fileUrl.isValid()){
+            saveDocument(fileUrl);
+
+        }
+        else
+            saveDocument(_project->pmlInfo().absoluteFilePath());
+        qs().msgService()->publish(ProjectClosed(_project));
+        _project->deleteLater();
+        _project = nullptr;
+    }
+    setIsEditable(false);
 
 }
 

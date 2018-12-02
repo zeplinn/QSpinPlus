@@ -8,46 +8,39 @@
 #include "qspin/QObjectBase.h"
 #include "qspin/models/QsSpinRunner.h"
 
-class QueuedVerification : public QObject
+class QueuedVerification : public QObjectBase
 {
     Q_OBJECT
 
 private:
     QString _baseName;
     QDateTime _createdAt;
+    QDateTime _startedAt;
     QsSpinRunner::Status _status;
 
 
     // end properties
 private:
     QFileInfo _fileInfo;
-    QThread t;
-    QPointer<QsSpinRunner> _runner;
 
 public:
-    explicit QueuedVerification(QFileInfo info, QDateTime createdAt,QObject* parent= nullptr);
+    explicit QueuedVerification(QFileInfo info, QDateTime createdAt, QObject* parent= nullptr, EventAggregator *msgService=nullptr);
     virtual ~QueuedVerification();
 
     QString name()const;
     QDateTime createdAt()const;
+    QDateTime startedAt();
+
     QString statusLabel()const;
-
+    QFileInfo fileInfo();
     QsSpinRunner::Status status()const;
-    void setStatus(QsSpinRunner::Status value);
-
-
 public slots:
-    void terminate();
-    void start(QDir workingdir);
-    void remove();
-private slots:
-    void verificationStarted();
-
-    void verificationFinished();
-    void statusUpdated(QsSpinRunner::Status update );
+    void setStatus(QsSpinRunner::Status value);
+    void setStartedAt(QDateTime startedAt);
+    void cancelVerifcation();
 signals:
     void variablesChanged(QueuedVerification* item);
-    void removedFromQueue(QueuedVerification* item);
+    void verificationCanceled(QsSpinRunner::Status);
 
 };
 

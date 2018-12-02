@@ -1,5 +1,12 @@
 #include "qspin/models/QsItemConfiguration.h"
-
+namespace {
+void writeDefaultXmlAttributes(QXmlStreamWriter& xml,ItemConfiguration* item){
+    xml.writeAttribute("command",QString::number(item->command()));
+    xml.writeAttribute("checked",item->checked() ? "true" :"false");
+    xml.writeAttribute("enabled",item->enabled() ? "true" :"false");
+    xml.writeAttribute("name",item->name());
+}
+}
 
 Arg::Type ItemConfiguration::command() const{ return _command;}
 
@@ -27,7 +34,7 @@ ItemConfiguration::ItemConfiguration(Arg::Type commandId, QObject *parent, Event
   ,_command(commandId),_checked(false),_enabled(false)
 {
     if(Arg::isSpinArgument(commandId))       _category = Arg::Spin;
-    else if(Arg::isCompileArgument(commandId))    _category = Arg::Compile;
+    else if(Arg::isCompileArgument(commandId))    _category = Arg::Gcc;
     else if(Arg::isPanArgument(commandId))        _category = Arg::Pan;
     else throw QString("argument is not a category: %1").arg(Arg::name(commandId));
 }
@@ -53,11 +60,8 @@ void ItemConfiguration::read(QXmlStreamReader &xml){
 }
 
 void ItemConfiguration::write(QXmlStreamWriter &xml){
-    xml.writeStartElement("ItemConfiguration");
-    xml.writeAttribute("command",QString::number(command()));
-    xml.writeAttribute("checked",checked() ? "true" :"false");
-    xml.writeAttribute("enabled",enabled() ? "true" :"false");
-    xml.writeAttribute("name",name());
+    xml.writeStartElement(qs().nameof(this));
+    writeDefaultXmlAttributes(xml,this);
     xml.writeEndElement();// itemConfiguration end
 }
 
@@ -106,27 +110,25 @@ int ItemValueConfiguration::minValue() const{ return _minValue;}
 QString ItemValueConfiguration::argument() const{return Arg::val(command(),commandValue());}
 
 void ItemValueConfiguration::read(QXmlStreamReader &xml){
-    readXmlAttributes(xml.attributes());
-    while(xml.readNextStartElement()){
-        if(xml.name()=="value"){
-            QString v = xml.readElementText();
-            _commandValue= v.toInt();
+    if(xml.name() == qs().nameof(this)){
+        auto attr = xml.attributes();
+        readXmlAttributes(attr);
+        if(attr.hasAttribute("value")){
+            bool isvalid;
+            setCommandValue(attr.value("value").toInt(&isvalid));
+            if(!isvalid)
+                qCritical("invalid ItemValueConfiguration value"+attr.value("value").toLocal8Bit());
         }
-        else{
-            xml.skipCurrentElement();
-        }
+        xml.skipCurrentElement();
     }
 }
 
 void ItemValueConfiguration::write(QXmlStreamWriter &xml){
-    xml.writeStartElement("ItemValueConfiguration");
+    xml.writeStartElement(qs().nameof(this));
 
-    xml.writeAttribute("command",QString::number(command()));
-    xml.writeAttribute("checked",checked() ? "true" :"false");
-    xml.writeAttribute("enabled",enabled() ? "true" :"false");
-    xml.writeAttribute("name",name());
-
-    xml.writeTextElement("value",QString::number(commandValue()));
+    writeDefaultXmlAttributes(xml,this);
+    xml.writeAttribute("value",QString::number(commandValue()));
+    //xml.writeTextElement("value",QString::number(commandValue()));
 
     xml.writeEndElement();// end ItemValueConfiguration
 }
@@ -141,20 +143,17 @@ ItemValueConfiguration::ItemValueConfiguration(ItemValueConfiguration *item)
     ,_maxValue(item->maxValue())
 {}
 
-
-
-//ItemLTLConfiguration::ItemLTLConfiguration(Arg::Type defaultCommand, QObject *parent)
-//    :ItemConfiguration(defaultCommand,parent){
-
-//}
-
-
+void ItemLTLConfiguration::setName(QString value){
+    if(value!= _name){
+        _name = value;
+        emit nameChanged();
+    }
+}
 
 ItemLTLConfiguration::ItemLTLConfiguration(Arg::Type commandId, QObject *parent, EventAggregator *msgService)
     :ItemConfiguration(commandId,parent,msgService)
 {
-     this->msgService()->subscribe<ProjectOpened>(this);
-      this->msgService()->subscribe<ProjectSaved>(this);
+    this->msgService()->subscribe<ProjectSaved>(this);
 }
 
 ItemLTLConfiguration::ItemLTLConfiguration(ItemLTLConfiguration *item)
@@ -163,24 +162,76 @@ ItemLTLConfiguration::ItemLTLConfiguration(ItemLTLConfiguration *item)
 {
 }
 
-void ItemLTLConfiguration::subscriber(const ProjectOpened &event){
-    if(event.project()!= nullptr)
-        _destinationDir = event.project()->binDir();
-}
+
 
 void ItemLTLConfiguration::subscriber(const ProjectSaved &event){
     if( event.project()!=nullptr)
-        _destinationDir = event.project()->binDir();
+        if(!document().isEmpty())
+            qs().writeTextFile(document(), event.project()->projectDir().absoluteFilePath(name()));
+}
+
+void ItemLTLConfiguration::read(QXmlStreamReader &xml){
+    if(xml.name()== qs().nameof(this)){
+        readXmlAttributes(xml.attributes());
+        while (xml.readNextStartElement()) {
+            if(xml.name() =="Document"){
+                auto attr = xml.attributes();
+                if(attr.hasAttribute("name"))
+                    setName(attr.value("name").toString());
+                setDocument(xml.readElementText());
+            }
+        }
+    }
+}
+
+void ItemLTLConfiguration::write(QXmlStreamWriter &xml){
+    xml.writeStartElement(qs().nameof(this));
+    writeDefaultXmlAttributes(xml,this);
+    xml.writeStartElement("Document");
+    xml.writeCharacters(document());
+    xml.writeAttribute("name",name());
+    xml.writeEndElement();
+    xml.writeEndElement();
 }
 
 QString ItemLTLConfiguration::writeCommand() const{
-    QFile f(_destinationDir.absoluteFilePath("tmp.ltl"));
-    if(!f.open(QIODevice::WriteOnly | QIODevice::Text)){
-        return QString();
+    return Arg::val(command(),SpinCommands::tmpLtlFileName());
+}
+
+ItemAdvancedStringConfiguration::ItemAdvancedStringConfiguration(Arg::Category category, QObject *parent, EventAggregator *msg)
+    :ItemConfiguration(Arg::None,parent,msg)
+{
+    _category =category;
+}
+
+QString ItemAdvancedStringConfiguration::text() const{ return _text; }
+
+void ItemAdvancedStringConfiguration::setText(QString value){
+    if(_text != value){
+        _text = value;
+        emit textChanged();
     }
-    QTextStream writer(&f);
-    QString str = document();
-    writer << str.remove(QRegularExpression("[\n\r]"));
-    f.close();
-    return Arg::val(command(),"tmp.ltl");
+}
+
+void ItemAdvancedStringConfiguration::read(QXmlStreamReader &xml){
+    if(xml.name() == qs().nameof(this)){
+        readXmlAttributes(xml.attributes());
+        while (xml.readNextStartElement()) {
+            if(xml.name()=="Text")
+                setText(xml.readElementText());
+        }
+    }
+}
+
+void ItemAdvancedStringConfiguration::write(QXmlStreamWriter &xml)
+{
+    xml.writeStartElement(qs().nameof(this));
+    writeDefaultXmlAttributes(xml,this);
+    xml.writeTextElement("Text",text());
+    xml.writeEndElement();
+}
+
+QString ItemAdvancedStringConfiguration::writeCommand() const
+{
+    return  text();
 }

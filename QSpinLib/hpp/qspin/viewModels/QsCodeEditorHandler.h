@@ -61,15 +61,19 @@ class QsCodeEditorHandler : public QObject
 		void error(QsError::Errors code);
 		void loaded(QString doc);
 	public slots:
+        void setText(QString text);
+        void clearText();
 		void saveAs(const QUrl fileUrl);
-		void open(const QUrl fileUrl);
+        void open(const QUrl fileUrl);
 		void redo(){
 			document()->redo();
 		}
 		void undo(){
 			document()->undo();
 		}
-
+        QString text()const{
+            return  document()->toPlainText();
+        }
 	private: // functions
 		QTextDocument* document()const;
 

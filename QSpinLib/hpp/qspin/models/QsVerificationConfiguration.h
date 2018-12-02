@@ -13,6 +13,8 @@ class SpinCommands;
 #include "qspin/models/IQsSerialization.h"
 class ItemConfiguration;
 class ItemValueConfiguration;
+class ItemLTLConfiguration;
+class ItemAdvancedStringConfiguration;
 #include "qspin/models/QsItemConfigStateNotifier.h"
 #include "qspin/models/QsItemConfiguration.h"
 class VerificationConfiguration: public QObjectBase, public IQXmlSerialization{
@@ -32,6 +34,7 @@ public:
     }
 signals:
     void readonlyChanged();
+    // properties for every spin configurations
 private:
     //spin configs
     Q_PROPERTY(ItemConfiguration* o1 READ o1 CONSTANT)
@@ -40,6 +43,8 @@ private:
     Q_PROPERTY(ItemConfiguration* o4 READ o4 CONSTANT)
     Q_PROPERTY(ItemConfiguration* o5 READ o5 CONSTANT)
     Q_PROPERTY(ItemConfiguration* o6 READ o6 CONSTANT)
+    Q_PROPERTY(ItemLTLConfiguration* ltl READ ltl CONSTANT)
+    ItemLTLConfiguration* ltl()const;
 
     // compile configs
     Q_PROPERTY(ItemConfiguration* safety READ safety CONSTANT)
@@ -68,6 +73,18 @@ private:
     Q_PROPERTY(ItemValueConfiguration* searchDepth READ searchDepth CONSTANT)
     Q_PROPERTY(ItemConfiguration* weakFairness READ weakFairness CONSTANT)
 
+    // advneced string options
+    Q_PROPERTY(ItemAdvancedStringConfiguration* spin READ spin CONSTANT)
+    ItemAdvancedStringConfiguration* _spin;
+    Q_PROPERTY(ItemAdvancedStringConfiguration* gcc READ gcc CONSTANT)
+    ItemAdvancedStringConfiguration* _gcc;
+    Q_PROPERTY(ItemAdvancedStringConfiguration* pan READ pan CONSTANT)
+    ItemAdvancedStringConfiguration* _pan;
+
+
+    ItemAdvancedStringConfiguration* spin()const;
+    ItemAdvancedStringConfiguration* gcc()const;
+    ItemAdvancedStringConfiguration* pan()const;
     Arg::Type _currentMode;
 public:// properties
     QString name()const;
@@ -105,12 +122,12 @@ public:// properties
     ItemValueConfiguration* hashSize()const;
     ItemValueConfiguration* searchDepth()const;
     ItemConfiguration* weakFairness()const;
+    // end of properties for spin configurations
 signals:// properties
     void nameChanged();
     void saftyModeChanged();
     // ##################### end properties ######################
 private:
-    EventAggregator * _msgService;
     QHash<Arg::Type,ItemConfiguration*> spinConfigs;
     QHash<Arg::Type,ItemConfigStateNotifier*> _itemNotifier; // item config notifier service
     ItemConfigStateNotifierList notifiers;
@@ -120,7 +137,6 @@ public:
     Arg::Type currentMode();
     explicit VerificationConfiguration(QObject* parent = nullptr, EventAggregator* msgService=nullptr);
     SpinCommands* getSpinCommands();
-    void queueVerification(QDir destination);
     // interface
     virtual void read(QXmlStreamReader& xml) override;
     virtual void write(QXmlStreamWriter& xml)override;
@@ -128,6 +144,7 @@ signals:
     void itemConfigurationChanged();
     void verifyModeChanged(Arg::Type mode);
 public slots:
+    QStringList getCurrentCommandsAsStrings();
     void updateSelectedVerifyMode(int mode);
     void updateConfigurations();
 private:
@@ -136,6 +153,7 @@ private:
     ItemValueConfiguration* toValueItem(Arg::Type command)const;
 
 
+    ItemConfigStateNotifier *addNewLtlConfigItem(Arg::Type command);
 };
 
 // all needed cross dependency includes here

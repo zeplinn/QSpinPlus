@@ -60,7 +60,8 @@ SOURCES += \
     src/QObjectBase.cpp \
     src/models/VerificationResultContainer.cpp \
     src/EventObjects.cpp \
-    src/QObjectListBase.cpp
+    src/QObjectListBase.cpp \
+    src/models/QsVerifyResultList.cpp
 
 HEADERS += \
     hpp/qspin/cppView/QsDivider.h \
@@ -103,7 +104,9 @@ HEADERS += \
     hpp/qspin/QObjectBase.h \
     hpp/qspin/EventObjects.h \
     hpp/qspin/models/VerificationResultContainer.h \
-    hpp/qspin/QObjectListBase.h
+    hpp/qspin/QObjectListBase.h \
+    hpp/qspin/models/QsVerifyResultList.h \
+    hpp/qspin/viewModels/QsVerifyResultReportHandler.h
 INCLUDEPATH+=\
     $$PWD/hpp
 

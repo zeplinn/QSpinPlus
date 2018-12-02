@@ -18,14 +18,18 @@
  * \
  */
 
-EventAggregator::EventAggregator(QObject *parent):QObject(parent){}
+EventAggregator::EventAggregator(){}
 
 
 
 QLinkedList<EventAggregator::s_ptr> EventAggregator::getSubsrcibers(size_t id){
     mutex.lock();
-    QLinkedList<s_ptr> tmp(hs[id]);
+    if(hs.contains(id)){
+        QLinkedList<s_ptr> tmp(hs[id]);
+        mutex.unlock();
+        return tmp;
+    }
     mutex.unlock();
-    return tmp;
+    return QLinkedList<s_ptr>();
 }
 

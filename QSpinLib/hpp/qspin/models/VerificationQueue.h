@@ -3,6 +3,7 @@
 #include <QObject>
 #include <QDir>
 #include "qspin/QObjectListBase.h"
+#include "qspin/models/QSpinPlus.h"
 #include "QsSpinRunner.h"
 #include "QueuedVerification.h"
 class VerificationQueue:  public QObjectListBase
@@ -12,21 +13,43 @@ public:
     enum Members{
         Name_role = Qt::UserRole,
         CreatedAt_role,
+        StartedAt_role,
         statusLabelRole
     };
 private:
     QList<QueuedVerification*> _queue;
-    QDir _binDir;
+    QSpinPlus* _project=nullptr;
 public:
     using QObjectListBase::QObjectListBase;
    // explicit VerificationQueue(QObject* parent = nullptr);
-    void setbuildDir(QDir dir);
+    void setProject(QSpinPlus* project);
+    void clear(){
+        beginResetModel();
+        _queue.clear();
+        endResetModel();
+        emit allQueuedItemsCanceled(QsSpinRunner::Canceled);
+        emit allitemsCleared();
+    }
+signals:
+    void allQueuedItemsCanceled(QsSpinRunner::Status);
+    void allitemsCleared();
 public slots:
     void append (QueuedVerification* item);
     void removeItem(int index);
+    int position(QueuedVerification* item);
     QueuedVerification* get(int index);
 private slots:
-    void startNewVerification();
+    ////////////////////////////////////////////////////////
+    /// \brief itemDataChanged
+    /// all members of QueuedObject with a setter for visual display
+    /// must have its role added here otherwise changes wont be updated
+    /// \param item
+    ///
+    void itemDataChanged(QueuedVerification *item){
+        int idx = position(item);
+        auto m_idx = index(idx,0);
+        dataChanged(m_idx,m_idx,{ statusLabelRole,StartedAt_role });
+    }
     // QAbstractItemModel interface
 public:
     virtual int rowCount(const QModelIndex &parent=QModelIndex()) const override;

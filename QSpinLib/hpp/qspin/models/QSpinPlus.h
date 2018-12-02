@@ -7,8 +7,12 @@
 #include <QDebug>
 #include "qspin/QObjectBase.h"
 #include "qspin/models/IQsSerialization.h"
+class QsCodeEditorHandler;
+#include "qspin/viewModels/QsCodeEditorHandler.h"
 class Configurations;
 #include "qspin/models/Configurations.h"
+
+
 class QSpinPlus : public QObjectBase, public IQXmlSerialization
 {
     Q_OBJECT
@@ -17,17 +21,15 @@ class QSpinPlus : public QObjectBase, public IQXmlSerialization
     QFileInfo _pmlInfo;
     QFileInfo _ProjectInfo;
     QDir _resultFolder, _binFolder, _queuedFolder;
+    QsCodeEditorHandler* _currentDocument;
 
 protected:
 
 public:
-    static QSpinPlus* openProject(QString promelaPath);
-    static QSpinPlus *createBasicProject(QString name,QDir dir);
+    void openProject(QFileInfo promelaPath);
+    static void createBasicProject(QString name,QDir dir);
     void save(QFileInfo path);
-    explicit QSpinPlus(QObject* parent = nullptr, EventAggregator* msgService= nullptr)
-        :QObjectBase(parent,msgService)
-        ,_configurations(new Configurations(this,msgService))
-    {}
+    explicit QSpinPlus(QObject* parent = nullptr, EventAggregator* msgService= nullptr);
         Configurations* configurations()const;
 
     QFileInfo& projectInfo();
@@ -41,6 +43,12 @@ public:
     QDir queuedDir()const {return _queuedFolder;}
     virtual void read(QXmlStreamReader& xml)override;
     virtual void write(QXmlStreamWriter& xml)override;
+    ProjectInfo FullProjectInformation(){
+        return  ProjectInfo(pmlInfo(),projectInfo(),resultsDir(),binDir(),queuedDir());
+    }
+    QString currentDocument()const;
+    void attachCurrentDocument(QsCodeEditorHandler* current);
+    void SendToQueue();
 
 };
 

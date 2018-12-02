@@ -45,7 +45,7 @@ signals:// propertise
     void checkedChanged();
     void commandChanged();
     void enabledChanged();
-private:
+protected:
     Arg::Category _category;
 public:
     // used for making arguments chaining
@@ -104,12 +104,14 @@ public:
 
 class ItemLTLConfiguration
         :public ItemConfiguration
-        ,public ISubscriber<ProjectOpened>
         ,public ISubscriber<ProjectSaved>
 {
     Q_OBJECT
     Q_PROPERTY(QString document READ document WRITE setDocument NOTIFY documentChanged)
     QString _document;
+    Q_PROPERTY(QString name READ name WRITE setName NOTIFY nameChanged)
+    QString _name;
+
 public: // properties
     QString document()const{ return _document; }
     void setDocument(QString value){
@@ -118,21 +120,40 @@ public: // properties
             emit documentChanged();
         }
     }
+    QString name()const{ return _name; }
+    void setName(QString value);
 signals:
     void documentChanged();
-private:
-    QDir _destinationDir;
+    void nameChanged();
+    void nameAllreadyExist(QString value);
 public:
-    using ItemConfiguration::ItemConfiguration;
     explicit ItemLTLConfiguration(Arg::Type commandId, QObject* parent =nullptr, EventAggregator* msgService=nullptr);
    // explicit ItemLTLConfiguration(Arg::Type defaultCommand=Arg::None,QObject* parent=nullptr);
     ItemLTLConfiguration(ItemLTLConfiguration* item);
 
-    virtual void subscriber(const ProjectOpened& event) override;
     virtual void subscriber(const ProjectSaved& event) override;
-
+    virtual void read(QXmlStreamReader& xml)override;
+    virtual void write(QXmlStreamWriter& xml)override;
     virtual QString writeCommand()const override;
 };
+
+class ItemAdvancedStringConfiguration: public ItemConfiguration{
+    Q_OBJECT
+    Q_PROPERTY(QString text READ text WRITE setText NOTIFY textChanged)
+    QString _text;
+public:
+    ItemAdvancedStringConfiguration(Arg::Category category,QObject* parent = nullptr, EventAggregator* msg = nullptr);
+    QString text()const;
+    void setText(QString value);
+    virtual void read(QXmlStreamReader& xml)override;
+    virtual void write(QXmlStreamWriter& xml)override;
+    virtual QString writeCommand()const override;
+
+signals:
+    void textChanged();
+
+};
+
 /*#include "qspin/eventObjects/ProjectOpened.h"
 #include "qspin/eventObjects/ProjectSaved.h*/
 #endif // QSITEMCONFIGURATION_H

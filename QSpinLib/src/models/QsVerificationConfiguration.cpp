@@ -1,6 +1,14 @@
 #include "qspin/models/QsVerificationConfiguration.h"
 
 
+ItemLTLConfiguration *VerificationConfiguration::ltl() const{ return qobject_cast<ItemLTLConfiguration*>( spinConfigs[Arg::LTL]); }
+
+ItemAdvancedStringConfiguration *VerificationConfiguration::spin() const{ return _spin; }
+
+ItemAdvancedStringConfiguration *VerificationConfiguration::gcc() const{ return _gcc; }
+
+ItemAdvancedStringConfiguration *VerificationConfiguration::pan() const{ return _pan; }
+
 QString VerificationConfiguration::name() const{return _name;}
 
 void VerificationConfiguration::setName(QString value){
@@ -79,17 +87,13 @@ VerificationConfiguration::VerificationConfiguration(QObject *parent, EventAggre
     :QObjectBase(parent,msgService)
     ,_currentMode(Arg::SafetyMode)
 {
-
-    auto c = new ItemConfiguration(Arg::Verify,this); // allways added
-    c->setChecked(true);
-    c->setEnabled(true);
-    spinConfigs[Arg::Verify] = c;
     addNewConfigItem(Arg::O1);
     addNewConfigItem(Arg::O2);
     addNewConfigItem(Arg::O3);
     addNewConfigItem(Arg::O4);
     addNewConfigItem(Arg::O5);
     addNewConfigItem(Arg::O6);
+    addNewLtlConfigItem(Arg::LTL)->required(Arg::AccepanceMode);
     // remember to add ltl item
 
     //    // compileTime options
@@ -118,6 +122,11 @@ VerificationConfiguration::VerificationConfiguration(QObject *parent, EventAggre
     addNewConfigValueItem(Arg::HashSize,INT32_MAX,1,18);
     addNewConfigValueItem(Arg::SearchDepth,INT32_MAX,256,10000);
     addNewConfigItem(Arg::WeakFairness)->notIf(Arg::SafetyMode);
+
+    // allways available item configurations
+    _spin = new ItemAdvancedStringConfiguration(Arg::Spin,parent,this->msgService());
+    _gcc = new ItemAdvancedStringConfiguration(Arg::Gcc,parent,this->msgService());
+    _pan = new ItemAdvancedStringConfiguration(Arg::Pan,parent,this->msgService());
 }
 
 
@@ -129,25 +138,13 @@ SpinCommands *VerificationConfiguration::getSpinCommands(){
         }
 
     }
+    commands->append(_spin);
+    commands->append(_gcc);
+    commands->append(_pan);
     return commands;
 }
 
-void VerificationConfiguration::queueVerification(QDir destination){
-    if(!readonly()){
-        setReadonly(true);
-        auto commands = new SpinCommands();
 
-        auto package = new VerificationResultContainer();
-        package->setCommands(commands); auto fInfo =package->saveAs(_name,destination);
-
-        _msgService->publish(
-                    AppendToVeriyQueue(fInfo,package->created())
-                    );
-
-        setReadonly(false);
-    }
-
-}
 
 void VerificationConfiguration::read(QXmlStreamReader &xml){
     auto attr = xml.attributes();
@@ -156,7 +153,10 @@ void VerificationConfiguration::read(QXmlStreamReader &xml){
     else setName("nameMissing");
     while (xml.readNextStartElement()) {
         QString n = xml.name().toString();
-        if(xml.name()=="ItemValueConfiguration"|| xml.name()=="ItemConfiguration")
+        if(xml.name()==ItemValueConfiguration::staticMetaObject.className()
+                || xml.name()==ItemConfiguration::staticMetaObject.className()
+                || xml.name()==ItemLTLConfiguration::staticMetaObject.className()
+                )
         {
 
             auto attr = xml.attributes();
@@ -172,12 +172,19 @@ void VerificationConfiguration::read(QXmlStreamReader &xml){
 }
 
 void VerificationConfiguration::write(QXmlStreamWriter &xml){
-    xml.writeStartElement("VerificationConfiguration");
+    xml.writeStartElement(qs().nameof(this));
     xml.writeAttribute("name",name());
     for(auto ic: spinConfigs)
         ic->write(xml);
     xml.writeEndElement();// verification configuration
 
+}
+
+QStringList VerificationConfiguration::getCurrentCommandsAsStrings(){
+    auto spincmds = getSpinCommands();
+    auto cmds = spincmds->CommandsToStringLists();
+    spincmds->deleteLater();
+    return QStringList()<< cmds.spin.join(" ") << cmds.gcc.join(" ") << cmds.pan.join(" ");
 }
 
 void VerificationConfiguration::updateSelectedVerifyMode(int mode){
@@ -190,7 +197,14 @@ void VerificationConfiguration::updateConfigurations(){
 }
 
 ItemConfigStateNotifier *VerificationConfiguration::addNewConfigItem(Arg::Type command){
-    auto item = new ItemConfiguration(command,this);
+    auto item = new ItemConfiguration(command,this,msgService());
+    ItemConfigStateNotifier* notifier = notifiers.getNotifier(command);
+    notifier->setConfig(item);
+    spinConfigs[command]=item;
+    return notifier;
+}
+ItemConfigStateNotifier *VerificationConfiguration::addNewLtlConfigItem(Arg::Type command){
+    auto item = new ItemLTLConfiguration(command,this,msgService());
     ItemConfigStateNotifier* notifier = notifiers.getNotifier(command);
     notifier->setConfig(item);
     spinConfigs[command]=item;
@@ -198,7 +212,7 @@ ItemConfigStateNotifier *VerificationConfiguration::addNewConfigItem(Arg::Type c
 }
 
 ItemConfigStateNotifier *VerificationConfiguration::addNewConfigValueItem(Arg::Type command, int maxValue, int minValue, int value ){
-    auto item = new ItemValueConfiguration(command,value, minValue,maxValue,this);
+    auto item = new ItemValueConfiguration(command,value, minValue,maxValue,this,msgService());
     auto notifier = notifiers.getNotifier(command);
     notifier->setConfig(item);
     spinConfigs[command]=item;

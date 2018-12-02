@@ -37,12 +37,8 @@ public:
     };
     using QObjectBase::QObjectBase;
     //explicit Configurations(QObject* parent =nullptr);
-    int count()const { return _configurations.count();}
-    VerificationConfiguration* get(int index){
-        if(index<0 || index >= _configurations.count())
-            return nullptr;
-        return _configurations[index];
-    }
+    int count()const;
+    VerificationConfiguration* get(int index);
 
 
 

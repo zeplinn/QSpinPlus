@@ -13,7 +13,7 @@ QsPane{
 		color: QsStyle.general.foreground
         wrapMode: Text.NoWrap
         font{
-            pointSize: 12//14
+			pointSize: 10//14
             italic: true
         }
 

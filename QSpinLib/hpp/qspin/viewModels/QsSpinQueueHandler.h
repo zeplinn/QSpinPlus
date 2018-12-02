@@ -16,25 +16,20 @@
 #include <QFuture>
 #include <QFileInfo>
 #include <QProcess>
-//#include "qspin/Qs.h"
 #include "qspin/QObjectBase.h"
 #include "qspin/models/QSpinPlus.h"
-//#include "qspin/viewModels/EventAggregator.h"
 #include <QAbstractListModel>
 #include "qspin/models/QsSpinRunner.h"
 #include "qspin/models/VerificationQueue.h"
 #include <qspin/models/QsItemConfiguration.h>
 #include <qspin/models/VerificationResultContainer.h>
-//#include "qspin/eventObjects/PrintToConsole.h"
-//#include "qspin/eventObjects/AppendToVeriyQueue.h"
-//#include "qspin/eventObjects/ProjectOpened.h"
-//#include "qspin/eventObjects/ProjectClosed.h"
 #include <QMetaObject>
 
 class QsSpinQueueHandler : public QObjectBase
         , public ISubscriber<AppendToVeriyQueue>
         , public ISubscriber<ProjectOpened>
         , public ISubscriber<ProjectClosed>
+        , public ISubscriber<ProjectSaved>
 {
     Q_OBJECT
     // --> ############## begin properties ##############
@@ -57,18 +52,36 @@ public:
     explicit QsSpinQueueHandler(QObject* parent = nullptr,EventAggregator* msgService=nullptr);
     virtual void subscriber(const ProjectOpened& event)override;
     virtual void subscriber(const ProjectClosed& event)override;
+    virtual void subscriber(const ProjectSaved& event) override;
+    virtual void subscriber(const AppendToVeriyQueue& event) override;
 signals:
     void spinRunnerStarted();
     void verificationSend();
     void isRunningChanged();
     void addingNewQueueItem(QFileInfo info , QDateTime createdAt);
+    void removingQueuedItem(QueuedVerification* item);
 
 public slots:
-    void statusUpdated(/* status enum*/);
-    void verificationRequsted();
-    virtual void subscriber(const AppendToVeriyQueue& event) override;
+    void removeItem(int index){
+        if(index<0 || index>= verifyQueue()->rowCount()) return;
+        auto item = verifyQueue()->get(index);
+        emit removingQueuedItem(item);
+    }
+
 private slots:
-    void addNewQueueItem(QFileInfo info, QDateTime createdAt);
+    void startVerification(QueuedVerification* item);
+    void addNewQueueItem_asyncOnly(QFileInfo info, QDateTime createdAt);
+    void removeQueuedItem_asyncOnly(QueuedVerification* item);
+    void startNextQueuedVerification(){
+        if(verifyQueue()->rowCount()>0){
+            auto item = verifyQueue()->get(0);
+            emit removingQueuedItem(item);
+        }
+    }
+    void spinProcessOutputReady(QString stdOut);
+    void spinProcessStdErrorOutReady(QString stdErr);
+
+    void sendVerificationResult(QFileInfo file,VerificationResultFileChanged::Status status);
 
 
 };

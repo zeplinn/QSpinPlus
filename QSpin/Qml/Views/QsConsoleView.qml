@@ -51,7 +51,7 @@ Item {
 			anchors.bottom: parent.bottom
 			implicitHeight: 250
 			readonly: true
-			background: QsStyle.promelaEditor.background
+			background: Qt.darker(QsStyle.general.background,1.5)
 		}
 
 

@@ -14,6 +14,14 @@ void Configurations::setCurrentIndex(int value){
     }
 }
 
+int Configurations::count() const { return _configurations.count();}
+
+VerificationConfiguration *Configurations::get(int index){
+    if(index<0 || index >= _configurations.count())
+        return nullptr;
+    return _configurations[index];
+}
+
 //Configurations::Configurations(QObject *parent):QObject(parent){}
 
 
@@ -40,11 +48,11 @@ int Configurations::itemAt(VerificationConfiguration *item) const{
 
 
 void Configurations::read(QXmlStreamReader &xml){
-    if(xml.name()== "Configurations"){
+    if(xml.name()== qs().nameof(this)){
         while (xml.readNextStartElement()) {
-            if(xml.name() == typeid(VerificationConfiguration).name()){
+            if(xml.name() == VerificationConfiguration::staticMetaObject.className()){
 
-                auto vc = new VerificationConfiguration();
+                auto vc = new VerificationConfiguration(this,msgService());
                 vc->read(xml);
                 append(vc);
             }
@@ -56,7 +64,7 @@ void Configurations::read(QXmlStreamReader &xml){
 }
 
 void Configurations::write(QXmlStreamWriter &xml){
-    xml.writeStartElement("Configurations");
+    xml.writeStartElement(qs().nameof(this));
     for( auto vc : _configurations)
         vc->write(xml);
     xml.writeEndElement();

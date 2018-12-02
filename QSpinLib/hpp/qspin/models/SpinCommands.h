@@ -7,13 +7,16 @@
 #include "qspin/models/Arg.h"
 #include <QXmlStreamReader>
 #include <QXmlStreamWriter>
+#include <QPointer>
 class ItemConfiguration;
 class ItemValueConfiguration;
 class ItemLTLConfiguration;
+#include "qspin/models/QsItemConfiguration.h"
 struct compiledCommands{
     QStringList spin;
     QStringList gcc;
     QStringList pan;
+    QPointer<ItemLTLConfiguration> ltl=nullptr;
 };
 
 class SpinCommands : public QObjectBase, public IQXmlSerialization
@@ -25,14 +28,14 @@ class SpinCommands : public QObjectBase, public IQXmlSerialization
 
     // IQXmlSerialization interface
 public:
-    using QObjectBase::QObjectBase;
+    explicit SpinCommands(QObject* parent = nullptr, EventAggregator* msgService=nullptr);
     virtual void read(QXmlStreamReader &xml) override;
     virtual void write(QXmlStreamWriter &xml) override;
-    compiledCommands writeCommands();
+    compiledCommands CommandsToStringLists();
     void append(ItemConfiguration* item);
-    void append(ItemValueConfiguration* item);
+    static QString tmpSpinFileName(){ return "tmp.pml";}
+    static QString tmpLtlFileName(){ return "tmp.ltl";}
 };
 
 
-#include "qspin/models/QsItemConfiguration.h"
 #endif // SPINCOMMANDS_H
