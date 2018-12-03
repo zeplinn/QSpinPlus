@@ -1,8 +1,15 @@
 #include "qspin/viewModels/QsPromelaHandler.h"
 
 void QsPromelaHandler::saveDocument(QUrl fileUrl){
-    if(_project == nullptr) return;
+    if(_project == nullptr){
+        qFatal("current project is a null pointer");
+    }
     QFileInfo info(fileUrl.toLocalFile());
+    QString name = info.baseName();
+    if( !qs().isValidFileName(name)){
+        emit inValidPromelaFile(info.absoluteFilePath());
+        return;
+    }
     editor()->saveAs(fileUrl);
     _project->save(info);
 
@@ -12,11 +19,15 @@ void QsPromelaHandler::saveDocument(QUrl fileUrl){
 }
 
 void QsPromelaHandler::openDocument(QUrl fileUrl){
+    QFileInfo info(fileUrl.toLocalFile());
+    if(!qs().isValidFileName(info.baseName())){
+        emit inValidPromelaFile(info.absoluteFilePath());
+        return;
+    }
     if(_project != nullptr){
         closeDocument(_project->pmlInfo().absoluteFilePath());
     }
 
-    QFileInfo info(fileUrl.toLocalFile());
     if(!info.exists()){
         toConsole("Error: file do not exist"+info.absoluteFilePath());
         return;
@@ -34,48 +45,50 @@ void QsPromelaHandler::openDocument(QUrl fileUrl){
         toConsole("failed to open project file");
     editor()->open(fileUrl);
     msgService()->publish(ProjectOpened(project));
-    if(_project != nullptr)
-        _project->deleteLater();
-    _project = project;
     QDir::setCurrent(info.absoluteDir().path());
+    _project= project;
     setIsEditable(true);
     setIsOpen(true);
 
 }
 
-void QsPromelaHandler::createDocument(QString name, QUrl folder){
-    QDir dir(folder.toLocalFile());
-
+void QsPromelaHandler::createDocument(QString filepath){
+    QFileInfo finfo(filepath);
+    if(!qs().isValidFileName(finfo.baseName())){
+        emit inValidPromelaFile(finfo.absoluteFilePath());
+        return;
+    }
     //create promelaFile
-    QString document = QString("// %1 created at: %2").arg(name).arg(QDateTime::currentDateTime().toString());
-    QFile pml(dir.absoluteFilePath(name+".pml"));
+    QString document = QString("// %1 created at: %2").arg(finfo.fileName()).arg(QDateTime::currentDateTime().toString());
 
-    pml.open(QIODevice::WriteOnly);
-    QTextStream write(&pml);
-    write << document;
-    pml.close();
-    // create intitial project structure
+    qs().writeTextFile(document,finfo.absoluteFilePath());
     // open promela file
-    QFileInfo pmlInfo (dir.absoluteFilePath(name+".pml"));
-    QSpinPlus::createBasicProject(name,pmlInfo.absoluteDir());
-    openDocument(pmlInfo.absoluteFilePath());
+    openDocument(finfo.absoluteFilePath());
 }
 
 void QsPromelaHandler::closeDocument(QUrl fileUrl){
     Q_UNUSED(fileUrl)
     if(_project != nullptr){
-        if(fileUrl.isValid()){
+        QFileInfo info(fileUrl.toLocalFile());
+        if(info.exists()){
             saveDocument(fileUrl);
+            qs().msgService()->publish(ProjectClosed(_project));
+            _project->deleteLater();
+            _project = nullptr;
 
         }
-        else
-            saveDocument(_project->pmlInfo().absoluteFilePath());
-        qs().msgService()->publish(ProjectClosed(_project));
-        _project->deleteLater();
-        _project = nullptr;
+        setIsEditable(false);
+        setIsOpen(false);
     }
-    setIsEditable(false);
+}
 
+void QsPromelaHandler::saveExistingDocument(){
+    saveDocument(_project->pmlInfo().absoluteFilePath());
+}
+
+void QsPromelaHandler::closeExistingDocumet(){
+    if(_project!=nullptr)
+        closeDocument(_project->pmlInfo().absoluteFilePath());
 }
 
 QsCodeEditorHandler*QsPromelaHandler::editor() const { return  _editor;}

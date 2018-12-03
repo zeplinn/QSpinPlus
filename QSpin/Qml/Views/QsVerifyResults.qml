@@ -136,7 +136,7 @@ Item{
 				QsResultLabel{
 					id: hashConfilicts
 					label: qsTr("Hash conflicts:")
-					result: handlerId.item.stateSpaceSpec.stateSize
+					result: handlerId.item.stateSpaceSpec.hashConflicts
 				}
 				QsResultLabel{
 					id:hashSize

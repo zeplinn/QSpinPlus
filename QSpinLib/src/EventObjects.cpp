@@ -31,12 +31,19 @@ newProjectCreated::newProjectCreated(QFileInfo fileInfo):
 QFileInfo newProjectCreated::fileInfo() const{ return _fileInFo;}
 
 ProjectOpened::ProjectOpened(QSpinPlus *project):
-    _project(project){}
+    _project(project){
+    if(project==nullptr){
+        qFatal("Project opened cannot be a null pointer");
+    }
+}
 
 QSpinPlus *ProjectOpened::project() const{ return _project;}
 
 ProjectSaved::ProjectSaved(QSpinPlus *fileInfo):
-    _fileInFo(fileInfo){}
+    _fileInFo(fileInfo){
+    if(fileInfo == nullptr)
+        qFatal("project saved must not have a nullpointer");
+}
 
 QSpinPlus *ProjectSaved::project() const{ return _fileInFo;}
 

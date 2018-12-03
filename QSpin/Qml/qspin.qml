@@ -3,7 +3,7 @@ import QtQuick 2.11
 import QtQuick.Window 2.11
 import QtQuick.Controls 2.4
 import QtQuick.Layouts 1.11
-import Qt.labs.platform 1.0
+//import Qt.labs.platform 1.0
 import QSpin.CppItems 1.0
 import QSpin.Qml.Reusables 1.0
 import QSpin.Qml.Views 1.0
@@ -23,6 +23,7 @@ ApplicationWindow {
 		border.width: 1
 
 	}
+onClosing:promelaHandlerId.closeExistingDocumet()
 
 	//################## begin menu bars ################################
 
@@ -43,7 +44,7 @@ ApplicationWindow {
 		onSaveProject: {
 			promelaHandlerId.saveDocument(fileUrl)
 		}
-		onCreateProject: promelaHandlerId.createDocument(name,folder,pml,useExistingPromela)
+		onCreateProject: promelaHandlerId.createDocument(filepath)
 	}
 	footer: ToolBar{
 		id:footerBarId
@@ -65,9 +66,6 @@ ApplicationWindow {
 			anchors.verticalCenter: parent.verticalCenter
 			QsTabButton{
 				text: qsTr("Verification queue")
-			}
-			QsTabButton{
-				text: qsTr("Verification results")
 			}
 			QsTabButton{
 				text: qsTr("Console")
@@ -96,6 +94,10 @@ ApplicationWindow {
 				QsPromelaHandler{
 					id:promelaHandlerId
 					editor: codeEditiorId.documentHandler
+					onInValidPromelaFile: {
+						msgDialog.text= filepath
+						msgDialog.open()
+					}
 				}
 				QsCodeEditor{
 					enabled: promelaHandlerId.isOpen
@@ -128,15 +130,10 @@ ApplicationWindow {
 					Layout.preferredHeight: height
 
 				}
-				QsVeriryResultMinimalView{
-					Layout.fillWidth: true
-					visible: footerTabsId.currentIndex === 1
-				}
-
 				QsConsoleView{
 					Layout.preferredHeight: 400
 					Layout.fillWidth: true
-					visible: footerTabsId.currentIndex === 2
+					visible: footerTabsId.currentIndex === 1
 				}
 
 			}
@@ -147,6 +144,8 @@ ApplicationWindow {
 			Layout.fillHeight: true
 			color:  QsStyle.general.border
 		}
+
+		// right hand tabs
 		QsVerificationView{
 			id:verifyViewId
 			Layout.fillHeight: true
@@ -167,6 +166,7 @@ ApplicationWindow {
 			visible: topToolBarId.isVerifyResultTabSelected
 			//			visible: toolsTabId.currentIndex===2
 		}
+		// end right hand tab size
 
 	}
 
@@ -186,9 +186,12 @@ ApplicationWindow {
 		}
 
 		Shortcut{
-			enabled: codeEditiorId.documentHandler.canRedo
-			sequence: StandardKey.Save
-			onActivated: promelaHandlerId.saveDocument(codeEditiorId.fileUrl)
+			enabled: codeEditiorId.documentHandler.canUndo
+			sequence: "Ctrl+s"
+			onActivated:{
+				console.debug("am save hit")
+				promelaHandlerId.saveExistingDocument()
+			}
 		}
 
 		Shortcut {
@@ -197,18 +200,42 @@ ApplicationWindow {
 			onActivated: footerTabsId.currentIndex===0 ? footerTabsId.currentIndex =-1 : footerTabsId.currentIndex =0
 		}
 		Shortcut {
-			id:hotkeyVerifyResutId
+			id:hotkeyConsoleId
 			sequence: "Ctrl+2"
 			onActivated: footerTabsId.currentIndex===1 ? footerTabsId.currentIndex =-1 : footerTabsId.currentIndex =1
 		}
-		Shortcut {
-			id:hotkeySimId
-			sequence: "Ctrl+3"
-			onActivated: footerTabsId.currentIndex===2 ? footerTabsId.currentIndex =-1 : footerTabsId.currentIndex =2
+
+
+
+
+	}
+	Dialog{
+		id:msgDialog
+		property alias text: msgtextLable.text
+		x: (parent.width-width)*0.5
+		y: (parent.height-height)*0.5
+		padding: 0
+		Rectangle{
+			implicitWidth: childrenRect.width
+			implicitHeight: childrenRect.height
+			color: QsStyle.general.background
+			border.color: QsStyle.general.border
+			border.width: 2
+			ColumnLayout{
+				implicitWidth: 400
+				QsText{
+					padding: 5
+					id:msgtextLable; Layout.fillWidth: true
+				}
+				QsButton{
+					text: qsTr("close")
+					Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+					onClicked: close();
+				}
+			}
+
 		}
-
-
-
+		onVisibleChanged: if(!visible) text=""
 	}
 
 }

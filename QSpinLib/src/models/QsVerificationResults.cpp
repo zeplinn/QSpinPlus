@@ -575,7 +575,7 @@ void MemoryUsage::read(QXmlStreamReader &xml)
             this->setForSearchStack(val);
         });
         readAttribute(this,attr,n.inTotal,[this](qreal val){
-            this->setForStates(val);
+            this->setInTotal(val);
         });
         xml.skipCurrentElement();
     }

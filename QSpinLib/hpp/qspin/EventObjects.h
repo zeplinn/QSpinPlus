@@ -72,7 +72,10 @@ class ProjectClosed{
 public:
  explicit ProjectClosed(QSpinPlus* project)
      :_project(project)
- {}
+ {
+     if(project==nullptr)
+     qFatal("project closed may not contain a nullptr");
+ }
  QSpinPlus* project()const{ return _project; }
 };
 

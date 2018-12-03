@@ -44,7 +44,6 @@ private:
     Q_PROPERTY(ItemConfiguration* o5 READ o5 CONSTANT)
     Q_PROPERTY(ItemConfiguration* o6 READ o6 CONSTANT)
     Q_PROPERTY(ItemLTLConfiguration* ltl READ ltl CONSTANT)
-    ItemLTLConfiguration* ltl()const;
 
     // compile configs
     Q_PROPERTY(ItemConfiguration* safety READ safety CONSTANT)
@@ -74,17 +73,14 @@ private:
     Q_PROPERTY(ItemConfiguration* weakFairness READ weakFairness CONSTANT)
 
     // advneced string options
-    Q_PROPERTY(ItemAdvancedStringConfiguration* spin READ spin CONSTANT)
     ItemAdvancedStringConfiguration* _spin;
+    Q_PROPERTY(ItemAdvancedStringConfiguration* spin READ spin CONSTANT)
     Q_PROPERTY(ItemAdvancedStringConfiguration* gcc READ gcc CONSTANT)
-    ItemAdvancedStringConfiguration* _gcc;
     Q_PROPERTY(ItemAdvancedStringConfiguration* pan READ pan CONSTANT)
+    ItemAdvancedStringConfiguration* _gcc;
     ItemAdvancedStringConfiguration* _pan;
 
 
-    ItemAdvancedStringConfiguration* spin()const;
-    ItemAdvancedStringConfiguration* gcc()const;
-    ItemAdvancedStringConfiguration* pan()const;
     Arg::Type _currentMode;
 public:// properties
     QString name()const;
@@ -96,7 +92,7 @@ public:// properties
     ItemConfiguration* o4()const;
     ItemConfiguration* o5()const;
     ItemConfiguration* o6()const;
-    // add ltl command later
+    ItemLTLConfiguration* ltl()const;
     //compile commands
     ItemConfiguration* safety()const;
     ItemConfiguration* sfh()const;
@@ -122,6 +118,11 @@ public:// properties
     ItemValueConfiguration* hashSize()const;
     ItemValueConfiguration* searchDepth()const;
     ItemConfiguration* weakFairness()const;
+
+    //advanced configs
+    ItemAdvancedStringConfiguration* spin()const;
+    ItemAdvancedStringConfiguration* gcc()const;
+    ItemAdvancedStringConfiguration* pan()const;
     // end of properties for spin configurations
 signals:// properties
     void nameChanged();

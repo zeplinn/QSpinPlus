@@ -54,6 +54,7 @@ class Qs{
         static bool writeTextFile(QString document, QString fileInfo);
         static void WriteXml(IQXmlSerialization* object,const QString& filePath);
         static void OpenXml(IQXmlSerialization *object, const QString &filePath);
+        static bool isValidFileName(QString name);
         template<typename T>
         static bool isClassName(const QStringRef& compare){
             QString str = typeid (T).name();

@@ -39,13 +39,15 @@ public:
 
 signals:
     void projectSaved(QUrl url);
-    void validatedocumentFailed();
+    void inValidPromelaFile(QString filepath);
 public slots:
     void saveDocument(QUrl fileUrl);
     void openDocument(QUrl fileUrl);
 
-    void createDocument(QString name,QUrl folder);
+    void createDocument(QString filepath);
     void closeDocument(QUrl fileUrl =QUrl());
+    void saveExistingDocument();
+    void closeExistingDocumet();
 
 
 };

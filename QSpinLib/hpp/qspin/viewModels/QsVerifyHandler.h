@@ -36,7 +36,7 @@ private:
     Q_PROPERTY(VerificationConfiguration* currentConfiguration READ currentConfiguration NOTIFY currentConfigurationChanged)
     Q_PROPERTY(int currentIndex READ currentIndex WRITE setCurrentIndex NOTIFY currentIndexChanged)
     int _currentIndex;
-    VerificationConfiguration* _currentItem;
+    QPointer<VerificationConfiguration> _currentItem;
     Q_PROPERTY(bool isProjectOpen READ isProjectOpen NOTIFY isProjectOpenChanged)
     bool _isProjectOpen=false;
     //#################### result properties end #########################

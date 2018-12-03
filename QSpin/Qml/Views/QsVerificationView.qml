@@ -23,20 +23,19 @@ QsPane {
 			Layout.fillHeight: true
 			Layout.minimumWidth: implicitWidth
 			id:currentVerifyConfigId
-			active: dummyConfigId
-			enabled:false
+			active: verifyHandlerId.currentConfiguration
 			onItemRemoved: verifyHandlerId.removeConfiguration(item)
-			states:State{
-				when: verifyHandlerId.isProjectOpen && configSelectorId.count !== 0
-				PropertyChanges {
-					target: currentVerifyConfigId
-					active:  verifyHandlerId.currentConfiguration
-					enabled: true
-				}
-            }
-            VerificationConfiguration{
-                id:dummyConfigId
-            }
+//			states:State{
+//				when: verifyHandlerId.isProjectOpen && configSelectorId.count !== 0
+//				PropertyChanges {
+//					target: currentVerifyConfigId
+//					active:  verifyHandlerId.currentConfiguration
+//					enabled: true
+//				}
+//            }
+//            VerificationConfiguration{
+//                id:dummyConfigId
+//            }
         }
         QsDivider{
             oritentation: Qt.Vertical

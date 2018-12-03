@@ -42,8 +42,8 @@ QString Arg::name(Arg::Type type) noexcept
     case Collapse: return"Collapse";
         // pan runtime
     case TimeLimit: return "Time limit";
-    case SafetyMode: return "Safty mode";
-    case ProgressMode: return "Liveness mode";
+    case SafetyMode: return "Safety mode";
+    case ProgressMode: return "Progress mode";
     case AccepanceMode: return "Acceptance mode";
     case HashSize: return "Hash size";
     case SearchDepth: return "Search depth";

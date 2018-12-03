@@ -1,64 +1,68 @@
-#include "qspin/viewModels/QsCreateNewProjectHandler.h"
+//#include "qspin/viewModels/QsCreateNewProjectHandler.h"
 
-void QsCreateNewProjectHandler::updateCanAccept(){ emit canAcceptChanged(); }
+//void QsCreateNewProjectHandler::updateCanAccept(){ emit canAcceptChanged(); }
 
-QString QsCreateNewProjectHandler::name() const{ return _name; }
+//QString QsCreateNewProjectHandler::name() const{ return _name; }
 
-void QsCreateNewProjectHandler::setName(QString value){
-    if(_name != value){
-        _name = value;
-        emit nameChanged();
-        emit isValidNameChanged();
-        updateCanAccept();
-    }
-}
+//void QsCreateNewProjectHandler::setName(QString value){
+//    if(isValidName(value)){
+//        _name = value;
+//        emit nameChanged();
+//        emit isValidNameChanged();
+//        updateCanAccept();
+//    }
+//}
 
-QString QsCreateNewProjectHandler::promelaPath() const{ return _promelaPath; }
+//QString QsCreateNewProjectHandler::promelaPath() const{ return _promelaPath; }
 
-QString QsCreateNewProjectHandler::destination() const{ return _destination; }
+//QString QsCreateNewProjectHandler::destination() const{ return _destination; }
 
-bool QsCreateNewProjectHandler::useExistingPml() const{ return _useExistingPml; }
+//bool QsCreateNewProjectHandler::isValidName() const{ return isValidName(_name); }
 
-void QsCreateNewProjectHandler::setUseExistingPml(bool value){
-    if(_useExistingPml != value){
-        _useExistingPml = value;
-        emit useExistingPmlChanged();
-        updateCanAccept();
-    }
-}
+//bool QsCreateNewProjectHandler::useExistingPml() const{ return _useExistingPml; }
 
-bool QsCreateNewProjectHandler::canAccept() const{
-    return isValidFolder()
-            && !name().isEmpty()
-            && (useExistingPml() ? isValidPromelaFile() : true);
-}
+//void QsCreateNewProjectHandler::setUseExistingPml(bool value){
+//    if(_useExistingPml != value){
+//        _useExistingPml = value;
+//        emit useExistingPmlChanged();
+//        updateCanAccept();
+//    }
+//}
 
-bool QsCreateNewProjectHandler::isValidPromelaFile() const{
-    return QFileInfo::exists(_promelaPath) && !promelaPath().isEmpty();
-}
+//bool QsCreateNewProjectHandler::canAccept() const{
+//    return isValidFolder()
+//            && isValidName()
+//            && (useExistingPml() ? isValidPromelaFile() : true);
+//}
 
-bool QsCreateNewProjectHandler::isValidFolder() const{
-    return QDir(_destination).exists() && ! destination().isEmpty();
-                                                     }
+//bool QsCreateNewProjectHandler::isValidPromelaFile() const{
+//    return QFileInfo::exists(_promelaPath) && !promelaPath().isEmpty();
+//}
 
-void QsCreateNewProjectHandler::setPromelaPath(QUrl value){
-    if(_promelaPath != value.toLocalFile()){
-        _promelaPath = value.toLocalFile();
-        emit promelaPathChanged();
-        emit isValidPromelaFileChanged();
-        updateCanAccept();
-    }
-}
+//bool QsCreateNewProjectHandler::isValidFolder() const{
+//    return QDir(_destination).exists() && ! destination().isEmpty();
+//                                                     }
 
-void QsCreateNewProjectHandler::setDestination(QUrl value){
-    if(_destination != value.toLocalFile()){
-        _destination = value.toLocalFile();
-        emit destinationChanged();
-        emit isValidFolderChanged();
-        updateCanAccept();
-    }
-}
+//void QsCreateNewProjectHandler::setPromelaPath(QUrl value){
+//    if(_promelaPath != value.toLocalFile()){
+//        _promelaPath = value.toLocalFile();
+//        emit promelaPathChanged();
+//        emit isValidPromelaFileChanged();
+//        updateCanAccept();
+//    }
+//}
 
-QsCreateNewProjectHandler::QsCreateNewProjectHandler(QObject *parent):QObject(parent) {}
+//void QsCreateNewProjectHandler::setDestination(QString value){
+//    _destination = value;
 
-QsCreateNewProjectHandler::~QsCreateNewProjectHandler() {}
+//        updateCanAccept();
+
+//}
+
+//bool QsCreateNewProjectHandler::isValidName(QString name){
+//    return qs().isValidFileName(name);
+//}
+
+//QsCreateNewProjectHandler::QsCreateNewProjectHandler(QObject *parent, EventAggregator *msg):QObjectBase(parent,msg) {}
+
+//QsCreateNewProjectHandler::~QsCreateNewProjectHandler() {}

@@ -32,6 +32,7 @@ void QSpinMain::registerAllQmlTypes(){
     qmlRegisterType<QsPromelaHandler> (space,1,0,"QsPromelaHandler");
     qmlRegisterType<QsConsoleHandler>(space,1,0,"QsConsoleHandler");
     qmlRegisterType<QsCreateNewProjectHandler>(space,1,0,"QsCreateNewProjectHandler");
+    qmlRegisterType<QsCreateProjectHandler>(space,1,0,"QsCreateProjectHandler");
 
     qmlRegisterUncreatableType<FullStateSpaceFor>(space,1,0,"FullStateSpaceFor","FullStateSpaceFor usage cannot be created");
     qmlRegisterUncreatableType<FullStateSpaceSpecifications>(space,1,0,"FullStateSpaceSpecifications","FullStateSpaceSpecifications cannot be created");

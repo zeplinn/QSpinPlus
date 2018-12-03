@@ -32,15 +32,21 @@ QsSpinQueueHandler::QsSpinQueueHandler(QObject *parent, EventAggregator *msgServ
 
 
 void QsSpinQueueHandler::subscriber(const ProjectOpened &event){
-    if(_project.data()!=event.project())
+    if(event.project()== nullptr){
+        qFatal("qspin queue cannot open nullpointer project");
+    }
+    if(_project!=event.project()){
         _project = event.project();
-    _verifyQueue->setProject(_project);
+        if(!_project->queuedDir().isEmpty()){
+            qs().removeFiles(_project->queuedDir());
+        }
+    }
 }
 
 void QsSpinQueueHandler::subscriber(const ProjectClosed &event){
     Q_UNUSED(event);
+    _verifyQueue->clear();
     _project = nullptr;
-    _verifyQueue->setProject(nullptr);
 }
 
 void QsSpinQueueHandler::startVerification(QueuedVerification *item){

@@ -15,9 +15,12 @@ Item{
     readonly property var saveDocument: docHandler.saveAs
     readonly property var openDocument: docHandler.open
     readonly property var append: textArea.append
+	readonly property var clear: textArea.clear()
+
     property alias canUndo: textArea.canUndo
     property alias canRedo: textArea.canRedo
     readonly property var undo: textArea.undo
+	signal editingFinsished(string text)
     Rectangle{
         anchors.fill: parent
         id: editorBackground
@@ -70,7 +73,7 @@ font: textArea.font
             bottomPadding: 0
             background: Rectangle{ id:backgroundId; color: QsStyle.general.background}
             color: QsStyle.general.foreground
-
+			onEditingFinished: textEditor.editingFinsished(docHandler.text())
         }
 
         states: [

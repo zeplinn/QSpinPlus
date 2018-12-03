@@ -73,7 +73,9 @@ QsVerifyResultHandler::QsVerifyResultHandler(QObject *parent, EventAggregator *m
 }
 
 void QsVerifyResultHandler::subscriber(const ProjectOpened &event){
-    if(event.project()!= nullptr){
+    if(event.project() == nullptr)
+        qFatal("verify result handler cannot open a project with a nullpointer");
+    if(event.project()!= _project){
         // add folder to listen to
         auto files = _fileWatcher->files();
         if(!files.isEmpty())
@@ -81,6 +83,7 @@ void QsVerifyResultHandler::subscriber(const ProjectOpened &event){
 
         auto nfiles = event.project()->resultsDir().entryInfoList({"*.qspr"},QDir::Files | QDir::NoDotAndDotDot);
         _watchedFiles.clear();
+        setCurrentIndex(-1);
         _resultList->clear();
         for(auto f : nfiles){
             _fileWatcher->addPath(f.absoluteFilePath());
@@ -93,23 +96,30 @@ void QsVerifyResultHandler::subscriber(const ProjectOpened &event){
 }
 
 void QsVerifyResultHandler::subscriber(const ProjectSaved &event){
+    if(event.project() == nullptr)
+        qFatal("verify result handler cannot save a project with a nullpointer");
     if(_project!= event.project()){
         // clear list
         auto files = _fileWatcher->files();
+        if(!files.isEmpty())
+            _fileWatcher->removePaths(files);
 
-        _fileWatcher->removePaths(files);
 
         auto nfiles = event.project()->resultsDir().entryInfoList({"*.qspr"},QDir::Files | QDir::NoDotAndDotDot);
-        _watchedFiles.clear();
-        _resultList->clear();
+        if(!_watchedFiles.isEmpty()){
+            _watchedFiles.clear();
+        }
+        if(! (_resultList->rowCount()>0))
+            _resultList->clear();
         for(auto f : nfiles){
             _fileWatcher->addPath(f.absoluteFilePath());
             fileUpdated(f.absoluteFilePath());
         }
-        _project =event.project();
         //auto files =
         //remove folder to listen to
         // add new folder to listen to
+        setCurrentIndex(-1);
+        _project = event.project();
     }
 }
 
@@ -120,7 +130,9 @@ void QsVerifyResultHandler::subscriber(const ProjectClosed &event){
     _fileWatcher->removePaths(files);
     if(!_watchedFiles.isEmpty())
         _watchedFiles.clear();
-    _resultList->clear();
+    if(_resultList->rowCount()>0)
+        _resultList->clear();
+    setCurrentIndex(-1);
     _project = nullptr;
     // clear list
     // remove folder to listen to

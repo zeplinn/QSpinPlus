@@ -2,7 +2,9 @@
 
 
 
-VerificationConfiguration *QsVerifyHandler::currentConfiguration() const{ return _currentItem;}
+VerificationConfiguration *QsVerifyHandler::currentConfiguration() const{
+    return _currentItem.isNull() ? nullptr : _currentItem.data();
+}
 
 int QsVerifyHandler::currentIndex() const{return _currentIndex;}
 
@@ -10,9 +12,12 @@ void QsVerifyHandler::setCurrentIndex(int value){
     //if( _currentIndex != value){
 
     _currentIndex = value;
+    if(_currentIndex < 0 || _currentIndex>= _project->configurations()->count() )
+        _currentIndex=-1;
+    if(currentIndex()<0)
+        _currentItem = nullptr;
+    else _currentItem = _project->configurations()->get(value);
     emit currentIndexChanged();
-    if(_currentIndex < 0 || _currentIndex>= _project->configurations()->count() ) return;
-    _currentItem = _project->configurations()->get(value);
     emit currentConfigurationChanged(_currentItem);
     //}
 }
@@ -21,7 +26,7 @@ bool QsVerifyHandler::isProjectOpen() const{ return _isProjectOpen;}
 
 QsVerifyHandler::QsVerifyHandler(QObject *parent, EventAggregator *msgService)
     :QObjectListBase(parent,msgService)
-    ,_currentIndex(0)
+    ,_currentIndex(-1)
     ,_currentItem(nullptr)
     ,_project(nullptr)
 {
@@ -72,23 +77,41 @@ void QsVerifyHandler::setIsProjectOpen(bool value){
 }
 
 void QsVerifyHandler::subscriber(const ProjectOpened &event){
+    if(event.project()==nullptr){
+        qFatal(" verify handler project opened cannot be a nullpointer");
+    }
+    setCurrentIndex(-1);
     beginResetModel();
     _project = event.project();
-    auto c = _project->configurations();
     endResetModel();
-    if(c->count()>0){
-        setCurrentIndex(0);
-    }
     setIsProjectOpen(true);
 }
 
 void QsVerifyHandler::subscriber(const ProjectSaved &event){
-    if(_project == event.project()) return;
+    if(event.project()!=_project){
+        setCurrentIndex(-1);
+        beginResetModel();
+        _project= event.project();
+        endResetModel();
+    }
+    if(_project!=nullptr){
+        auto c =_project->configurations();
+        for(int i =0; i <c->count();i++){
+            auto vc = c->get(i);
+            auto ltl = vc->ltl();
+            qs().writeTextFile(ltl->document(),_project->projectDir().absoluteFilePath(vc->name()+".ltl"));
+        }
+    }
 }
 
 void QsVerifyHandler::subscriber(const ProjectClosed &event){
     Q_UNUSED(event)
+
     setIsProjectOpen(false);
+    setCurrentIndex(-1);
+    beginResetModel();
+    _project=nullptr;
+    endResetModel();
 }
 
 void QsVerifyHandler::addConfiguration(QString name){
@@ -101,6 +124,7 @@ void QsVerifyHandler::addConfiguration(QString name){
     beginInsertRows(QModelIndex(),c->count(),c->count());
     c->append( vc);
     endInsertRows();
+    setCurrentIndex(c->count()-1);
 }
 
 void QsVerifyHandler::removeConfiguration(VerificationConfiguration *item){

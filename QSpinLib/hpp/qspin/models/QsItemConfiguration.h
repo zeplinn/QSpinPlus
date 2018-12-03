@@ -108,24 +108,19 @@ class ItemLTLConfiguration
 {
     Q_OBJECT
     Q_PROPERTY(QString document READ document WRITE setDocument NOTIFY documentChanged)
-    QString _document;
-    Q_PROPERTY(QString name READ name WRITE setName NOTIFY nameChanged)
-    QString _name;
+    QString _document="";
+//    Q_PROPERTY(QString name READ name WRITE setName NOTIFY nameChanged)
+//    QString _name;
 
 public: // properties
-    QString document()const{ return _document; }
-    void setDocument(QString value){
-        if(_document != value){
-            _document = value;
-            emit documentChanged();
-        }
-    }
-    QString name()const{ return _name; }
-    void setName(QString value);
+    QString document()const;
+    void setDocument(QString value);
+//    QString name()const;
+//    void setName(QString value);
+
 signals:
     void documentChanged();
     void nameChanged();
-    void nameAllreadyExist(QString value);
 public:
     explicit ItemLTLConfiguration(Arg::Type commandId, QObject* parent =nullptr, EventAggregator* msgService=nullptr);
    // explicit ItemLTLConfiguration(Arg::Type defaultCommand=Arg::None,QObject* parent=nullptr);
@@ -136,6 +131,10 @@ public:
     virtual void write(QXmlStreamWriter& xml)override;
     virtual QString writeCommand()const override;
 };
+
+///////////////////////////////////////////////////////////
+/// \brief The ItemAdvancedStringConfiguration class
+//////////////////////////////////////////////////////////
 
 class ItemAdvancedStringConfiguration: public ItemConfiguration{
     Q_OBJECT

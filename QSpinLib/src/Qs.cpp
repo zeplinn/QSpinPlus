@@ -71,6 +71,12 @@ void Qs::OpenXml(IQXmlSerialization *object, const QString &filePath){
     f.close();
 }
 
+bool Qs::isValidFileName(QString name){
+    static QRegularExpression regex("^([a-zA-Z]|_[a-zA-Z])[_a-zA-Z0-9]{0,128}");
+    auto m = regex.match(name);
+    return m.hasMatch();
+}
+
 bool Qs::isValidVerification(QString filename){
     static QRegularExpression regex("error(?=(\\.qspr))");
     auto m = regex.match(filename);

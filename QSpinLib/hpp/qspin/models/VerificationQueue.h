@@ -24,10 +24,10 @@ public:
    // explicit VerificationQueue(QObject* parent = nullptr);
     void setProject(QSpinPlus* project);
     void clear(){
+        emit allQueuedItemsCanceled(QsSpinRunner::Canceled);
         beginResetModel();
         _queue.clear();
         endResetModel();
-        emit allQueuedItemsCanceled(QsSpinRunner::Canceled);
         emit allitemsCleared();
     }
 signals:

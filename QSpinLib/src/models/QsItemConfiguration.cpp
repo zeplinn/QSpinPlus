@@ -36,7 +36,6 @@ ItemConfiguration::ItemConfiguration(Arg::Type commandId, QObject *parent, Event
     if(Arg::isSpinArgument(commandId))       _category = Arg::Spin;
     else if(Arg::isCompileArgument(commandId))    _category = Arg::Gcc;
     else if(Arg::isPanArgument(commandId))        _category = Arg::Pan;
-    else throw QString("argument is not a category: %1").arg(Arg::name(commandId));
 }
 
 ItemConfiguration::ItemConfiguration(ItemConfiguration *item)
@@ -143,12 +142,28 @@ ItemValueConfiguration::ItemValueConfiguration(ItemValueConfiguration *item)
     ,_maxValue(item->maxValue())
 {}
 
-void ItemLTLConfiguration::setName(QString value){
-    if(value!= _name){
-        _name = value;
-        emit nameChanged();
+QString ItemLTLConfiguration::document() const{ return _document; }
+
+void ItemLTLConfiguration::setDocument(QString value){
+    if(_document != value){
+        _document = value;
+
+        emit documentChanged();
     }
 }
+
+//QString ItemLTLConfiguration::name() const{ return _name; }
+
+//void ItemLTLConfiguration::setName(QString value){
+//    if(value!= _name){
+//        _name = value;
+//        emit nameChanged();
+//    }
+//}
+
+
+
+
 
 ItemLTLConfiguration::ItemLTLConfiguration(Arg::Type commandId, QObject *parent, EventAggregator *msgService)
     :ItemConfiguration(commandId,parent,msgService)
@@ -175,9 +190,9 @@ void ItemLTLConfiguration::read(QXmlStreamReader &xml){
         readXmlAttributes(xml.attributes());
         while (xml.readNextStartElement()) {
             if(xml.name() =="Document"){
-                auto attr = xml.attributes();
-                if(attr.hasAttribute("name"))
-                    setName(attr.value("name").toString());
+//                auto attr = xml.attributes();
+//                if(attr.hasAttribute("name"))
+//                    setName(attr.value("name").toString());
                 setDocument(xml.readElementText());
             }
         }
@@ -189,7 +204,7 @@ void ItemLTLConfiguration::write(QXmlStreamWriter &xml){
     writeDefaultXmlAttributes(xml,this);
     xml.writeStartElement("Document");
     xml.writeCharacters(document());
-    xml.writeAttribute("name",name());
+    //xml.writeAttribute("name",name());
     xml.writeEndElement();
     xml.writeEndElement();
 }

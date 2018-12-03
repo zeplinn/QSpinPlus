@@ -17,7 +17,7 @@ ToolBar{
 	property alias toolViewsTabBar: toolsTabId
 	signal saveProject(url fileUrl)
 	signal openProject(url fileUrl)
-	signal createProject(string name,url folder,url pml,bool useExistingPromela)
+	signal createProject(string filepath)
 
 
 	implicitHeight: 32
@@ -114,7 +114,7 @@ ToolBar{
 		id: newProjectDialogId
 		x: ( qspinAppId.width - width ) *0.5
 		y: (qspinAppId.height -height ) *0.5
-		onAccepted: rootId.createProject(name,folder,promelaUrl,useExistingPromela)
+		onAccepted: rootId.createProject(filepath)
 	}
 	FileDialog{
 		id:openProjectDialogId
@@ -130,7 +130,6 @@ ToolBar{
 		onAccepted: rootId.saveProject(fileUrl)
 	}
 	Shortcut{
-		enabled: codeEditiorId.documentHandler.canRedo
 		sequence: StandardKey.SaveAs
 		onActivated: saveProjectDialogId.open()
 	}

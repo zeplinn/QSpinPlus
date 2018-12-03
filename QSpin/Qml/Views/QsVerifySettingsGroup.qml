@@ -3,15 +3,22 @@ import QtQuick.Controls 2.4
 import QtQuick.Layouts 1.11
 import QSpin.CppItems 1.0
 import QSpin.Qml.Reusables 1.0
+import QtQuick.Window 2.11
 Item {
 	id: rootId
-	property alias active: itemRefId.reference
+	property alias active: handlerId.reference
+	onActiveChanged: {
+
+	}
+
 	implicitHeight: 800
 	implicitWidth: childrenRect.width
 	signal itemRemoved(VerificationConfiguration item)
 	property int hSpacing: 15
 	QsVerifySettingsGroupHandler{
-		id: itemRefId
+		id: handlerId
+		ltlEditorHandler: ltlId.documentHandler
+
 	}
 	// configurations
 
@@ -23,7 +30,7 @@ Item {
 		anchors.top: parent.top
 		anchors.bottom: commentSectionId.top
 		Item{
-			enabled: active !== null
+			enabled: handlerId.isEditable
 			id:configSecId
 			clip: true
 			anchors.top: parent.top
@@ -54,23 +61,23 @@ Item {
 						states:[
 							State {	name: Arg.SafetyMode;
 								PropertyChanges { target: titleIconId; source:"qrc:/icons/Safty2x.png" }
-								PropertyChanges {target: itemRefId; item.safetyMode.checked: true}
+								PropertyChanges {target: handlerId; item.safetyMode.checked: true}
 							},
 							State {	name: Arg.ProgressMode;
 								PropertyChanges { target: titleIconId; source:"qrc:/icons/Progress2x.png" }
-								PropertyChanges {target: itemRefId; item.progressMode.checked: true}
+								PropertyChanges {target: handlerId; item.progressMode.checked: true}
 							},
 
 							State {	name: Arg.AccepanceMode;
 								PropertyChanges { target: titleIconId; source:"qrc:/icons/Acceptance2x.png" }
-								PropertyChanges {target: itemRefId; item.acceptanceMode.checked: true}
+								PropertyChanges {target: handlerId; item.acceptanceMode.checked: true}
 							}
 						]
 					}
 
 					QsHeader{
 						id:headerId
-						text: rootId.active.name
+						text: handlerId.item.name
 
 					}
 					Item {
@@ -79,7 +86,7 @@ Item {
 					}
 					QsToolButton{
 						imageSource: "qrc:/icons/close.png"
-						onClicked: rootId.itemRemoved(rootId.active)
+						onClicked: handlerId.item.itemRemoved(handlerId.item)
 					}
 
 				}
@@ -98,13 +105,13 @@ Item {
 						case 2: item = Arg.AccepanceMode; break
 						}
 						checkedMode = item
-						itemRefId.item.updateSelectedVerifyMode(item)
+						handlerId.item.updateSelectedVerifyMode(item)
 					}
 					background: null
 					Repeater{
-						model: [itemRefId.item.safetyMode
-							,itemRefId.item.progressMode
-							,itemRefId.item.acceptanceMode]
+						model: [handlerId.item.safetyMode
+							,handlerId.item.progressMode
+							,handlerId.item.acceptanceMode]
 						TabButton {
 							id:btnId
 							//implicitWidth: childrenRect.width
@@ -145,325 +152,341 @@ Item {
 					color: QsStyle.general.border
 				} // group begin
 				QsText{
-					leftPadding: 4; text: qsTr("Custom settings")
+					leftPadding: 4; text: qsTr("Avanced settings")
 					MouseArea{anchors.fill: parent; onClicked: customVerifySetings.visible = !customVerifySetings.visible}
 				}
 				ColumnLayout{
 					id:customVerifySetings
 					readonly property int offset: 4
-					visible: true
+					visible: false
 					QsButton{
 						text:qsTr("check verification Strings")
 						Layout.fillWidth: true
 						onClicked: {
-							var cmds = itemRefId.item.getCurrentCommandsAsStrings();
+							var cmds = handlerId.item.getCurrentCommandsAsStrings();
 							// list [] = {spin, gcc, pan } // need fixing for a more robust solution later
 							argumentViewerId.spin = cmds[0]
 							argumentViewerId.gcc = cmds[1]
 							argumentViewerId.pan = cmds[2]
+							argumentViewerId.open()
 						}
-					}
-
-						Dialog{
+						 Dialog{
 							id: argumentViewerId
+							parent: ApplicationWindow.window.contentItem
+							x: (parent.width-width)*0.5
 							property string spin: ""
 							property string gcc: ""
 							property string pan: ""
+							implicitHeight: 200
+							implicitWidth: 600
 							modal:true
+							padding: 0
 							Rectangle{
 								color: QsStyle.general.background
 								border.color: QsStyle.general.border
 								border.width: 2
-								implicitHeight: childrenRect.height
-								implicitWidth: childrenRect.width
+								anchors.fill: parent
 
 								ColumnLayout{
+									anchors.fill: parent
+									anchors.margins: 16
 									QsText{	text: "spin: " + argumentViewerId.spin; Layout.fillWidth: true}
 									QsText{	text: "gcc:  " + argumentViewerId.gcc; Layout.fillWidth: true}
 									QsText{	text: "pan:  " + argumentViewerId.spin; Layout.fillWidth: true}
 									QsButton{text: qsTr("Close"); Layout.fillWidth: true; onClicked: argumentViewerId.close()}
-							}
+								}
 								Keys.onEscapePressed: close()
+
 							}
 						}
-
-						RowLayout{
-							spacing:8
-							QsText{leftPadding: 4;text: qsTr("spin:")}
-							Rectangle{
-								Layout.fillWidth: true
-								color: Qt.darker(QsStyle.general.background,1.1)
-								implicitHeight: 24
-								TextInput{
-									anchors.fill: parent
-									selectByMouse: true
-
-									onActiveFocusChanged: {
-										if(activeFocus) selectAll();
-										else{
-											focus = false
-										}
-									}
-									font.family: "candara"
-									font.pointSize: 10
-									onAccepted: {
-										canceling =false
-										text = defaultVal
-										// focus =false
-									}
-									Keys.onEscapePressed: {
-										canceling = true
-										focus= false
-									}
-
-									color: QsStyle.general.foreground
-								}
-							}
-						}
-						RowLayout{
-							QsText{leftPadding: 4;text: qsTr("gcc:")}
-							spacing: 9
-							Rectangle{
-								Layout.fillWidth: true
-								color: Qt.darker(QsStyle.general.background,1.1)
-								implicitHeight: 24
-								TextInput{
-									anchors.fill: parent
-									selectByMouse: true
-
-									onActiveFocusChanged: {
-										if(activeFocus) selectAll();
-										else{
-											focus = false
-										}
-									}
-									font.family: "candara"
-									font.pointSize: 10
-									onAccepted: {
-										canceling =false
-										text = defaultVal
-										// focus =false
-									}
-									Keys.onEscapePressed: {
-										canceling = true
-										focus= false
-									}
-
-									color: QsStyle.general.foreground
-								}
-							}
-						}
-						RowLayout{
-							QsText{leftPadding: 4;text: qsTr("pan:")}
-							spacing: 9
-							Rectangle{
-								Layout.fillWidth: true
-								color: Qt.darker(QsStyle.general.background,1.1)
-								implicitHeight: 24
-								TextInput{
-									anchors.fill: parent
-									selectByMouse: true
-
-									onActiveFocusChanged: {
-										if(activeFocus) selectAll();
-										else{
-											focus = false
-										}
-									}
-									font.family: "candara"
-									font.pointSize: 10
-									onAccepted: {
-										canceling =false
-										text = defaultVal
-										// focus =false
-									}
-									Keys.onEscapePressed: {
-										canceling = true
-										focus= false
-									}
-
-									color: QsStyle.general.foreground
-								}
-							}
-						}
-
 					}
-					QsDivider{
-						oritentation: Qt.Horizontal
-						Layout.fillWidth: true
-						color: QsStyle.general.border
-					} // group end
 
-					// spin optimazations -o[1..6] ##################### row 3
+
+
 					RowLayout{
-						id:optimizationGroupId
-						QsText{
+						spacing:8
+						QsText{leftPadding: 4;text: qsTr("spin:")}
+						Rectangle{
 							Layout.fillWidth: true
-							text: qsTr("Optimizations")
-						}
-						Repeater{
-							property alias c: rootId.active
-							model: [c.o1, c.o2, c.o3, c.o4, c.o5, c.o6 ]
-							QsButtonSquare{
-								checked: modelData.checked
-								checkable: true
-								useToolTip: true
-								toolTip: modelData.name
+							color: Qt.darker(QsStyle.general.background,1.1)
+							implicitHeight: 24
+							TextInput{
+								anchors.fill: parent
+								selectByMouse: true
+								verticalAlignment: TextInput.AlignVCenter
+								onActiveFocusChanged: {
+									if(activeFocus) selectAll();
+									else{
+										focus = false
+									}
+								}
+								font.family: "candara"
+								font.pointSize: 10
+								onAccepted: {
+									canceling =false
+									text = defaultVal
+									// focus =false
+								}
+								Keys.onEscapePressed: {
+									canceling = true
+									focus= false
+								}
 
-								text: qsTr("%1").arg(1+index)
+								color: QsStyle.general.foreground
 							}
 						}
 					}
-					// begin checkbox section #################
-					GridLayout{
-						columns: 2
-						rowSpacing: 8
-						columnSpacing: 8
-						Repeater{
-							property alias c: rootId.active
-							model:[c.safety, c.sfh, c.weakFairness, c.noFair, c.noReduce
-								, c.space, c.np, c.collapse,c.bfs, c.bfs_disk]
-							QsButton{
-								Layout.fillWidth: true
-								useToolTip: true
-								toolTip: modelData.argument()
-								enabled: modelData.enabled
-								onCheckedChanged: modelData.setChecked(checked)
-								checkable: true
-								checked: modelData.checked
-								text:modelData.name
+					RowLayout{
+						QsText{leftPadding: 4;text: qsTr("gcc:")}
+						spacing: 9
+						Rectangle{
+							Layout.fillWidth: true
+							color: Qt.darker(QsStyle.general.background,1.1)
+							implicitHeight: 24
+							TextInput{
+								anchors.fill: parent
+								selectByMouse: true
+
+								onActiveFocusChanged: {
+									if(activeFocus) selectAll();
+									else{
+										focus = false
+									}
+								}
+								font.family: "candara"
+								font.pointSize: 10
+								onAccepted: {
+									canceling =false
+									text = defaultVal
+									// focus =false
+								}
+								Keys.onEscapePressed: {
+									canceling = true
+									focus= false
+								}
+
+								color: QsStyle.general.foreground
 							}
 						}
-
 					}
-					// ############ end checkbox section ########################################
+					RowLayout{
+						QsText{leftPadding: 4;text: qsTr("pan:")}
+						spacing: 9
+						Rectangle{
+							Layout.fillWidth: true
+							color: Qt.darker(QsStyle.general.background,1.1)
+							implicitHeight: 24
+							TextInput{
+								anchors.fill: parent
+								selectByMouse: true
 
-					// ########### begin spin boxsection ##########################
+								onActiveFocusChanged: {
+									if(activeFocus) selectAll();
+									else{
+										focus = false
+									}
+								}
+								font.family: "candara"
+								font.pointSize: 10
+								onAccepted: {
+									canceling =false
+									text = defaultVal
+									// focus =false
+								}
+								Keys.onEscapePressed: {
+									canceling = true
+									focus= false
+								}
+
+								color: QsStyle.general.foreground
+							}
+						}
+					}
+
+				}
+				QsDivider{
+					oritentation: Qt.Horizontal
+					Layout.fillWidth: true
+					color: QsStyle.general.border
+				} // group end
+
+				// spin optimazations -o[1..6] ##################### row 3
+				RowLayout{
+					id:optimizationGroupId
+					QsText{
+						Layout.fillWidth: true
+						text: qsTr("Optimizations")
+					}
 					Repeater{
-						model: [itemRefId.item.bfs_disk_limit, itemRefId.item.bfs_limit,
-							itemRefId.item.hc, itemRefId.item.memLimit, itemRefId.item.vectorSZV,
-							itemRefId.item.hashSize, itemRefId.item.searchDepth, itemRefId.item.timeLimit]
-						QsSpinBox{
+						property alias c: handlerId.item
+						model: [c.o1, c.o2, c.o3, c.o4, c.o5, c.o6 ]
+						QsButtonSquare{
+							checked: modelData.checked
+							checkable: true
+							useToolTip: true
+							toolTip: modelData.name
+
+							text: qsTr("%1").arg(1+index)
+						}
+					}
+				}
+				// begin checkbox section #################
+				GridLayout{
+					columns: 2
+					rowSpacing: 8
+					columnSpacing: 8
+					Repeater{
+						property alias c: handlerId.item
+						model:[c.safety, c.sfh, c.weakFairness, c.noFair, c.noReduce
+							, c.space, c.np, c.collapse,c.bfs, c.bfs_disk]
+						QsButton{
 							Layout.fillWidth: true
 							useToolTip: true
 							toolTip: modelData.argument()
 							enabled: modelData.enabled
-							checked: modelData.checked
 							onCheckedChanged: modelData.setChecked(checked)
-							label: modelData.name
-							value: modelData.commandValue
-							from:modelData.minValue
-							to: modelData.maxValue
-
+							checkable: true
+							checked: modelData.checked
+							text:modelData.name
 						}
 					}
-					// ########### end spin box section
 
-					// ##########ltl text area begin ###############
+				}
+				// ############ end checkbox section ########################################
 
-					ColumnLayout{
-						id: ltlSectionId
+				// ########### begin spin boxsection ##########################
+				Repeater{
+					model: [handlerId.item.bfs_disk_limit, handlerId.item.bfs_limit,
+						handlerId.item.hc, handlerId.item.memLimit, handlerId.item.vectorSZV,
+						handlerId.item.hashSize, handlerId.item.searchDepth, handlerId.item.timeLimit]
+					QsSpinBox{
+						Layout.fillWidth: true
+						useToolTip: true
+						toolTip: modelData.argument()
+						enabled: modelData.enabled
+						checked: modelData.checked
+						onCheckedChanged: modelData.setChecked(checked)
+						label: modelData.name
+						value: modelData.commandValue
+						from:modelData.minValue
+						to: modelData.maxValue
+
+					}
+				}
+				// ########### end spin box section
+
+				// ##########ltl text area begin ###############
+
+				ColumnLayout{
+					id: ltlSectionId
+					RowLayout{
+
+
 						QsText{
 							text: qsTr("LTL:"); color: QsStyle.general.foreground
 							Layout.fillWidth: true
 						}
+					}
 
-						Rectangle{
-							id: ltlTxtborderId
-							Layout.fillWidth: true
-							Layout.minimumHeight:  150
+					Rectangle{
+						id: ltlTxtborderId
+						Layout.fillWidth: true
+						Layout.minimumHeight:  150
+						enabled: handlerId.item.ltl.enabled
+						Layout.fillHeight: true
+						color: "transparent"
+						border.color: QsStyle.general.border
+						border.width: 1
+						radius: 3
+						QsCodeEditor{
+							id:ltlId
+							anchors.fill: parent
+							anchors.margins: 2
+							onEditingFinsished: handlerId.item.ltl.document= text
 
-							Layout.fillHeight: true
-							color: "transparent"
-							border.color: QsStyle.general.border
-							border.width: 1
-							radius: 3
-							QsCodeEditor{
-								id:ltlId
-								anchors.fill: parent
-								anchors.margins: 2
-							}
 
 						}
+
 					}
-					// ############# end ltl TextArea ###############
 				}
+				// ############# end ltl TextArea ###############
 			}
-
-
-			// ######### begin scrollbar #################################
-			QsScrollBar{
-				id:configVbarID
-				anchors.top: parent.top
-				hoverEnabled: true
-				active: hovered || pressed
-				anchors.bottom: parent.bottom
-				size: configSecId.height/layout.height > 1? 1 : configSecId.height/layout.height
-				orientation: Qt.Vertical
-				policy: QsScrollBar.AlwaysOn
-			}
-			// ############## end ScrollBar ####################################
-
 		}
-		// ########## end Configurations section #########################
 
 
-		// ############ begin comment section #############################
-		Item{
-			id:commentSectionId
-			anchors.left: parent.left
+		// ######### begin scrollbar #################################
+		QsScrollBar{
+			id:configVbarID
+			anchors.top: parent.top
+			hoverEnabled: true
+			active: hovered || pressed
 			anchors.bottom: parent.bottom
-			anchors.rightMargin: 8
-			//implicitWidth: parent.implicitWidth
-			anchors.right: parent.right
-			anchors.margins: 4
-			implicitHeight: childrenRect.height
-			height: commentHeaderId.height+commmentAreaId.height
-
-
-
-
-			QsHeader{
-				id:commentHeaderId
-				anchors.left: parent.left
-				anchors.right: parent.right
-				anchors.bottom: commmentAreaId.top
-				//anchors.top: parent.top
-				text: qsTr("Comments")
-			}
-
-			Rectangle{
-				id: commmentAreaId
-				implicitHeight: 150
-				visible: false
-				height: visible ?150 : 0
-				anchors.left: parent.left
-				anchors.right: parent.right
-				anchors.bottom: parent.bottom
-				border.color: QsStyle.general.border
-				border.width: 1
-				radius: 3
-				color: "transparent"
-				QsCodeEditor{
-					anchors.fill: parent
-					anchors.margins: 2
-				}
-
-
-			}
-			MouseArea{
-				anchors.fill: commentHeaderId
-				onClicked: commmentAreaId.visible = !commmentAreaId.visible
-			}
+			size: configSecId.height/layout.height > 1? 1 : configSecId.height/layout.height
+			orientation: Qt.Vertical
+			policy: QsScrollBar.AlwaysOn
 		}
-		QsDivider{
-			anchors.left: parent.left
-			anchors.right: parent.right
-			oritentation: Qt.Horizontal
-			anchors.top: commentSectionId.top
-			anchors.topMargin: 3
-			color: QsStyle.general.border
-		}
-		// ################ end comment section ############################
+		// ############## end ScrollBar ####################################
 
 	}
+	// ########## end Configurations section #########################
+
+
+	// ############ begin comment section #############################
+	Item{
+		id:commentSectionId
+		anchors.left: parent.left
+		anchors.bottom: parent.bottom
+		anchors.rightMargin: 8
+		//implicitWidth: parent.implicitWidth
+		anchors.right: parent.right
+		anchors.margins: 4
+		implicitHeight: childrenRect.height
+		height: commentHeaderId.height+commmentAreaId.height
+
+
+
+
+		QsHeader{
+			id:commentHeaderId
+			anchors.left: parent.left
+			anchors.right: parent.right
+			anchors.bottom: commmentAreaId.top
+			//anchors.top: parent.top
+			text: qsTr("Comments")
+		}
+
+		Rectangle{
+			id: commmentAreaId
+			implicitHeight: 150
+			visible: false
+			height: visible ?150 : 0
+			anchors.left: parent.left
+			anchors.right: parent.right
+			anchors.bottom: parent.bottom
+			border.color: QsStyle.general.border
+			border.width: 1
+			radius: 3
+			color: "transparent"
+			QsCodeEditor{
+				anchors.fill: parent
+				anchors.margins: 2
+			}
+
+
+		}
+		MouseArea{
+			anchors.fill: commentHeaderId
+			onClicked: commmentAreaId.visible = !commmentAreaId.visible
+		}
+	}
+	QsDivider{
+		anchors.left: parent.left
+		anchors.right: parent.right
+		oritentation: Qt.Horizontal
+		anchors.top: commentSectionId.top
+		anchors.topMargin: 3
+		color: QsStyle.general.border
+	}
+	// ################ end comment section ############################
+
+}

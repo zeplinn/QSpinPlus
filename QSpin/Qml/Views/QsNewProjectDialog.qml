@@ -6,10 +6,17 @@ import QSpin.CppItems 1.0
 import QtQuick.Dialogs 1.3 as Fd
 Dialog{
 	id: rootId
+	parent:ApplicationWindow.window.contentItem
+	x: (parent.width-width)*0.5
+	y: (parent.height-height)*0.5
 	z:5
-	property alias folder: handlerId.destination
-	readonly property alias name: handlerId.name
-	QsCreateNewProjectHandler{
+	//	property alias folder: handlerId.destination
+	//	readonly property alias name: handlerId.name
+	property alias filepath: handlerId.absolutePath
+	//	QsCreateNewProjectHandler{
+	//		id:handlerId
+	//	}
+	QsCreateProjectHandler{
 		id:handlerId
 	}
 
@@ -29,15 +36,22 @@ Dialog{
 
 			spacing: 8
 			QsButton{
-				enabled: handlerId.canAccept
+				enabled: handlerId.isValidName && handlerId.isValidFolder
 				text: qsTr("Create")
 				implicitWidth: 70
-				onClicked: rootId.accept()
+				onClicked: {
+					rootId.accept()
+					projectNameId.text=""
+				}
 			}
 			QsButton{
 				text: qsTr("Cancel")
 				implicitWidth: 70
-				onClicked: rootId.reject()
+				onClicked:{
+
+					rootId.reject()
+					projectNameId.text=""
+				}
 			}
 		}
 	}
@@ -59,8 +73,11 @@ Dialog{
 			id:projectNameId
 			Layout.fillWidth: true
 			color: QsStyle.general.foreground
-			text: handlerId.name
-			onAccepted: handlerId.name =text
+			placeholderText: "enter file name"
+			onTextChanged:{
+				handlerId.name = text
+			}
+
 			background: Rectangle{
 				id:txtFieldBackgroundId
 				color: QsStyle.general.background
@@ -68,53 +85,15 @@ Dialog{
 				border.width: 1
 			}
 			states:State{
-				when:handlerId.isValidName
+				when:!handlerId.isValidName
 				PropertyChanges {
-					target: txtFieldBackgroundId
-					border.color: "red"
+					target: projectNameId
+					color: "red"
 
 				}
 			}
 		}
-		/*
-		RowLayout{
 
-			CheckBox {
-				id: checkBox
-				checked: handlerId.useExistingPml
-			}
-			QsText{
-				text: qsTr("use Existing promela file")
-			}
-		}
-		RowLayout{
-			visible: checkBox.checked
-			enabled: visible
-			spacing: 8
-			QsText{
-				id:lblPromPath
-				text: qsTr("Path:")
-			}
-			QsText{
-				id:promelaFilePathId
-				Layout.minimumWidth: 500
-				Layout.maximumWidth: 500
-				Layout.fillWidth: true
-				text: handlerId.promelaPath
-				states:State{
-					when: !handlerId.isValidPromelaFile
-					PropertyChanges {
-						target: lblPromPath
-						color :"red"
-					}
-				}
-			}
-			QsButton{
-				text: qsTr("browse")
-				onClicked: promelaFileId.open()
-			}
-		}
-*/
 		RowLayout{
 			spacing: 8
 			QsText{
@@ -125,7 +104,7 @@ Dialog{
 				id:absolutePathId
 				Layout.minimumWidth: 500
 				Layout.maximumWidth: 500
-				text: handlerId.destination
+				text: handlerId.absolutePath
 				Layout.fillWidth: true
 				states:State{
 					when: !handlerId.isValidFolder
@@ -152,10 +131,13 @@ Dialog{
 	}
 	Fd.FileDialog{
 		id:folderExplorerId
-		folder: handlerId.destination
-		onAccepted: handlerId.setDestination(folder)
+		folder: shortcuts.home
+		onAccepted:{
+			handlerId.folder = folder
+
+		}
 		selectFolder: true
 	}
-
+	Component.onCompleted: handlerId.folder = folderExplorerId.shortcuts.home
 
 }

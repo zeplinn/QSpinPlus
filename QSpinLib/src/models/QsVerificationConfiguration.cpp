@@ -94,7 +94,6 @@ VerificationConfiguration::VerificationConfiguration(QObject *parent, EventAggre
     addNewConfigItem(Arg::O5);
     addNewConfigItem(Arg::O6);
     addNewLtlConfigItem(Arg::LTL)->required(Arg::AccepanceMode);
-    // remember to add ltl item
 
     //    // compileTime options
     addNewConfigItem(Arg::Safety)->required(Arg::SafetyMode);

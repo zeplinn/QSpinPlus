@@ -30,6 +30,7 @@
 #include "qspin/models/QsVerifyResultList.h"
 #include "qspin/models/VerificationResultContainer.h"
 #include "qspin/viewModels/QsVerifyResultReportHandler.h"
+#include "qspin/viewModels/QsCreateProjectHandler.h"
 class QSpinMain : public QObjectBase
 {
         Q_OBJECT
