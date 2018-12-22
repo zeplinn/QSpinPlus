@@ -47,6 +47,7 @@ private:
     QString SPIN,GCC,PAN;
     bool _isWindows= false, _startCollectReport = false;
     QPointer<VerificationResults> _report;
+    QDir workDir;
 
 public:
     // qthread objects can not be moved to a thread if it have parent
@@ -110,7 +111,7 @@ signals:
     void statusUpdated(QsSpinRunner::Status variable);
     void stdOutReady(QString text);
     void stdErrOutReady(QString text);
-    void resultCreated(QFileInfo resultFile,VerificationResultFileChanged::Status status);
+    void resultCreated(QFileInfo resultFile,VerificationResultFile::Status status);
 private:
     void connectProceses(QProcess* from);
 

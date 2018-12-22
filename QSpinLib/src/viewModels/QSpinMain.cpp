@@ -3,7 +3,7 @@
 
 void QSpinMain::registerAllQmlTypes(){
     qRegisterMetaType<QsSpinRunner::Status>("QsSpinRunner::Status");
-    qRegisterMetaType<VerificationResultFileChanged::Status>("VerificationResultFileChanged::Status");
+    qRegisterMetaType<VerificationResultFile::Status>("VerificationResultFile::Status");
     const char space[] = "QSpin.CppItems";
     qmlRegisterUncreatableType<Arg>(space,1,0,"Arg","Uncreatable enum type only");
     //	qmlRegisterType<QsHandler>(space,1,0,"QsHandler");

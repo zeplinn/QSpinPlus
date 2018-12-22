@@ -1,12 +1,40 @@
 #include "qspin/models/QsItemConfiguration.h"
-namespace {
-void writeDefaultXmlAttributes(QXmlStreamWriter& xml,ItemConfiguration* item){
-    xml.writeAttribute("command",QString::number(item->command()));
-    xml.writeAttribute("checked",item->checked() ? "true" :"false");
-    xml.writeAttribute("enabled",item->enabled() ? "true" :"false");
-    xml.writeAttribute("name",item->name());
+
+void ItemConfiguration::readXmlAttributes(QXmlStreamAttributes attr){
+    if(attr.hasAttribute("checked")){
+        QString c = attr.value("checked").toString();
+        if(c == "true") _checked=true;
+        else if (c=="false") _checked=false;
+        else {
+            // unknown
+        }
+    }
+    if(attr.hasAttribute("enabled")){
+        QString c = attr.value("enabled").toString();
+        if(c == "true") _enabled = true;
+        else if (c=="false") _enabled =false;
+        else {
+            // unknown
+        }
+    }
+
+    if(attr.hasAttribute("category")){
+        _category = static_cast<Arg::Category>(attr.value("category").toInt());
+        }
+    if(attr.hasAttribute("command")){
+        _command = static_cast<Arg::Type>(attr.value("command").toInt());
+    }
+
 }
+
+void ItemConfiguration::writeDefaultXmlAttributes(QXmlStreamWriter& xml){
+    xml.writeAttribute("command",QString::number(command()));
+    xml.writeAttribute("category",QString::number(category()));
+    xml.writeAttribute("checked",checked() ? "true" :"false");
+    xml.writeAttribute("enabled",enabled() ? "true" :"false");
+    xml.writeAttribute("name",name());
 }
+
 
 Arg::Type ItemConfiguration::command() const{ return _command;}
 
@@ -41,7 +69,6 @@ ItemConfiguration::ItemConfiguration(Arg::Type commandId, QObject *parent, Event
 ItemConfiguration::ItemConfiguration(ItemConfiguration *item)
     :QObjectBase(nullptr)
     ,_command(item->command())
-    ,_name(item->name())
     ,_checked(item->checked())
     ,_enabled(item->enabled())
     ,_category(item->category())
@@ -60,7 +87,7 @@ void ItemConfiguration::read(QXmlStreamReader &xml){
 
 void ItemConfiguration::write(QXmlStreamWriter &xml){
     xml.writeStartElement(qs().nameof(this));
-    writeDefaultXmlAttributes(xml,this);
+    writeDefaultXmlAttributes(xml);
     xml.writeEndElement();// itemConfiguration end
 }
 
@@ -73,25 +100,7 @@ void ItemConfiguration::setCommand(Arg::Type value){
     SET_QPROP(_command,value,emit commandChanged();)
 }
 
-void ItemConfiguration::readXmlAttributes(QXmlStreamAttributes attr){
-    if(attr.hasAttribute("checked")){
-        QString c = attr.value("checked").toString();
-        if(c == "true") _checked = true;
-        else if (c=="false") _checked =false;
-        else {
-            // unknown
-        }
-    }
-    if(attr.hasAttribute("enabled")){
-        QString c = attr.value("enabled").toString();
-        if(c == "true") _enabled = true;
-        else if (c=="false") _enabled =false;
-        else {
-            // unknown
-        }
-    }
 
-}
 
 int ItemValueConfiguration::commandValue() const{return _commandValue;}
 
@@ -125,9 +134,8 @@ void ItemValueConfiguration::read(QXmlStreamReader &xml){
 void ItemValueConfiguration::write(QXmlStreamWriter &xml){
     xml.writeStartElement(qs().nameof(this));
 
-    writeDefaultXmlAttributes(xml,this);
+    writeDefaultXmlAttributes(xml);
     xml.writeAttribute("value",QString::number(commandValue()));
-    //xml.writeTextElement("value",QString::number(commandValue()));
 
     xml.writeEndElement();// end ItemValueConfiguration
 }
@@ -152,23 +160,9 @@ void ItemLTLConfiguration::setDocument(QString value){
     }
 }
 
-//QString ItemLTLConfiguration::name() const{ return _name; }
-
-//void ItemLTLConfiguration::setName(QString value){
-//    if(value!= _name){
-//        _name = value;
-//        emit nameChanged();
-//    }
-//}
-
-
-
-
-
 ItemLTLConfiguration::ItemLTLConfiguration(Arg::Type commandId, QObject *parent, EventAggregator *msgService)
     :ItemConfiguration(commandId,parent,msgService)
 {
-    this->msgService()->subscribe<ProjectSaved>(this);
 }
 
 ItemLTLConfiguration::ItemLTLConfiguration(ItemLTLConfiguration *item)
@@ -190,9 +184,6 @@ void ItemLTLConfiguration::read(QXmlStreamReader &xml){
         readXmlAttributes(xml.attributes());
         while (xml.readNextStartElement()) {
             if(xml.name() =="Document"){
-//                auto attr = xml.attributes();
-//                if(attr.hasAttribute("name"))
-//                    setName(attr.value("name").toString());
                 setDocument(xml.readElementText());
             }
         }
@@ -201,22 +192,26 @@ void ItemLTLConfiguration::read(QXmlStreamReader &xml){
 
 void ItemLTLConfiguration::write(QXmlStreamWriter &xml){
     xml.writeStartElement(qs().nameof(this));
-    writeDefaultXmlAttributes(xml,this);
-    xml.writeStartElement("Document");
-    xml.writeCharacters(document());
-    //xml.writeAttribute("name",name());
-    xml.writeEndElement();
+    writeDefaultXmlAttributes(xml);
+    xml.writeTextElement("Document",document());
     xml.writeEndElement();
 }
 
 QString ItemLTLConfiguration::writeCommand() const{
-    return Arg::val(command(),SpinCommands::tmpLtlFileName());
+    return Arg::val(command(),SpinCommands::tmpLtlFileName())+ SpinCommands::tmpLtlFileName();
 }
 
-ItemAdvancedStringConfiguration::ItemAdvancedStringConfiguration(Arg::Category category, QObject *parent, EventAggregator *msg)
-    :ItemConfiguration(Arg::None,parent,msg)
+ItemAdvancedStringConfiguration::ItemAdvancedStringConfiguration(Arg::Type cmd, QObject *parent, EventAggregator *msg)
+    :ItemConfiguration(cmd,parent,msg)
 {
-    _category =category;
+}
+
+ItemAdvancedStringConfiguration::ItemAdvancedStringConfiguration(ItemAdvancedStringConfiguration *item)
+    :ItemConfiguration(item)
+    ,_text(item->text())
+
+{
+    _category = item->category();
 }
 
 QString ItemAdvancedStringConfiguration::text() const{ return _text; }
@@ -241,7 +236,7 @@ void ItemAdvancedStringConfiguration::read(QXmlStreamReader &xml){
 void ItemAdvancedStringConfiguration::write(QXmlStreamWriter &xml)
 {
     xml.writeStartElement(qs().nameof(this));
-    writeDefaultXmlAttributes(xml,this);
+    writeDefaultXmlAttributes(xml);
     xml.writeTextElement("Text",text());
     xml.writeEndElement();
 }

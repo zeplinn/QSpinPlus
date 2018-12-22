@@ -3,17 +3,16 @@
 
 SpinCommands::SpinCommands(QObject *parent, EventAggregator *msgService)
     :QObjectBase(parent,msgService)
+    ,_ltl(nullptr)
     ,_commands(QList<ItemConfiguration*>())
 {}
 
 void SpinCommands::read(QXmlStreamReader &xml)
 {
+    // cmds inputs are fixed when file is read
     if(xml.name()== qs().nameof(this)){
         while (xml.readNextStartElement()) {
-            auto attr = xml.attributes();
             Arg::Type cmd =Arg::None;
-            if(attr.hasAttribute("command"))
-                cmd = static_cast<Arg::Type>(attr.value("command").toInt());
             if(xml.name()==ItemConfiguration::staticMetaObject.className()){
                 auto ic = new ItemConfiguration(cmd,this,msgService());
                 _commands << ic;
@@ -28,6 +27,12 @@ void SpinCommands::read(QXmlStreamReader &xml)
                 auto ilc = new ItemLTLConfiguration(cmd,this,msgService());
                 _commands << ilc;
                 ilc->read(xml);
+                _ltl = ilc;
+            }
+            else if (xml.name() == ItemAdvancedStringConfiguration::staticMetaObject.className()) {
+                auto isc = new ItemAdvancedStringConfiguration(cmd,this,msgService());
+                isc->read(xml);
+                _commands << isc;
             }
         }
     }
@@ -44,22 +49,22 @@ void SpinCommands::write(QXmlStreamWriter &xml)
 compiledCommands SpinCommands::CommandsToStringLists(){
     compiledCommands cmds;
     // default commands
-    cmds.spin << "-a" << "-o7";
+    cmds.spin << Arg::val(Arg::Verify) << Arg::val(Arg::O7);
     cmds.gcc << "pan.c" << "-o" <<"pan";
     for(auto ic : _commands){
-        switch (ic->category()) {
-        case Arg::Spin:
-            cmds.spin << ic->writeCommand();
-            if(ic->command() ==Arg::LTL){
-                cmds.ltl = qobject_cast<ItemLTLConfiguration*>(ic);
+        auto cmd = ic->writeCommand();
+        if(!cmd.isEmpty()){
+            switch (ic->category()) {
+            case Arg::Spin:
+                cmds.spin << cmd;
+                break;
+            case Arg::Gcc:
+                cmds.gcc << cmd;
+                break;
+            case Arg::Pan:
+                cmds.pan << cmd;
+                break;
             }
-            break;
-        case Arg::Gcc:
-            cmds.gcc << ic->writeCommand();
-            break;
-        case Arg::Pan:
-            cmds.pan << ic->writeCommand();
-            break;
         }
     }
     cmds.spin << tmpSpinFileName();
@@ -76,7 +81,14 @@ void SpinCommands::append(ItemConfiguration *item){
     }
     else if (name == ItemLTLConfiguration::staticMetaObject.className()) {
         auto ic = qobject_cast<ItemLTLConfiguration*>(item);
+        _ltl = ic;
         _commands <<ic;
     }
+    else if (name == ItemAdvancedStringConfiguration::staticMetaObject.className()){
+        auto ic = qobject_cast<ItemAdvancedStringConfiguration*>(item);
+        _commands << ic;
+    }
 }
+
+ItemLTLConfiguration *SpinCommands::ltl(){ return _ltl;}
 

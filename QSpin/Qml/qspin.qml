@@ -23,7 +23,10 @@ ApplicationWindow {
 		border.width: 1
 
 	}
-onClosing:promelaHandlerId.closeExistingDocumet()
+onClosing:{
+	if(codeEditiorId.modified)
+	promelaHandlerId.closeDocument()
+}
 
 	//################## begin menu bars ################################
 
@@ -31,12 +34,12 @@ onClosing:promelaHandlerId.closeExistingDocumet()
 		id:topToolBarId
 		isProjectOpen: promelaHandlerId.isOpen
 		undoButton{
-			enabled: codeEditiorId.documentHandler.canUndo;
-			onClicked: codeEditiorId.documentHandler.undo()
+			enabled: codeEditiorId.canUndo;
+			onClicked: codeEditiorId.undo()
 		}
 		redoButton{
-			enabled: codeEditiorId.documentHandler.canRedo;
-			onClicked: codeEditiorId.documentHandler.redo()
+			enabled: codeEditiorId.canRedo;
+			onClicked: codeEditiorId.redo()
 		}
 		onOpenProject: {
 			promelaHandlerId.openDocument(fileUrl)
@@ -45,6 +48,7 @@ onClosing:promelaHandlerId.closeExistingDocumet()
 			promelaHandlerId.saveDocument(fileUrl)
 		}
 		onCreateProject: promelaHandlerId.createDocument(filepath)
+		saveButton.enabled: codeEditiorId.modified
 	}
 	footer: ToolBar{
 		id:footerBarId
@@ -175,22 +179,22 @@ onClosing:promelaHandlerId.closeExistingDocumet()
 
 
 		Shortcut{
-			enabled: codeEditiorId.documentHandler.canUndo
+			enabled: codeEditiorId.canUndo
 			sequence: StandardKey.Undo
-			onActivated: codeEditiorId.documentHandler.undo()
+			onActivated: codeEditiorId.undo()
 		}
 		Shortcut{
-			enabled: codeEditiorId.documentHandler.canRedo
+			enabled: codeEditiorId.canRedo
 			sequence: StandardKey.Redo
-			onActivated: codeEditiorId.documentHandler.redo()
+			onActivated: codeEditiorId.redo()
 		}
 
 		Shortcut{
-			enabled: codeEditiorId.documentHandler.canUndo
+			enabled: codeEditiorId.modified
 			sequence: "Ctrl+s"
 			onActivated:{
 				console.debug("am save hit")
-				promelaHandlerId.saveExistingDocument()
+				promelaHandlerId.saveDocument()
 			}
 		}
 

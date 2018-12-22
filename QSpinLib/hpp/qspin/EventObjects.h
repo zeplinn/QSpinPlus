@@ -127,7 +127,7 @@ public:
 ////////////////////////////////////////////////////
 
 
-class VerificationResultFileChanged{
+class VerificationResultFile{
 public:
     enum Status{
         Created,
@@ -139,7 +139,7 @@ private:
     Status _status;
 
 public:
-    VerificationResultFileChanged(QFileInfo destination,Status status);
+    VerificationResultFile(QFileInfo destination,Status status);
 
     QFileInfo destination();
     Status status();

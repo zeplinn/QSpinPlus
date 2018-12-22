@@ -45,7 +45,7 @@ private slots:
     void updateNotIf(Arg::Type command,bool enabled,bool checked);
     void updateRequireAtLeastOne(Arg::Type command,bool enabled, bool checked);
     void updateRequire(Arg::Type command,bool enabled, bool checked);
-    void CondigCheckedChanged();
+    void ConfigCheckedChanged();
 private:
     void updateEnabledStatus();
     bool isEnabled();

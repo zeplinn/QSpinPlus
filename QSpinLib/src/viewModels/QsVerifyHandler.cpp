@@ -99,7 +99,8 @@ void QsVerifyHandler::subscriber(const ProjectSaved &event){
         for(int i =0; i <c->count();i++){
             auto vc = c->get(i);
             auto ltl = vc->ltl();
-            qs().writeTextFile(ltl->document(),_project->projectDir().absoluteFilePath(vc->name()+".ltl"));
+            if(!ltl->document().isEmpty())
+                qs().writeTextFile(ltl->document(),_project->projectDir().absoluteFilePath(vc->name()+".ltl"));
         }
     }
 }

@@ -95,6 +95,7 @@ VerificationConfiguration::VerificationConfiguration(QObject *parent, EventAggre
     addNewConfigItem(Arg::O6);
     addNewLtlConfigItem(Arg::LTL)->required(Arg::AccepanceMode);
 
+
     //    // compileTime options
     addNewConfigItem(Arg::Safety)->required(Arg::SafetyMode);
     addNewConfigItem(Arg::SFH)->required(Arg::SafetyMode);
@@ -123,9 +124,9 @@ VerificationConfiguration::VerificationConfiguration(QObject *parent, EventAggre
     addNewConfigItem(Arg::WeakFairness)->notIf(Arg::SafetyMode);
 
     // allways available item configurations
-    _spin = new ItemAdvancedStringConfiguration(Arg::Spin,parent,this->msgService());
-    _gcc = new ItemAdvancedStringConfiguration(Arg::Gcc,parent,this->msgService());
-    _pan = new ItemAdvancedStringConfiguration(Arg::Pan,parent,this->msgService());
+    _spin = new ItemAdvancedStringConfiguration(Arg::CustomSpinString,parent,this->msgService());
+    _gcc = new ItemAdvancedStringConfiguration(Arg::CustomGccString,parent,this->msgService());
+    _pan = new ItemAdvancedStringConfiguration(Arg::CustomPanString,parent,this->msgService());
 }
 
 
@@ -155,6 +156,7 @@ void VerificationConfiguration::read(QXmlStreamReader &xml){
         if(xml.name()==ItemValueConfiguration::staticMetaObject.className()
                 || xml.name()==ItemConfiguration::staticMetaObject.className()
                 || xml.name()==ItemLTLConfiguration::staticMetaObject.className()
+                || xml.name()==ItemAdvancedStringConfiguration::staticMetaObject.className()
                 )
         {
 

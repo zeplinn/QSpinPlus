@@ -16,7 +16,7 @@ Item{
     readonly property var openDocument: docHandler.open
     readonly property var append: textArea.append
 	readonly property var clear: textArea.clear()
-
+	property alias modified: docHandler.modified
     property alias canUndo: textArea.canUndo
     property alias canRedo: textArea.canRedo
     readonly property var undo: textArea.undo

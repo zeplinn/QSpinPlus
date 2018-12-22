@@ -22,6 +22,8 @@ QString Arg::name(Arg::Type type) noexcept
     case O5: return "Disable case caching";
     case O6: return "Old interpretation tags";
     case O7: return "Old semicolon rules";
+
+    case CustomSpinString: return  "Spin commands";
         // spin simulation
         // compile
     case Safety: return "Safety less memory" ;
@@ -40,6 +42,9 @@ QString Arg::name(Arg::Type type) noexcept
         // compile memory
     case HC: return "Collapse state vector size";
     case Collapse: return"Collapse";
+
+    case CustomGccString: return  "Gcc commands";
+
         // pan runtime
     case TimeLimit: return "Time limit";
     case SafetyMode: return "Safety mode";
@@ -48,6 +53,8 @@ QString Arg::name(Arg::Type type) noexcept
     case HashSize: return "Hash size";
     case SearchDepth: return "Search depth";
     case WeakFairness: return "Weak fairness";
+    case CustomPanString: return  "Pan commands";
+
     case None: return  "";
     }
     return "";
@@ -58,10 +65,19 @@ QString Arg::val(Arg::Type type, QString extra)
     switch (type) {
     // spin
     case LTL: return "-F";
+    case O1: return "-o1";
+    case O2: return "-o2";
+    case O3: return "-o3";
+    case O4: return "-o4";
+    case O5: return "-o5";
+    case O6: return "-o6";
+    case O7: return "-o7";
     case Verify:    return "-a";
     case InterActive:    return "-a";
     case GuidedSimulation:    return "-t";
     case RandomSimulation:    return "";
+
+    case CustomSpinString: return  extra;
 
         // compile
     case Safety: return "-DSAFETY";
@@ -80,7 +96,10 @@ QString Arg::val(Arg::Type type, QString extra)
     case Space: return "-DSPACE";
     case Collapse: return "-DCOLLAPSE";
     case HC: return QString("-DHC%1").arg(extra);
-    // pan runtime
+
+    case CustomGccString: return  extra;
+
+        // pan runtime
     case TimeLimit: return QString("-Q%1").arg(extra);
     case SafetyMode: return "";// only added for convience
     case ProgressMode: return "-l";
@@ -88,8 +107,11 @@ QString Arg::val(Arg::Type type, QString extra)
     case WeakFairness: return "-f";
     case SearchDepth: return QString("-m%1").arg(extra);
     case HashSize: return QString("-w%1").arg(extra);
+
+    case CustomPanString: return  extra;
+
     case None: return  "";
-    default: qFatal("no such argument to compile");
+    default: qFatal("Arg: no such argument to compile");
     }
     return "";
 }

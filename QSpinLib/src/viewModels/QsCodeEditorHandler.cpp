@@ -5,18 +5,23 @@ QQuickTextDocument*QsCodeEditorHandler::textDocument() const{ return _textDocume
 void QsCodeEditorHandler::setTextDocument(QQuickTextDocument*value){
 	if(_textDocument !=value){
 		_textDocument = value;
+        if(_textDocument!=nullptr)
+            connect(document(),&QTextDocument::modificationChanged
+                    ,this,&QsCodeEditorHandler::setModified
+                    );
+
         if(_textDocument != nullptr && _highlighter !=nullptr){
-            QObject::connect(document(),&QTextDocument::undoAvailable,this,&QsCodeEditorHandler::setCanUndo);
-            QObject::connect(document(),&QTextDocument::redoAvailable,this,&QsCodeEditorHandler::setCanRedo);
+//            QObject::connect(document(),&QTextDocument::undoAvailable,this,&QsCodeEditorHandler::setCanUndo);
+//            QObject::connect(document(),&QTextDocument::redoAvailable,this,&QsCodeEditorHandler::setCanRedo);
 			_highlighter->setDocument(document());
         }
 	}
 	emit textDocumentChanged();
 }
 
-QUrl QsCodeEditorHandler::fileUrl() const{ return _fileUrl; }
+QString QsCodeEditorHandler::fileUrl() const{ return _fileUrl; }
 
-void QsCodeEditorHandler::setFileUrl(QUrl value){ _fileUrl=value; emit fileUrlChanged(); }
+void QsCodeEditorHandler::setFileUrl(QString value){ _fileUrl=value; emit fileUrlChanged(); }
 
 QSyntaxHighlighter* QsCodeEditorHandler::syntaxHighlighter() const{ return _highlighter;}
 
@@ -30,6 +35,15 @@ void QsCodeEditorHandler::setSyntaxHighlighter(QSyntaxHighlighter *value){
 	}
 }
 
+bool QsCodeEditorHandler::modified() const{ return _modified; }
+
+void QsCodeEditorHandler::setModified(bool value){
+    if(_modified != value){
+        _modified = value;
+        emit modifiedChanged();
+    }
+}
+
 void QsCodeEditorHandler::setText(QString text){
     document()->setPlainText(text);
 }
@@ -38,7 +52,9 @@ void QsCodeEditorHandler::clearText(){
     document()->clear();
 }
 QsCodeEditorHandler::QsCodeEditorHandler(QObject *parent) : QObject(parent),_textDocument(nullptr)
-  ,_highlighter(nullptr),_canUndo(false),_canRedo(false)
+  ,_highlighter(nullptr)
+  ,_modified(false)
+  //,_canUndo(false),_canRedo(false)
 {
 
 }
@@ -47,12 +63,12 @@ void QsCodeEditorHandler::registerAsQml(){
 	qmlRegisterType<QsCodeEditorHandler>(QsImpports::cppItems(),1,0,"QsCodeEditorHandler");
 }
 
-void QsCodeEditorHandler::saveAs(const QUrl fileUrl){
+void QsCodeEditorHandler::saveAs(const QString& fileUrl){
 	QTextDocument *doc = document();
 	if (!doc)
 		return;
 
-	const QString filePath = fileUrl.toLocalFile();
+    const QString filePath = fileUrl;
 	//const bool isHtml = QFileInfo(filePath).suffix().contains(QLatin1String("htm"));
 	QFile file(filePath);
 	if(!file.open(QIODevice::WriteOnly|QFile::Text)){

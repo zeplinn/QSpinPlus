@@ -57,7 +57,7 @@ Item {
 						Layout.preferredHeight: 48
 						Layout.preferredWidth: 48
 						source: "qrc:/icons/close.png"
-						state: modeTabBarId.checkedMode
+						state: handlerId.item.currentMode
 						states:[
 							State {	name: Arg.SafetyMode;
 								PropertyChanges { target: titleIconId; source:"qrc:/icons/Safty2x.png" }
@@ -86,11 +86,47 @@ Item {
 					}
 					QsToolButton{
 						imageSource: "qrc:/icons/close.png"
-						onClicked: handlerId.item.itemRemoved(handlerId.item)
+						onClicked: rootId.itemRemoved(handlerId.item)
 					}
 
 				}
 				// ############# verfication Modes ######################## row 2
+				RowLayout{
+					QsButton{
+						id:safetyModeId
+						Layout.preferredWidth: 150
+						text: handlerId.item.safetyMode.name
+						enabled: handlerId.item.safetyMode.enabled
+						checkable: true
+						checked: handlerId.item.safetyMode.checked
+						onCheckedChanged: handlerId.item.safetyMode.setChecked(checked)
+						onClicked:{
+							handlerId.item.updateSelectedVerifyMode(Arg.SafetyMode)
+
+						}
+					}
+					QsButton{
+						id:progressModeId
+						Layout.preferredWidth: 150
+						text: handlerId.item.progressMode.name
+						enabled: handlerId.item.progressMode.enabled
+						checkable: true
+						checked: handlerId.item.progressMode.checked
+						onCheckedChanged: handlerId.item.progressMode.setChecked(checked)
+						onClicked: handlerId.item.updateSelectedVerifyMode(Arg.ProgressMode)
+					}
+					QsButton{
+						id:acceptanceModeId
+						Layout.preferredWidth: 150
+						text: handlerId.item.acceptanceMode.name
+						enabled: handlerId.item.acceptanceMode.enabled
+						onCheckedChanged: handlerId.item.acceptanceMode.setChecked(checked)
+						checkable: true
+						checked: handlerId.item.acceptanceMode.checked
+						onClicked: handlerId.item.updateSelectedVerifyMode(Arg.AccepanceMode)
+					}
+				}
+/*
 				TabBar{
 					id:modeTabBarId
 					opacity: enabled ? 1: 0.2
@@ -145,7 +181,7 @@ Item {
 						}
 					}
 				}
-
+*/
 				QsDivider{
 					oritentation: Qt.Horizontal
 					Layout.fillWidth: true
@@ -380,19 +416,27 @@ Item {
 				ColumnLayout{
 					id: ltlSectionId
 					RowLayout{
-
-
 						QsText{
 							text: qsTr("LTL:"); color: QsStyle.general.foreground
 							Layout.fillWidth: true
+						}
+						QsButton{
+							id:btnltlfile
+							text: qsTr("Use ltl file")
+							enabled: handlerId.item.ltl.enabled
+							useToolTip: true
+							toolTip: qsTr("Use ltl a file instead of the promela document")
+							checkable: true
+							checked: handlerId.item.ltl.checked
 						}
 					}
 
 					Rectangle{
 						id: ltlTxtborderId
+						opacity: enabled ? 1 : 0.2
 						Layout.fillWidth: true
 						Layout.minimumHeight:  150
-						enabled: handlerId.item.ltl.enabled
+						enabled: handlerId.item.ltl.enabled && btnltlfile.checked
 						Layout.fillHeight: true
 						color: "transparent"
 						border.color: QsStyle.general.border
@@ -400,6 +444,7 @@ Item {
 						radius: 3
 						QsCodeEditor{
 							id:ltlId
+							opacity: enabled ? 1 : 0.2
 							anchors.fill: parent
 							anchors.margins: 2
 							onEditingFinsished: handlerId.item.ltl.document= text

@@ -73,10 +73,10 @@ private:
     Q_PROPERTY(ItemConfiguration* weakFairness READ weakFairness CONSTANT)
 
     // advneced string options
-    ItemAdvancedStringConfiguration* _spin;
     Q_PROPERTY(ItemAdvancedStringConfiguration* spin READ spin CONSTANT)
     Q_PROPERTY(ItemAdvancedStringConfiguration* gcc READ gcc CONSTANT)
     Q_PROPERTY(ItemAdvancedStringConfiguration* pan READ pan CONSTANT)
+    ItemAdvancedStringConfiguration* _spin;
     ItemAdvancedStringConfiguration* _gcc;
     ItemAdvancedStringConfiguration* _pan;
 

@@ -81,7 +81,7 @@ private slots:
     void spinProcessOutputReady(QString stdOut);
     void spinProcessStdErrorOutReady(QString stdErr);
 
-    void sendVerificationResult(QFileInfo file,VerificationResultFileChanged::Status status);
+    void sendVerificationResult(QFileInfo file,VerificationResultFile::Status status);
 
 
 };

@@ -50,6 +50,7 @@ class Qs{
         static QDateTime extractEpochSinceFromFile(const QString& filename,bool* isValid);
         static qint64 getTimeSinceEpochFrom(const QDateTime& time);
         static QString extractResultFileBaseName(QString filename);
+        static QString prepareLtlDocumentForSpin(QString ltlDocument);
         static QString readTextFile(QFileInfo fileInfo);
         static bool writeTextFile(QString document, QString fileInfo);
         static void WriteXml(IQXmlSerialization* object,const QString& filePath);

@@ -31,16 +31,12 @@ QsSpinRunner::QsSpinRunner(QFileInfo queuedFile, ProjectInfo projectInfo, EventA
 void QsSpinRunner::runVerify(){
     emit statusUpdated(QsSpinRunner::Running);
     auto files =_projectInfo.binFolder.entryList(QDir::Files);
-    QDir workDir = _projectInfo.binFolder;
+    workDir = _projectInfo.binFolder;
     if(!workDir.exists())
         workDir.mkpath(workDir.absolutePath());
-    auto folders = workDir.entryList({_queuedFile.baseName()},QDir::Dirs|QDir::NoDotAndDotDot);
-    if(!folders.isEmpty()){
-        workDir.mkdir(_queuedFile.baseName());
-    }
+    workDir.mkdir(_queuedFile.baseName());
     workDir.cd(_queuedFile.baseName());
-    if(!workDir.isEmpty())
-        qs().removeFiles(workDir);
+
     connectProceses(&_spinProcess);
     connectProceses(&_gccProcess);
     connectProceses(&_panProcess);
@@ -54,6 +50,7 @@ void QsSpinRunner::runVerify(){
             ,this,&QsSpinRunner::panFinished);
 
     // prepare queued verifcation file for execution
+    qDebug()<<"this is my working dir" << workDir.absolutePath();
     _spinProcess.setWorkingDirectory(workDir.absolutePath());
     _gccProcess.setWorkingDirectory(_spinProcess.workingDirectory());
     _panProcess.setWorkingDirectory(_spinProcess.workingDirectory());
@@ -62,8 +59,10 @@ void QsSpinRunner::runVerify(){
     _report = new VerificationResults(this,msgService());
     Qs::OpenXml(_result,_queuedFile.absoluteFilePath());
     _commands = _result->commands().CommandsToStringLists();
-    if(!_commands.ltl.isNull()){
-        Qs::writeTextFile(_commands.ltl->document()
+    auto ltl = _result->commands().ltl();
+    if(ltl!=nullptr){
+        QString strippedDoc = qs().prepareLtlDocumentForSpin(ltl->document());
+        Qs::writeTextFile(strippedDoc
                           ,workDir.absoluteFilePath( SpinCommands::tmpLtlFileName())
                           );
     }
@@ -83,11 +82,11 @@ void QsSpinRunner::stdOutUpdated(){
         QString assertions = _report->assertionViolations(str);
         if(!assertions.isEmpty())
             emit stdErrOutReady(assertions);
+
     }
     else {
-        _report->extractVerificationResults(str);
     }
-    emit stdOutReady(_spinProcess.readAllStandardOutput());
+    emit stdOutReady(str);
 
 }
 
@@ -105,8 +104,8 @@ void QsSpinRunner::startSpin(){
     if(_isWindows){
         cmds << "spin";
     }
-    emit stdOutReady(QString("start spin: %1").arg(cmds.join(" ")));
     cmds << _commands.spin;
+    emit stdOutReady(QString("start spin: %1").arg(cmds.join(" ")));
     _runningProcess =& _spinProcess;
     _spinProcess.start(SPIN,cmds);
 }
@@ -115,10 +114,15 @@ void QsSpinRunner::startSpin(){
 void QsSpinRunner::startGCC(int exitCode, QProcess::ExitStatus exitStatus){
     Q_UNUSED(exitCode)
     if(_isTerminated) return;
+    QFileInfo file(workDir.absoluteFilePath("pan.c"));
     if(exitStatus != QProcess::NormalExit){
         emit stdErrOutReady("spin process crashed");
         terminateProcess(Error);
 
+    }
+    else if(!(file.exists() && file.isFile())){
+        emit stdErrOutReady("Invalid promela file");
+        terminateProcess(Error);
     }
     else{
         QStringList cmds;
@@ -137,9 +141,13 @@ void QsSpinRunner::startPan(int exiCode, QProcess::ExitStatus exitStatus){
     Q_UNUSED(exiCode)
     if(_isTerminated) return;
 
-
+    QFileInfo file(workDir.absoluteFilePath("pan"));
     if(exitStatus != QProcess::NormalExit){
         emit stdErrOutReady("Gcc process crashed");
+        terminateProcess(Error);
+    }
+    else if (!(file.exists() && file.isFile())){
+        emit stdErrOutReady("gcc failed to generate a pan program");
         terminateProcess(Error);
     }
     else{
@@ -184,7 +192,7 @@ void QsSpinRunner::panFinished(int exitCode, QProcess::ExitStatus exitStatus){
         }
         qs().WriteXml(_result,path);
 
-        emit resultCreated(path,VerificationResultFileChanged::Created);
+        emit resultCreated(path,VerificationResultFile::Created);
 
         terminateProcess(Finished);
     }

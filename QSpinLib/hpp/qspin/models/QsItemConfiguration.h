@@ -16,7 +16,8 @@ class QSpinPlus;
 
 ////////////////////////////////////////////////////////////////////
 /// \brief The ItemConfiguration class
-///////////////////////////////////////////////////////////////////
+/// Is the base class of all of all types of item configurations
+/// an item configuration is represent a single command in spin
 
 
 class ItemConfiguration: public QObjectBase, public IQXmlSerialization{
@@ -24,7 +25,6 @@ class ItemConfiguration: public QObjectBase, public IQXmlSerialization{
     Q_PROPERTY(Arg::Type command READ command NOTIFY commandChanged)
     Arg::Type _command;
     Q_PROPERTY(QString name READ name CONSTANT)
-    QString _name;
     Q_PROPERTY(bool enabled READ enabled WRITE setEnabled NOTIFY enabledChanged)
     Q_PROPERTY(bool checked READ checked WRITE setChecked NOTIFY checkedChanged)
     bool _checked, _enabled;
@@ -59,14 +59,15 @@ public:
 protected:
     void setCommand(Arg::Type value);
     void readXmlAttributes(QXmlStreamAttributes attr);
+    void writeDefaultXmlAttributes(QXmlStreamWriter &xml);
 
 };
 
 
 ///////////////////////////////////////////////////////////////////////////////////////
 /// \brief The ItemValueConfiguration class
-//////////////////////////////////////////////////////////////////////////////////
-
+///
+///
 
 class ItemValueConfiguration: public ItemConfiguration{
     Q_OBJECT
@@ -99,8 +100,8 @@ public:
 
 ////////////////////////////////////////////////////////////////////////////////////////////
 /// \brief The ItemLTLConfiguration class
-////////////////////////////////////////////////////////////////////////////////////////
-
+/// item configuration specficly created for the ltl command
+///
 
 class ItemLTLConfiguration
         :public ItemConfiguration
@@ -134,14 +135,16 @@ public:
 
 ///////////////////////////////////////////////////////////
 /// \brief The ItemAdvancedStringConfiguration class
-//////////////////////////////////////////////////////////
+///  This class is ment as a temporary fix until all spin commands commands are implemented as visual components
+///
 
 class ItemAdvancedStringConfiguration: public ItemConfiguration{
     Q_OBJECT
     Q_PROPERTY(QString text READ text WRITE setText NOTIFY textChanged)
     QString _text;
 public:
-    ItemAdvancedStringConfiguration(Arg::Category category,QObject* parent = nullptr, EventAggregator* msg = nullptr);
+    explicit ItemAdvancedStringConfiguration(Arg::Type cmd,QObject* parent = nullptr, EventAggregator* msg = nullptr);
+    ItemAdvancedStringConfiguration(ItemAdvancedStringConfiguration* item);
     QString text()const;
     void setText(QString value);
     virtual void read(QXmlStreamReader& xml)override;
@@ -152,7 +155,4 @@ signals:
     void textChanged();
 
 };
-
-/*#include "qspin/eventObjects/ProjectOpened.h"
-#include "qspin/eventObjects/ProjectSaved.h*/
 #endif // QSITEMCONFIGURATION_H

@@ -16,13 +16,13 @@ struct compiledCommands{
     QStringList spin;
     QStringList gcc;
     QStringList pan;
-    QPointer<ItemLTLConfiguration> ltl=nullptr;
 };
 
 class SpinCommands : public QObjectBase, public IQXmlSerialization
 {
     Q_OBJECT
 
+    QPointer<ItemLTLConfiguration> _ltl=nullptr;
     QList<ItemConfiguration*> _commands;
 
 
@@ -33,6 +33,7 @@ public:
     virtual void write(QXmlStreamWriter &xml) override;
     compiledCommands CommandsToStringLists();
     void append(ItemConfiguration* item);
+    ItemLTLConfiguration* ltl();
     static QString tmpSpinFileName(){ return "tmp.pml";}
     static QString tmpLtlFileName(){ return "tmp.ltl";}
 };

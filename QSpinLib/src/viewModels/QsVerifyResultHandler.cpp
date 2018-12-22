@@ -51,6 +51,13 @@ QString QsVerifyResultHandler::panCommands() const{
 
 }
 
+QString QsVerifyResultHandler::ltlDocument() const{
+    auto ic = currentItem()->commands().ltl();
+    if(ic!= nullptr)
+        return currentItem()->commands().ltl()->document();
+    else return "";
+}
+
 QString QsVerifyResultHandler::unreached() const{
     if(currentItem()==nullptr) return "";
     return currentItem()->VerificationReport()->unreachedStates();
@@ -64,7 +71,7 @@ QsVerifyResultHandler::QsVerifyResultHandler(QObject *parent, EventAggregator *m
     ,_project(nullptr)
     ,_fileWatcher(new QFileSystemWatcher(this))
 {
-    msgService()->subscribe<VerificationResultFileChanged>(this);
+    msgService()->subscribe<VerificationResultFile>(this);
     msgService()->subscribe<ProjectOpened>(this);
     msgService()->subscribe<ProjectSaved>(this);
     msgService()->subscribe<ProjectClosed>(this);
@@ -138,11 +145,11 @@ void QsVerifyResultHandler::subscriber(const ProjectClosed &event){
     // remove folder to listen to
 }
 
-void QsVerifyResultHandler::subscriber(const VerificationResultFileChanged &event){
+void QsVerifyResultHandler::subscriber(const VerificationResultFile &event){
     auto e = event;
-    if(e.status()==VerificationResultFileChanged::Created)
+    if(e.status()==VerificationResultFile::Created)
         fileUpdated(e.destination().absoluteFilePath());
-    else if (e.status() == VerificationResultFileChanged::Deleted){
+    else if (e.status() == VerificationResultFile::Deleted){
         QFile::remove(e.destination().absoluteFilePath());
     }
 }

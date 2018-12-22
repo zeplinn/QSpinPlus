@@ -119,6 +119,12 @@ QString Qs::extractResultFileBaseName(QString filename){
     return m.captured();
 }
 
+QString Qs::prepareLtlDocumentForSpin(QString ltlDocument){
+    static QRegularExpression rgx("\\/\\/(.*[\\r\\n]*)|[\\r\\n]*");
+    QString stripped = ltlDocument;
+    return stripped.remove(rgx);
+}
+
 QString Qs::nameof(QObject *obj){
     return obj->metaObject()->className();
 }

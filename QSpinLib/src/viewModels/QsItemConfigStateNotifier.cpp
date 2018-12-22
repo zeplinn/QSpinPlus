@@ -2,13 +2,13 @@
 
 ItemConfigStateNotifier::ItemConfigStateNotifier(ItemConfigStateNotifierList *notifiers):
     QObject(notifiers),config(nullptr),_notifierList(notifiers){
-    connect(notifiers,&ItemConfigStateNotifierList::allRequirementsUpdated,this,&ItemConfigStateNotifier::CondigCheckedChanged);
+    connect(notifiers,&ItemConfigStateNotifierList::allRequirementsUpdated,this,&ItemConfigStateNotifier::ConfigCheckedChanged);
 }
 
 void ItemConfigStateNotifier::setConfig(ItemConfiguration *value){
     config = value;
     //config->setEnabled(_nothingIsRequired);
-    connect(config,&ItemConfiguration::checkedChanged,this,&ItemConfigStateNotifier::CondigCheckedChanged);
+    connect(config,&ItemConfiguration::checkedChanged,this,&ItemConfigStateNotifier::ConfigCheckedChanged);
 }
 
 ItemConfigStateNotifier* ItemConfigStateNotifier::notIf(Arg::Type command){
@@ -91,7 +91,7 @@ void ItemConfigStateNotifier::removeAndUpdate(Arg::Type command){
 void ItemConfigStateNotifier::updateRequireAtLeastOne(Arg::Type command, bool enabled, bool checked){
     // if state is true the command should be added if it do not exist
     Q_UNUSED(enabled)
-    if(checked){
+    if(checked && enabled){
         if(!_requireOne.contains(command)){
             _requireOne[command]=command;
             updateEnabledStatus();
@@ -107,8 +107,7 @@ void ItemConfigStateNotifier::updateRequireAtLeastOne(Arg::Type command, bool en
 
 void ItemConfigStateNotifier::updateRequire(Arg::Type command, bool enabled, bool checked){
     // id state is true the command the command should be added
-    Q_UNUSED(enabled)
-    if(checked){
+    if(checked && enabled){
         if(!_require.contains(command)){
             _require[command]=command;
             updateEnabledStatus();
@@ -122,10 +121,10 @@ void ItemConfigStateNotifier::updateRequire(Arg::Type command, bool enabled, boo
     }
 }
 
-void ItemConfigStateNotifier::CondigCheckedChanged(){
-    emit statusChanged(config->command(),config->enabled(),config->checked());
+void ItemConfigStateNotifier::ConfigCheckedChanged(){
     bool flag =isEnabled();
     config->setEnabled(flag);
+    emit statusChanged(config->command(),config->enabled(),config->checked());
 }
 
 void ItemConfigStateNotifier::updateEnabledStatus(){

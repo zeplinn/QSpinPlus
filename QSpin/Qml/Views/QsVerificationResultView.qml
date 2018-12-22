@@ -20,27 +20,19 @@ QsPane {
 		QsVerifyResultHandler{
 			id:handlerId
 			currentIndex: verifyResultsId.currentIndex
-			onCurrentItemChanged: {
-				if(currentItem !== null){
-					displaydocId.documentHandler.setText(currentItem.document())
-					compareIndicator.isSameDoc = compareToCurrentDocument()
-
-				}else{
-					displaydocId.documentHandler.clearText()
-
-
-				}
-			}
 			property int leftPadding: 4
 		}
 
 		ColumnLayout{
+			Layout.alignment: Qt.AlignLeft | Qt.AlignTop
 			enabled: handlerId.currentItem !== null
+
+			// top buttin row
 			RowLayout{
 				QsButton{
 					text: qsTr("Compare documents")
 					Layout.alignment: Qt.AlignLeft | Qt.AlignTop
-					Layout.preferredWidth: implicitWidth+24
+					Layout.fillWidth: true
 					Rectangle{
 						id:compareIndicator
 						property bool isSameDoc: false
@@ -58,6 +50,7 @@ QsPane {
 					}
 				}
 				QsButton{
+					Layout.fillWidth: true
 					text: qsTr("Raw XML file")
 					onClicked: {
 						xmlReportWindowId.document.setText(handlerId.getXmlReport())
@@ -66,6 +59,7 @@ QsPane {
 					}
 				}
 				QsButton{
+					Layout.fillWidth: true
 					text: qsTr("Raw Verification report")
 					onClicked: {
 						xmlReportWindowId.document.setText(handlerId.selectedResults.rawReport())
@@ -76,7 +70,20 @@ QsPane {
 
 					}
 				}
+
+				QsButton{
+					text:qsTr("Promela file used")
+
+					onClicked: {
+						if(handlerId.currentItem!== null){
+							xmlReportWindowId.document.setText(handlerId.currentItem.document())
+							if(!xmlReportWindowId.visible)
+								xmlReportWindowId.show()
+						}
+					}
+				}
 			}
+
 			QsDivider{
 				oritentation: Qt.Horizontal
 				Layout.fillWidth: true
@@ -97,6 +104,8 @@ QsPane {
 				Layout.fillWidth: true
 				color: QsStyle.general.border
 			}
+
+			// commands used display
 			RowLayout{
 				QsText{ leftPadding: handlerId.leftPadding;	text: qsTr("Used Spin commands:"); Layout.preferredWidth: 140}
 				QsText{	text: handlerId.spinCommands;rightPadding: handlerId.leftPadding; elide: QsText.ElideLeft}
@@ -108,6 +117,10 @@ QsPane {
 			RowLayout{
 				QsText{	leftPadding: handlerId.leftPadding;text: qsTr("Used Pan commands"); Layout.preferredWidth: 140 }
 				QsText{ text: handlerId.panCommands; rightPadding: handlerId.leftPadding; elide: QsText.ElideLeft		}
+			}
+			RowLayout{
+				QsText{	leftPadding: handlerId.leftPadding;text: qsTr("ltl"); Layout.preferredWidth: 140 }
+				QsText{ text: handlerId.ltlDocument; rightPadding: handlerId.leftPadding; elide: QsText.ElideLeft		}
 			}
 			ColumnLayout{
 				id:closerId
@@ -147,41 +160,6 @@ QsPane {
 					wrapMode: QsText.WordWrap
 					text: handlerId.unreached
 					Layout.maximumWidth: 600
-				}
-			}
-
-
-			Item {
-				Layout.fillHeight: true
-				Layout.fillWidth: true
-				Layout.minimumHeight: 200
-				QsCodeEditor{
-					id:displaydocId
-					anchors.fill: parent
-					anchors.rightMargin: 8
-					clip: true
-					foreground: QsStyle.promelaEditor.foreground
-					background: QsStyle.promelaEditor.background
-					tabIndentSize: QsStyle.promelaEditor.tabIndents
-					readonly: true
-					font{
-						family: QsStyle.promelaEditor.fontFamily
-						pointSize: QsStyle.promelaEditor.pointSize
-					}
-
-					syntaxHighlighter: promelaHighlighterId
-					QsPromelaSyntaxHighlighter{
-						id: promelaHighlighterId
-						colors: QsStyle.promelaEditor.syntaxHighlighter
-					}
-
-					Rectangle{
-						border.color: QsStyle.general.border
-						border.width: 1
-						anchors.fill: parent
-						color: "transparent"
-
-					}
 				}
 			}
 		}

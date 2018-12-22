@@ -219,7 +219,7 @@ VariableDeclaration *SpinParser::one_decl(){
     if(have(tok::HIDDEN_) || have(tok::SHOW_)){
         visibility = static_cast<int>(_scanner->previous().id);
     }
-    if(!seeType(_scanner->token().id)){
+    if(!seeType(IDENTIFIER_)){
         _scanner->next();
         pml_token t = _scanner->previous();
         mustBe(tok::IDENTIFIER_);

@@ -14,6 +14,9 @@ public:
         LTL=3,
         Verify, InterActive, GuidedSimulation,RandomSimulation, // spin mode. guided is only there for convience
         O1, O2, O3,O4,O5,O6,O7, //Verification optimizations
+
+        CustomSpinString,
+
         // spin simulation
 
         // compile
@@ -28,12 +31,15 @@ public:
         //compile memory compression
         Collapse, HC, // state vector compression modes
 
+        CustomGccString,
         // pan runtime
         TimeLimit=128,
         SafetyMode, ProgressMode, AccepanceMode, // runtime mode. Safetymode is only there for convience
         HashSize,
         SearchDepth,
         WeakFairness,
+
+        CustomPanString
 
     };
     Q_ENUM(Type)
@@ -51,15 +57,9 @@ public:
     static bool isSpinArgument(Arg::Type arg);
     static bool isCompileArgument(Arg::Type arg);
     static bool isPanArgument(Arg::Type arg);
-//    Q_INVOKABLE static Arg::Type toCode(const QString& name);
 private:
     // helper class for const map initilization
-//    class ArgHash{
-//        QHash<QString,Arg::Type> args;
-//    public:
-//        ArgHash();
-//        Arg::Type code(const QString& name);
-//    };
+
 };
 
 

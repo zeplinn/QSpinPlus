@@ -62,10 +62,11 @@ void QsSpinQueueHandler::startVerification(QueuedVerification *item){
 
     auto thread = new QThread();
     runner->moveToThread(thread);
-    // on verification finsihed send result destination file
-    connect(runner,&QsSpinRunner::resultCreated
-            ,this,&QsSpinQueueHandler::sendVerificationResult
-            );
+    // connect handler to process message chhannels
+    connect(runner,&QsSpinRunner::stdOutReady,
+            this,&QsSpinQueueHandler::spinProcessOutputReady);
+    connect(runner,&QsSpinRunner::stdErrOutReady,
+            this,&QsSpinQueueHandler::spinProcessStdErrorOutReady);
 
     // connect queued item with spin runner
     connect(runner,&QsSpinRunner::statusUpdated
@@ -74,6 +75,13 @@ void QsSpinQueueHandler::startVerification(QueuedVerification *item){
     connect(item,&QueuedVerification::verificationCanceled
             ,runner,&QsSpinRunner::terminateProcess
             );
+
+
+    // on verification finsihed send result destination file
+    connect(runner,&QsSpinRunner::resultCreated
+            ,this,&QsSpinQueueHandler::sendVerificationResult
+            );
+
 
     // terminate thread on job finished
     connect(runner,&QsSpinRunner::finished
@@ -85,15 +93,11 @@ void QsSpinQueueHandler::startVerification(QueuedVerification *item){
     connect(thread,&QThread::finished
             ,runner,&QsSpinRunner::deleteLater
             );
+
     connect(thread,&QThread::finished
             ,thread,&QThread::deleteLater
             );
 
-    // connect handler to process message chhannels
-    connect(runner,&QsSpinRunner::stdOutReady,
-            this,&QsSpinQueueHandler::spinProcessOutputReady);
-    connect(runner,&QsSpinRunner::stdErrOutReady,
-            this,&QsSpinQueueHandler::spinProcessStdErrorOutReady);
 
 
     //start next verification if any queued item available
@@ -104,7 +108,7 @@ void QsSpinQueueHandler::startVerification(QueuedVerification *item){
 
 
 
-    // execute run() on thread started
+    // execute runVerify() on thread started
     connect(thread,&QThread::started,runner,&QsSpinRunner::runVerify);
     thread->start();
 
@@ -153,9 +157,9 @@ void QsSpinQueueHandler::spinProcessStdErrorOutReady(QString stdErr){
     toConsole(stdErr);
 }
 
-void QsSpinQueueHandler::sendVerificationResult(QFileInfo file, VerificationResultFileChanged::Status status){
+void QsSpinQueueHandler::sendVerificationResult(QFileInfo file, VerificationResultFile::Status status){
     msgService()->publish(
-                VerificationResultFileChanged(file
+                VerificationResultFile(file
                                               ,status)
                 );
 }

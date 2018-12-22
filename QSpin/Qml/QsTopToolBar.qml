@@ -10,6 +10,7 @@ ToolBar{
 	property bool isProjectOpen: false
 	readonly property alias undoButton: btnUndoId
 	readonly property alias redoButton: btnRedoId
+	readonly property alias saveButton: saveProjectId
 	readonly property alias isVerifyTabSelected: verifyTabId.checked
 	readonly property alias isVerifyResultTabSelected:verifyResultTabId.checked
 	readonly property alias isSimulationTabSelected: simulationTabId.checked

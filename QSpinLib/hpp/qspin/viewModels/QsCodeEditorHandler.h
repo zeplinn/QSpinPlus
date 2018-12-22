@@ -22,37 +22,42 @@ class QsCodeEditorHandler : public QObject
 		QQuickTextDocument* _textDocument; // only safe if used with CodeEditor.qml
 		Q_PROPERTY(QSyntaxHighlighter* syntaxHighlighter READ syntaxHighlighter WRITE setSyntaxHighlighter NOTIFY syntaxHighlighterChanged)
 		QSyntaxHighlighter *_highlighter;
-		Q_PROPERTY(QUrl fileUrl READ fileUrl WRITE setFileUrl NOTIFY fileUrlChanged)
-		QUrl _fileUrl;
+        Q_PROPERTY(QString fileUrl READ fileUrl NOTIFY fileUrlChanged)
+        QString _fileUrl;
+        Q_PROPERTY(bool modified READ modified NOTIFY modifiedChanged)
+        bool _modified;
 
-		Q_PROPERTY(bool canUndo READ canUndo NOTIFY canUndoChanged)
-		Q_PROPERTY(bool canRedo READ canRedo NOTIFY canRedoChanged)
-		bool _canUndo, _canRedo;
+//		Q_PROPERTY(bool canUndo READ canUndo NOTIFY canUndoChanged)
+//		Q_PROPERTY(bool canRedo READ canRedo NOTIFY canRedoChanged)
+//		bool _canUndo, _canRedo;
 	public: //properties
 		QQuickTextDocument* textDocument()const;
 		void setTextDocument(QQuickTextDocument* value);
 
-		QUrl fileUrl()const;
-		void setFileUrl(QUrl value);
+        QString fileUrl()const;
+        void setFileUrl(QString value);
 		QSyntaxHighlighter* syntaxHighlighter()const;
 		void setSyntaxHighlighter(QSyntaxHighlighter* value);
-		bool canUndo()const{ return _canUndo;}
-		bool canRedo()const{ return _canRedo;}
+//		bool canUndo()const{ return _canUndo;}
+//		bool canRedo()const{ return _canRedo;}
+        bool modified()const;
 	private slots: // properties
-		void setCanUndo(bool value){
-			_canUndo = value;
-			emit canUndoChanged();
-		}
-		void setCanRedo(bool value){
-			_canRedo = value;
-			emit canRedoChanged();
-		}
+        void setModified(bool value);
+//		void setCanUndo(bool value){
+//			_canUndo = value;
+//			emit canUndoChanged();
+//		}
+//		void setCanRedo(bool value){
+//			_canRedo = value;
+//			emit canRedoChanged();
+//		}
 	signals:// properties
 		void textDocumentChanged();
 		void fileUrlChanged();
 		void syntaxHighlighterChanged();
-		void canUndoChanged();
-		void canRedoChanged();
+//		void canUndoChanged();
+//		void canRedoChanged();
+        void modifiedChanged();
 	public:
 		explicit QsCodeEditorHandler(QObject *parent = nullptr);
 		static void registerAsQml();
@@ -63,7 +68,7 @@ class QsCodeEditorHandler : public QObject
 	public slots:
         void setText(QString text);
         void clearText();
-		void saveAs(const QUrl fileUrl);
+		void saveAs(const QString &fileUrl);
         void open(const QUrl fileUrl);
 		void redo(){
 			document()->redo();

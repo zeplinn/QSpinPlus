@@ -4,13 +4,16 @@ void QsPromelaHandler::saveDocument(QUrl fileUrl){
     if(_project == nullptr){
         qFatal("current project is a null pointer");
     }
-    QFileInfo info(fileUrl.toLocalFile());
+    QFileInfo info;
+    if(fileUrl.isEmpty())   info = _project->pmlInfo();
+    else                    info =QFileInfo(fileUrl.toLocalFile());
+
     QString name = info.baseName();
     if( !qs().isValidFileName(name)){
         emit inValidPromelaFile(info.absoluteFilePath());
         return;
     }
-    editor()->saveAs(fileUrl);
+    editor()->saveAs(info.absoluteFilePath());
     _project->save(info);
 
     msgService()->publish(ProjectSaved(_project));
@@ -82,14 +85,14 @@ void QsPromelaHandler::closeDocument(QUrl fileUrl){
     }
 }
 
-void QsPromelaHandler::saveExistingDocument(){
-    saveDocument(_project->pmlInfo().absoluteFilePath());
-}
+//void QsPromelaHandler::saveExistingDocument(){
+//    saveDocument(_project->pmlInfo().absoluteFilePath());
+//}
 
-void QsPromelaHandler::closeExistingDocumet(){
-    if(_project!=nullptr)
-        closeDocument(_project->pmlInfo().absoluteFilePath());
-}
+//void QsPromelaHandler::closeExistingDocumet(){
+//    if(_project!=nullptr)
+//        closeDocument(_project->pmlInfo().absoluteFilePath());
+//}
 
 QsCodeEditorHandler*QsPromelaHandler::editor() const { return  _editor;}
 

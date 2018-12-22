@@ -21,7 +21,7 @@ class QsVerifyResultHandler
         , public ISubscriber<ProjectOpened>
         , public ISubscriber<ProjectSaved>
         , public ISubscriber<ProjectClosed>
-        , public ISubscriber<VerificationResultFileChanged>
+        , public ISubscriber<VerificationResultFile>
 {
     Q_OBJECT
 
@@ -37,6 +37,7 @@ class QsVerifyResultHandler
     Q_PROPERTY(QString gccCommands READ gccCommands NOTIFY currentItemChanged)
     Q_PROPERTY(QString panCommands READ panCommands NOTIFY currentItemChanged)
     Q_PROPERTY(QString unreached READ unreached NOTIFY currentItemChanged)
+    Q_PROPERTY(QString ltlDocument READ unreached NOTIFY currentItemChanged)
 
 
 
@@ -60,7 +61,7 @@ public:// result properies only
     QString spinCommands()const;
     QString gccCommands()const;
     QString panCommands()const;
-
+    QString ltlDocument()const;
     QString unreached()const;
 signals:
     void selectedResultsChanged();
@@ -78,7 +79,7 @@ public: // ISubscriber interface
     void subscriber(const ProjectOpened& event)override;
     void subscriber(const ProjectSaved& event)override;
     void subscriber(const ProjectClosed& event)override;
-    void subscriber(const VerificationResultFileChanged& event)override;
+    void subscriber(const VerificationResultFile& event)override;
 public slots:
     // note that removeal is controlled soly by file updated
     // which is called when file on disk changes
